@@ -1,0 +1,52 @@
+[project]
+name="resolve"
+description="Energy system capacity expansion model."
+version="0.6.0"
+authors=[
+    { name = "Energy and Environmental Economics, Inc." }
+]
+requires-python = ">=3.9,<3.11"
+dependencies = [
+]
+
+[project.optional-dependencies]
+extras = []
+dev = [
+    "autodoc_pydantic==1.8.0",
+    "commitizen==3.2.2",
+    "darker==1.6.1",
+    "furo==2022.12.7",
+    "graphviz==0.20.1",
+    "myst-parser==0.18.1",
+    "pre-commit==3.0.2",
+    "pytest==7.2.1",
+    "pytest-sugar==0.9.6",
+    "sphinx==5.3.0",
+    "sphinx-copybutton==0.5.1",
+    "sphinx-design==0.3.0",
+]
+
+ml = [
+    "tensorflow",
+]
+
+climate = [
+    "cdsapi",
+    "cfgrib",
+    "multiprocess",
+    "pvlib-python"
+]
+
+[tool.setuptools]
+packages = ["resolve"]
+
+[tool.black]
+line_length = 120
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_type = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
+major_version_zero = true
