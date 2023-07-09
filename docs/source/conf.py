@@ -50,9 +50,9 @@ templates_path = ["_templates"]
 # autodoc_member_order = "bysource"
 # autodoc_pydantic_model_member_order = "bysource"
 
-autodoc_pydantic_model_show_json = False
-autodoc_pydantic_model_show_config_summary = False
-autodoc_pydantic_model_show_config_member = False
+# autodoc_pydantic_model_show_json = False
+# autodoc_pydantic_model_show_config_summary = False
+# autodoc_pydantic_model_show_config_member = False
 
 # -- Options for HTML output -------------------------------------------------
 
