@@ -2,7 +2,21 @@
 
 ## Session 1. Portfolio Planning Best Practices & `Resolve` Overview
 
+### Timeseries Clustering
+
 ## Session 2. Understanding `Resolve` Modeling Components
+
+### `NMT` Foundations
+
+### Building a `System`
+
+#### Zonal Topology
+
+#### Loads
+
+#### Resources
+
+#### Policies
 
 ### Homework 1
 
