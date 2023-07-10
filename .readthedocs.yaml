@@ -4,6 +4,10 @@ build:
   os: "ubuntu-20.04"
   tools:
     python: "mambaforge-4.10"
-
+  jobs:
+    post_install:
+      - mamba env update -f environment-dev.yml
+      - pip install "new-modeling-toolkit @ git+https://${GH_PAT}@github.com/e3-/new-modeling-toolkit.git@0.4.2"
+      - pip install -r requirements-rtd.txt
 conda:
   environment: environment-dev.yml
