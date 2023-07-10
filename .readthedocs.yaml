@@ -6,7 +6,6 @@ build:
     python: "mambaforge-4.10"
   jobs:
     post_install:
-      - mamba env update -f environment-rtd.yml
       - pip install "new-modeling-toolkit @ git+https://${GH_PAT}@github.com/e3-/new-modeling-toolkit.git@main"
       - pip install -r requirements-rtd.txt
 conda:
