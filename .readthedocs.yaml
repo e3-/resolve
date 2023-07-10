@@ -10,4 +10,4 @@ build:
       - pip install "new-modeling-toolkit @ git+https://${GH_PAT}@github.com/e3-/new-modeling-toolkit.git@main"
       - pip install -r requirements-rtd.txt
 conda:
-  environment: environment-dev.yml
+  environment: environment-rtd.yml
