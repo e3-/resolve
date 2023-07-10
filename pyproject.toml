@@ -7,6 +7,7 @@ authors=[
 ]
 requires-python = ">=3.9,<3.11"
 dependencies = [
+    "new-modeling-toolkit @ git+https://github.com/e3-/new-modeling-toolkit.git@main",
 ]
 
 [project.optional-dependencies]
