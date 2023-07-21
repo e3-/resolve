@@ -1,9 +1,20 @@
 (getting_started)=
 # Getting Started
 
+We want you to feel like a developer: empowered to both understand how `Resolve` works under the hood and contribute 
+changes, bug fixes, and new functionality to support the growing `Resolve` and `new-modeling-toolkit` ecosystem.
+
 ## 1. Clone the Repository
 
-Use `git` to clone this repository or download a zip file version using the green "Clone or download" button at the top right of the repository homepage.
+Clone the [`new-modeling-toolkit`](https://github.com/e3-/new-modeling-toolkit) repository. 
+In general, we recommend most users use one of the following applications, though advanced users may feel comfortable
+using `git` commands directly, 
+
+### Cloning via GitHub Desktop
+
+### Cloning via Pycharm
+
+### Cloning via Visual Studio Code
 
 (setting-up-conda)=
 ## 2. Setting Up a `conda` Environment
