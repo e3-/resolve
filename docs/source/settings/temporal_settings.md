@@ -39,5 +39,5 @@ estimate of the original full-fidelity (i.e., 8760 hour/year) timeseries, as sho
 #### Mapping of Clustered Days to Original Days
 
 ```{raw} html
-  :file: ../_images/clustering_results.html
+  :file: ../_images/rep-periods.html
 ```
