@@ -1,11 +1,12 @@
+(getting_started)=
 # Getting Started
 
-### 1. Clone the Repository
+## 1. Clone the Repository
 
 Use `git` to clone this repository or download a zip file version using the green "Clone or download" button at the top right of the repository homepage.
 
 (setting-up-conda)=
-### 2. Setting Up a `conda` Environment
+## 2. Setting Up a `conda` Environment
 
 We recommend using the [Anaconda](https://www.continuum.io/downloads) Python distribution and package manager. 
 You can also use [Miniconda](https://docs.conda.io/en/latest/miniconda.html), which is a smaller version that only includes `conda` not all the default packages. 
@@ -58,33 +59,22 @@ If updating the environment is taking an unusually long time, it can sometimes b
 and then set up the environment fresh.
 ```
 
-(configure-xlwings)=
-### Configuring `xlwings`
+(configure-xlwings-macos)=
+### Configuring `xlwings` on macOS
 
-In initial testing, once the `xlwings` package has been added to the `new-modeling-toolkit` environment, there is 
-relatively little additional setup. To complete setup, users should go to the `xlwings.conf` tab in the Scenario Tool, then:
+Users using the spreadsheet tools on macOS need to do one more step the first time they set up the `new-modeling-toolkit` 
+environment (due to how macOS deals with permissions):
+1. Open Terminal
+2. Activate the `new-modeling-toolkit` environment
+3. Run the command `xlwings runpython install`
+4. You should see a prompt from macOS asking you for permission for Terminal to automate Excel. Allow this.
 
-- **For Windows:** Users will need to set the `Conda Path` (you can use the `where conda` command in Command Prompt to get this path) 
-and `Conda Env` (`new-modeling-toolkit`). 
-  - If you get an error that says "You `conda` version seems too old...", fill in the `Interpreter_Win` 
-  cell. You can find the the correct interpreter by activating the `new-modeling-toolkit` environment, then using the 
-  `where python` command in Command Prompt. The path should look something like `C:\Users\[username]\Anaconda3\envs\new-modeling-toolkit\python.exe`.
-- **For macOS:** Users will need to set the `Interpreter_Mac`, which is similar to `Conda Path` but the path to the Python 
-executable within the corresponding conda environment. You can find the the correct interpreter by activating the 
-`new-modeling-toolkit` environment, then using the `which python` command in Terminal; 
-this should give you a path that looks something like `/Users/[username]/.../anaconda3/envs/new-modeling-toolkit/bin/python` 
-  - Users will also be prompted the first time they try to run any of the `xlwings`-based buttons in the Scenario Tool 
-  to allow xlwings to control your system. You must allow control for xlwings to be able to read/write from the Scenario Tool.
-
-```{note}
-The team is evaluating other setup processes that hopefully will streamline this in the future. 
-```
+That's it!
 
 
+## 4. Installing Solvers
 
-### 4. Installing Solvers (optional)
-
-#### CBC
+### CBC
 [CBC](https://github.com/coin-or/Cbc) is a free, open-source solver. 
 A Windows executable is included in the `./solvers` subdirectory to allow users to run a test case out-of-the box. 
 
@@ -96,30 +86,7 @@ conda install -c conda-forge coincbc
 ```
 2. Select the corresponding CBC from the AMPL open-source solver download page ([link](https://ampl.com/products/solvers/open-source/)).
 
-#### Commercial Solvers
+### Commercial Solvers
 
 Thanks to the underlying Pyomo package, commercial LP/MIP solvers like [Gurobi](https://www.gurobi.com/), IBM CPLEX, and FICO XPRESS are all supported. 
 These commercial solvers are subject to additional costs and licensing for the user. Follow the vendor installation & licensing instructions. 
-
----
-
-:::{eval-rst}
-.. raw:: html
-
-    <div class="giscus-container">
-        <script src="https://giscus.app/client.js"
-            data-repo="e3-/new-modeling-toolkit"
-            data-repo-id="MDEwOlJlcG9zaXRvcnkzMjkxMzIyNzQ="
-            data-category="Documentation"
-            data-category-id="DIC_kwDOE54o8s4CWsWE"
-            data-mapping="pathname"
-            data-strict="0"
-            data-reactions-enabled="1"
-            data-emit-metadata="0"
-            data-input-position="bottom"
-            data-theme="preferred_color_scheme"
-            data-lang="en"
-            crossorigin="anonymous"
-            async>
-        </script>
-    </div>

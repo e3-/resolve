@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("../../resolve"))
 # -- Project information -----------------------------------------------------
 
 project = "Resolve"
-copyright = "2021, Energy & Environmental Economics, Inc."
+copyright = "2023, Energy & Environmental Economics, Inc."
 author = "Energy & Environmental Economics, Inc."
 
 
@@ -40,7 +40,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+templates_path = ["../_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

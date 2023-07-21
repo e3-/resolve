@@ -1,12 +1,13 @@
-# Inputs Scenario Tool
+(inputs)=
+# Setting Up a `Resolve` Case
 
-RESOLVE's Scenario Tool is designed to provide users with an Excel-based interface to:
-1. View & modify input data for the `System` being modeled
-2. Set up RESOLVE cases, which are defined as a combination of:
+A `Resolve` case is made up of two primary parts:
+1. A `System` instance, defining the combination of `components` (loads, resources, etc.)
+2. `Resolve` case settings:
+   - Input data scenarios
+   - Financial settings
    - Temporal settings
    - Custom constraints
-   - Input data scenarios
-   - "Extra" formulation features
 
 ---
 
@@ -154,32 +155,6 @@ For now, users must follow the pattern of `solver.[solver name].[solver option].
 For example, users wanting to set Gurobi's [`Method` setting](https://www.gurobi.com/documentation/9.5/refman/method.html) 
 would need to enter `solver.gurobi.Method.int` and the corresponding value. 
 
-#### Extras
-
-##### 2021 CPUC IRP PSP Extras
-
-
-###### IRP Hydro Budgets
-
-For the CPUC IRP case, hydro operational parameters are unique in that they are sampled from 2008, 2009, and 2011 hydro years. 
-This means that the implementation of the data in the current version of the Scenario Tool on the `Extras - Hydro` tab is specifically 
-tailored to the 37 representative days from previous versions of RESOLVE. Hydro operational parameters provide monthly 
-Pmin, Pmax and energy budgets to be assigned to the representative days. 
-
-```{warning}
-The hydro operational parameters on the `Extras - Hydro` tab are specific to the original 37 representative days from the 
-CPUC IRP. At this time, hydro data is not included in the Box folder but the team hopes to push an update in the coming 
-weeks to make parametrizing hydro operations easier.
-```
-
-###### Local Capacity Optimization Extras
-
-TBD
-
-##### HECO Energy Reserve Margin Extras
-
-TBD
-
 #### Custom Constraints
 
 Currently, the Scenario Tool is set up to allow users to specify any kind of **annual** constraint, though the underlying 
@@ -190,17 +165,19 @@ to define the "left-hand side" of the constraints, then define the corresponding
 At this time, users will need to manually search {py:obj}`new_modeling_toolkit.resolve.model_formulation.ResolveCase` for the 
 applicable Pyomo `Var` and `Expression` components.
 
-##### CAISO Deliverability Constraints
+## Comparing Cases & Systems
 
-The primary use of custom constraints in the CPUC IRP case is to capture transmission deliverability upgrade costs associated 
-with resource builds (particularly renewables & storage). 
+### Comparing Cases
 
-```{warning}
-While the data for the deliverability constraint upgrades are included in the Scenario Tool, users running the case will find that 
-the Resolve version of the case does not replicate the upgrade decisions found in the CPUC IRP Preferred System Plan. 
-The project team will provide an update on the data in the coming weeks to hopefully resolve this issue.  
-```
+### Comparing Systems
 
+The fundamental design decision was that the `Resolve` data folder should be thought of as a pseudo-database, 
+shared across various cases. This does come with the tradeoff that—without careful planning—you can overwrite data in your pseudo-database. 
+
+1. Save different `data` folders and compare the `[data folder]/interim` subfolders (using some text copmarison tool like `Kdiff`)
+   - From the Scenario Tool, you can save your data to different folders. This specified on the `Cover & Configuration` tab
+2. Compare `System` instance JSONs (also using some text copmarison tool like `Kdiff`)
+3. Use `xltrail` to compare Scenario Tools
 ---
 
 :::{eval-rst}

@@ -1,3 +1,5 @@
+# Example Cases
+
 ```{toctree}
 :hidden:
 

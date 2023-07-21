@@ -44,18 +44,3 @@ the `test` system is composed of:
 | Policy        | CO2                |
 | ELCCSurface   | solar_wind         |
 | TXPath        | TxPath             |
-
-
-## 2021 CPUC IRP Preferred System Plan Case
-
-```{note}
-This section is under construction. 
-
-Previously, a Jupyter notebook was supplied in the `./notebooks` directory that would reformat old RESOLVE input folders 
-into the Resolve format. This notebook is under re-construction, and the recommended path for getting CPUC IRP PSP 
-data is by using the newly-supplied  Scenario Tool.
-
-Please see the [RESOLVE Scenario Tool page](../resolve/scenario_tool.md) for how create a more complete set of CPUC IRP 
-Preferred System Plan case data. 
-```
-

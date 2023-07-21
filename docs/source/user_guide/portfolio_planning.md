@@ -1,30 +1,28 @@
-# The E3 Approach
+(portfolio_planning)=
+# Portfolio Planning Fundamentals
 
 ## Key Objectives
 
-::::{card-carousel} 2
-
-:::{card} Cost-Effectiveness
+:::{dropdown} Cost-Effectiveness
 - What impact will plan have on customer costs?
 - Does plan expose customers to excessive levels of risk?
 :::
-:::{card} Reliability & Resource Adequacy
+:::{dropdown} Reliability & Resource Adequacy
 - Does plan meet defined reliability standard (e.g., “1 day in 10 years”)?
 - Does portfolio have sufficient operational flexibility?
 :::
-:::{card} Environmental Policy
+:::{dropdown} Environmental Policy
 - Does plan comply with additional regulatory requirements (e.g., energy efficiency standards, RPS targets)?
 - What is the carbon footprint of electricity portfolio?
 - How does plan impact criteria pollutants?
 - How much water use is associated with generation?
 :::
-:::{card} _Emerging: Risk Analysis_
+:::{dropdown} _Emerging: Risk Analysis_
 :::
-:::{card} _Emerging: Environmental Justice & Equity_
+:::{dropdown} _Emerging: Environmental Justice & Equity_
 :::
-:::{card} _Emerging: Resilience & Climate Impacts_
+:::{dropdown} _Emerging: Resilience & Climate Impacts_
 :::
-::::
 
 ## Best Practices
 

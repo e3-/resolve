@@ -1,4 +1,7 @@
-# Results Viewers
+(results)=
+# Viewing Results
+
+## Report Folder Structure
 
 ## Spreadsheet Results Viewer
 
@@ -118,6 +121,8 @@ Under construction
 The long-run goal of Resolve-based models is to leverage the object-oriented underpinnings to enable more 
 consistent & flexible results reporting. At this time, results can be retrieved by a savvy user from the `ResolveCase` 
 and `System` instances; however, the public API for doing so is a work in progress.
+
+## Comparing Results
 
 ---
 
