@@ -37,7 +37,7 @@ To create the `conda` environment, we will use the [`environment.yml`](https://g
 Use the following command to create the `conda` environment
 
 ```
-conda env update -f environment.yml
+conda env update --[project environment name] -f environment.yml
 ```
 
 ```{note}
@@ -62,7 +62,7 @@ As `xlwings` is a new dependency, please make sure to update your `new-modeling-
 following command from the top-level directory (see {ref}`setting-up-conda` for a refresher on `conda`):
 
 ```
-conda env update -f environment.yml
+conda env update --[project environment name] -f environment.yml
 ```
 
 ```{hint}
