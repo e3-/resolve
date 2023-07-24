@@ -10,9 +10,11 @@ Clone the [`new-modeling-toolkit`](https://github.com/e3-/new-modeling-toolkit) 
 In general, we recommend most users use one of the following applications, though advanced users may feel comfortable
 using `git` commands directly, 
 
-### Cloning via GitHub Desktop
+For now, we'll want to `checkout` the `resolve/2023-training` branch.
 
-### Cloning via Pycharm
+- Cloning via GitHub Desktop: 
+- Cloning via PyCharm:
+  - Sign into GitHub in PyCharm
 
 ### Cloning via Visual Studio Code
 

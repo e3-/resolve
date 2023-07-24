@@ -21,7 +21,7 @@ can be thought of as creating the conceptual "database" (in lieu of an actual da
 components & linkages that will constitute the system of study.
 3. **RESOLVE case settings**: These are the specific case configuration options, such as modeled years & which scenario inputs to include.
 
-```{image} ../../_images/scenario-tool-steps.png
+```{image} ../_images/scenario-tool-steps.png
 :alt: Screenshot of three "steps" of RESOLVE model setup, consisting of (1) defining component & linkage attributes, (2) defining a system, and (3) RESOLVE case settings. 
 :width: 80%
 :align: center
@@ -59,7 +59,7 @@ On most of the component & linkage attributes tabs, you will find a `Scenario` c
 a component can have **multiple** line entries in the corresponding data table as long as each line is tagged with a different scenario 
 tag, as shown in the below screenshot. 
 
-```{image} ../../_images/resource-scenario-tags.png
+```{image} ../_images/resource-scenario-tags.png
 :alt: Screenshot from Scenario Tool showing multiple scenario tags for the same resource.
 :align: center
 ```
@@ -115,7 +115,7 @@ data tagged with the `base` tag will the lowest priority, since it is the first 
 subsequent scenario tags (e.g., `2021_PSP_22_23_TPP_ITC_ext`), to the extent that there is data that is tagged with the higher 
 priority scenario tag, that higher priority data will override any `base`-tagged data.
 
-```{image} ../../_images/scenario-settings.png
+```{image} ../_images/scenario-settings.png
 :alt: Screenshot of user dropdown inputs to specify scenarios to be read in RESOLVE case.
 :width: 60%
 :align: center

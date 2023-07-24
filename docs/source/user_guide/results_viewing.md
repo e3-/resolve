@@ -27,7 +27,7 @@ the "Selected Cases to View" dropdown cell.
 2. **Load Summary Results:** Loads the selected case to be displayed in the Results Viewer.
 3. **Copy Snapshot of Current Dashboard:** Saves a copy of the `Dashboard` tab with the current time as a 
 timestamp.
-```{image} ../../_images/results-viewer-buttons.png
+```{image} ../_images/results-viewer-buttons.png
 :alt: Screenshot of Results Viewer control buttons.
 :width: 60%
 :align: center
@@ -35,7 +35,7 @@ timestamp.
 
 Once the Results Viewer loads in the CSV results files, the tables on the `Dashboard` tab should be updated. 
 An example of the summary charts is shown below:
-```{image} ../../_images/results-viewer-total-build.png
+```{image} ../_images/results-viewer-total-build.png
 :alt: Example of Total Resource Build chart from Results Viewer.
 :width: 60%
 :align: center
@@ -84,7 +84,7 @@ Reported results include:
 ### Configuring Results Reporting Groups
 
 Results can be grouped in different ways by updating the tables on the `Results Grouping` tab, as shown in the screenshot below. 
-![](../../_images/results-viewer-groupings.png)
+![](../_images/results-viewer-groupings.png)
 
 **Zones to aggregate.** For the most part, formulas should be able to sum over multiple modeled zones. By default 
 in the CPUC IRP case, the two zones to aggregate are `CAISO` and `CAISO_NW_Hydro`, but users should be able to toggle `SW`, 
