@@ -8,15 +8,62 @@ changes, bug fixes, and new functionality to support the growing `Resolve` and `
 
 Clone the [`new-modeling-toolkit`](https://github.com/e3-/new-modeling-toolkit) repository. 
 In general, we recommend most users use one of the following applications, though advanced users may feel comfortable
-using `git` commands directly, 
+using `git` commands directly. 
+
+```{warning}
+You will need to create a GitHub account and be added as a member of the E3 organization before you can clone the 
+repository.
+```
 
 For now, we'll want to `checkout` the `resolve/2023-training` branch.
 
-- Cloning via GitHub Desktop: 
-- Cloning via PyCharm:
-  - Sign into GitHub in PyCharm
+### Clone via Pycharm
 
-### Cloning via Visual Studio Code
+If you use Pycharm as your IDE, the easiest way to clone the repository is to do so through Pycharm directly. Go to 
+"Git" --> "Clone..." and a pop-up window should open. Select "GitHub" on the left-hand side of this window and you 
+should see a button to login to GitHub. This should take you to your browser, where you will be prompted to login to 
+your GitHub account. This should link your GitHub account to Pycharm permanently. 
+
+Once you are done, return to Pycharm and you should see the window populate with a list of 
+available repositories. Select "e3-/new-modeling-toolkit" and specify the path where you want the repository to live
+on your computer. 
+
+### Clone via GitHub Desktop
+
+If you have GitHub Desktop installed, follow the instructions [here](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/adding-and-cloning-repositories/cloning-a-repository-from-github-to-github-desktop)
+to clone the repository. 
+
+### Clone via git CLI
+
+To clone via the git CLI, open the GitHub page for the `new-modeling-toolkit` repository in your broswer. Click the 
+green "Code" button and copy the HTTP link to your clipboard. 
+
+```{warning}
+You will need to create a Personal Access Token (PAT) in GitHub in order to clone a repository using the git CLI. Follow 
+the instructions [here](https://docs.github.com/en/enterprise-server@3.6/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
+to create a PAT.   
+```
+
+```{image} ../_images/github-clone.png
+:alt: Screenshot of GitHub "Clone" button.
+:width: 60%
+:align: center
+```
+
+Once you have the link copied, open your command line shell of choice (Command Prompt or PowerShell on Windows, Terminal 
+on Mac) and navigate to the folder in which you want to clone the repository. Then run the following command:
+
+```commandline
+git clone paste-the-repository-link-here
+```
+
+When prompted, enter the email address associated with your GitHub account as the username and your Personal Access 
+Token as the password. 
+
+```{warning}
+If you are on a Windows computer, you will need to install [Git for Windows](https://gitforwindows.org/) before you can
+use the git CLI. 
+```
 
 (setting-up-conda)=
 ## 2. Setting Up a `conda` Environment

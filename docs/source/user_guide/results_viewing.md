@@ -124,8 +124,6 @@ and `System` instances; however, the public API for doing so is a work in progre
 
 ## Comparing Results
 
----
-
 :::{eval-rst}
 .. raw:: html
 

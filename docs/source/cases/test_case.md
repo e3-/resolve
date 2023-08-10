@@ -5,7 +5,7 @@ The Resolve repository includes two sets of test case data to start with.
 ## Minimal Test Case
 
 The Resolve repository includes a minimal test case that should run out-of-the-box by running the `run_opt.py` 
-script with the `--data-folder data-test` command line argument (see [Quick Start](../getting_started/index.md)).
+script with the `--data-folder data-test` command line argument (see [Running Resolve](../user_guide/running_resolve.md)).
 
 The `test` case settings can be found [here](https://github.com/e3-/new-modeling-toolkit/tree/main/data/settings/resolve/test), 
 and the `test` system components & linkages can be found  [here](https://github.com/e3-/new-modeling-toolkit/tree/main/data/interim/systems/test)
