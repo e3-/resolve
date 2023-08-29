@@ -70,8 +70,8 @@ use the git CLI.
 
 We recommend using the [Anaconda](https://www.continuum.io/downloads) Python distribution and package manager. 
 You can also use [Miniconda](https://docs.conda.io/en/latest/miniconda.html), which is a smaller version that only includes `conda` not all the default packages. 
-During the installation process, we recommend selecting the "Add Anaconda2 to my PATH environment variable" option
-so that we have easy access to the `conda` command from the command line.
+During the installation process, we recommend selecting the "Add Anaconda3 to my PATH environment variable" option
+so that you have easy access to the `conda` command from the command line.
 
 ```{note}
 If you run into any `conda not recognized` or `command not found: conda` messages in the command line in the following steps,
@@ -79,25 +79,59 @@ this means that you **did not** add Anaconda to your PATH. You can add either re
 add Anaconda to your PATH (see [these instructions](https://www.geeksforgeeks.org/how-to-setup-anaconda-path-to-environment-variable/) for some help).
 ```
 
+In order for `conda` to work properly, you can either use the "Anaconda Prompt" application that comes packaged with 
+your installation, or you will need to initialize your shell of choice for use. If you use Command Prompt, open a new 
+Command Prompt window and enter:
+
+```commandline
+conda init cmd.exe
+```
+
+If you use Powershell, open a new Powershell window and enter:
+
+```commandline
+conda init powershell
+ ```
+ 
+Then, close all Powershell windows, and open a new Powershell window using the "Run as 
+Administrator" option. Then, enter the following command: 
+ 
+```commandline
+Set-ExecutionPolicy Unrestricted
+```
+
+Then, close the Powershell window and open a new one. 
+
 We will use the `conda` command to create an isolated environment for the Resolve to run within, without 
 disturbing any other Python packages you may have already installed (see the [`conda` documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) for more details on conda environments).
 
-To create the `conda` environment, we will use the [`environment.yml`](https://github.com/e3-/new-modeling-toolkit/blob/main/environment.yml) file at the top level of the repository. 
-Use the following command to create the `conda` environment
+To create the `conda` environment, we will use the [`environment.yml`](https://github.com/e3-/new-modeling-toolkit/blob/main/environment.yml) 
+file at the top level of the repository. Open your shell of choice and navigate into your cloned copy of the repository.
+Then, run the following command:
+
+```commandline
+# Creates an environment called "new-modeling-toolkit"
+conda env create -f environment.yml
+
+# Or, if you want to give your environment a customized name, do the following:
+conda env create -f environment.yml -n desired-environment-name-goes-here 
+```
+
+To activate the environment, set it as the project default in your IDE or use the following command:
+```
+conda activate new-modeling-toolkit  # or whatever custom name you gave your environment 
+```
+
+If updates are made to the codebase which add new Python package dependencies to the model or change the required 
+versions of existing dependencies, you can update your environment with the following command from the same location:
 
 ```
-conda env update --[project environment name] -f environment.yml
+conda env update -n new-modeling-toolkit -f environment.yml  # Again, replace with custom name if necessary
 ```
 
 ```{note}
 Developers should use the `environment-dev.yml` file instead of `environment.yml`, which will install several additional 
 dependencies (e.g., `pytest`, `sphinx`). See the "Development Guide" section for more details.
-```
-
-
-To activate the environment, set it as the project default in your IDE or use the following command:
-```
-conda activate new-modeling-toolkit
 ```
 
 ---
@@ -108,11 +142,17 @@ Many of the `new-modeling-toolkit`'s user interfaces are Excel spreadsheets that
 Using `xlwings` means that the UI will now work with both Windows and macOS versions of Excel (with some minor differences in behavior). 
 
 As `xlwings` is a new dependency, please make sure to update your `new-modeling-toolkit` conda environment using the 
-following command from the top-level directory (see {ref}`setting-up-conda` for a refresher on `conda`):
+following command from the top-level directory (see {ref}`setting-up-conda` for a refresher on `conda`). If your 
+environment was created in Spring 2023 or later, you probably can skip this step. To see if xlwings is installed in your
+environment, you can run:
 
-```
-conda env update --[project environment name] -f environment.yml
-```
+```commandline
+ conda activate new-modeling-toolkit
+ conda list
+ ```
+
+And see if "xlwings" is in the outputted list of packages.
+
 
 ```{hint}
 If updating the environment is taking an unusually long time, it can sometimes be easier to [remove the environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#removing-an-environment) 
@@ -131,8 +171,12 @@ environment (due to how macOS deals with permissions):
 
 That's it!
 
-
 ## 4. Installing Solvers
+
+### Gurobi
+
+To install the Gurobi solver, follow the instructions in [this Powerpoint.](https://ethreesf.sharepoint.com/:p:/s/Models/EXFqRF-YLhZAi7DX4eOU37IBXgWnI7uKZy5TGFSMxUBRhw?e=We1bOv&nav=eyJzSWQiOjI2MSwiY0lkIjoyODY2NTk2OTM4fQ)
+**It is highly recommended that you install Gurobi, as it is substantially faster than CBC.**
 
 ### CBC
 [CBC](https://github.com/coin-or/Cbc) is a free, open-source solver. 

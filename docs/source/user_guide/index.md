@@ -4,6 +4,7 @@
 :hidden:
 
 getting_started
+cluster_setup
 portfolio_planning
 scenario_tool
 running_resolve
