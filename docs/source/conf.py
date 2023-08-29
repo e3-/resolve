@@ -60,7 +60,6 @@ templates_path = ["../_templates"]
 # a list of builtin themes.
 #
 html_theme = "furo"
-html_logo = "_images/e3-logo.svg"
 html_favicon = "_images/e3-logo.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -80,11 +79,15 @@ html_theme_options = {
         "color-brand-background": "#E2ECF0",  # The E3 light blue/grey background color
         "color-brand-dropdown": "white",
     },
+    "light_logo": "resolve-logo-light.svg",
     "dark_css_variables": {
         "color-brand-primary": "#C4AD73",
         "color-brand-background": "#212529",  # Same as sphinx-design --sd-color-dark
         "color-brand-dropdown": "#212529",  # Same as sphinx-design --sd-color-dark
     },
+    "dark_logo": "resolve-logo-dark.svg",
+    "sidebar_hide_name": True,
+    "top_of_page_button": "edit",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

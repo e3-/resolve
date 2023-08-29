@@ -6,6 +6,11 @@ contain the root `toctree` directive.
 -->
 # Resolve
 
+```{note}
+Resolve documentation is being migrated from the `new-modeling-toolkit`
+repo to this one, so some documentation may still be on the [`new-modeling-toolkit` repo (linked here)](https://e3-new-modeling-toolkit.readthedocs-hosted.com/en/latest/)
+```
+
 ```{toctree}
 :hidden:
 

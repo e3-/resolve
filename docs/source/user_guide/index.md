@@ -11,6 +11,7 @@ running_resolve
 results_viewing
 extending_resolve
 production_simulation
+resolve_recap
 modeling_loads
 modeling_resources
 modeling_policies
