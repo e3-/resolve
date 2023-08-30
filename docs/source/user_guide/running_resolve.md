@@ -105,8 +105,10 @@ submission using the **Run ID** that was printed when you submitted your runs by
 your root NMT directory:
 
 ```commandline
-aws s3 sync s3://e3x-your-project-name-data/runs/your-run-id/outputs/reports reports/
+aws s3 sync s3://e3x-your-project-name-data/runs/[your-run-id]/outputs/reports reports/
 
 # e.g., for CPUC IRP with Run ID jsmith20230815.1
-aws s3 sync s3://e3x-cpuc-irp-data/runs/jsmith20230815.1/outputs/reports reports 
+aws s3 sync s3://e3x-cpuc-irp-data/runs/jsmith20230815.1/outputs/reports/ reports/ 
 ```
+
+Note that the slashes at the end of the S3 URI (i.e., `s3://.../`) and the local folder path (i.e., `reports/`) are important!
