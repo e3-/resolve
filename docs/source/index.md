@@ -21,6 +21,17 @@ settings/index
 cases/index
 ```
 
+:::{toctree}
+:caption: Other kit Tools
+:hidden:
+
+kit <https://e3-new-modeling-toolkit.readthedocs-hosted.com/>
+be-toolkit
+Pathways
+Recap
+Resolve <https://e3-resolve.readthedocs-hosted.com/>
+:::
+
 Welcome to the new `Resolve` documentation! 
 
 RESOLVE is an electricity resource planning model that identifies optimal long-term electric generation and transmission 

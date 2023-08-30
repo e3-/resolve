@@ -102,6 +102,7 @@ suppress_warnings = ["myst.header"]
 
 myst_enable_extensions = [
     "amsmath",
+    # "attrs_inline",
     "dollarmath",
     "colon_fence",
 ]
