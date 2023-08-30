@@ -55,7 +55,7 @@ If you plan to submit jobs to the `ethree.cloud` Cluster, following the instruct
 
 For every computer that you use to submit jobs to the cluster, you will need to do this initial setup:
 
-1. Make sure you've installed the [`new-modeling-toolkit` conda environment](#setting-up-conda)
+1. Make sure you've installed the `new-modeling-toolkit` conda environment (see {ref}`setting-up-conda` for a refresher).
 2. Install the [`aws-cli`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [`kubectl`](https://kubernetes.io/docs/tasks/tools/) by following the instructions on the linked pages.
 3. Configure the `aws-cli` permissions by running these commands in Terminal, Command Prompt, PowerShell, etc.
    ```commandline
@@ -72,10 +72,17 @@ For every computer that you use to submit jobs to the cluster, you will need to 
    kubectl config set-context --current --namespace cpuc-irp
    kubectl get pods
    ```
-5. Set up your project using the command `nmt init cpuc-irp`. This will create a file called `.nmt.config.json` in your project folder. 
-   ```json
-   
+   This should return something like:
+   ```commandline
+   NAME                                                 READY   STATUS    RESTARTS      AGE
+   argo-workflows-server-5f96bf68cf-7fdfv               1/1     Running   0             14d
+   argo-workflows-workflow-controller-d6cf98c86-xl7cc   1/1     Running   1 (43h ago)   14d
    ```
+5. Set up your project using the command `nmt init cpuc-irp`. This will create a file called `.nmt.config.json` in 
+your project folder to configure the following command settings:
+   - **"data":** The name of the data folder to upload
+   - **"solver":** The name of the solver to use
+   - **"raw_results":** Whether you want to save raw Pyomo component results
 
 ```{warning}
 In this current pilot phase, we think that this step will only work with the project name `cpuc-irp`. We hope to expand to more projects soon.
