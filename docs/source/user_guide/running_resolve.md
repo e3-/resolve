@@ -50,6 +50,7 @@ Hint: If you're in your command line and unsure what arguments to pass to `run_o
 ## Running `Resolve` on `ethree.cloud` Cluster
 
 If you plan to submit jobs to the `ethree.cloud` Cluster, following the instructions below. 
+For now, these commands differ from the "local" instructions described above, so follow carefully.
 
 ### One-Time Initial Setup
 
@@ -66,7 +67,7 @@ For every computer that you use to submit jobs to the cluster, you will need to 
    aws configure set sso_role_name DataUserAccess
    aws eks update-kubeconfig --name e3x-enkap-main --alias e3x-enkap-main
    ```
-   - _**Note:** If you were granted a different AWS role (e.g. `PowerUserAccess`, `AdministratorAccess`), you can enter that in the last line (`sso_role_name`) instead of `DataUserAccess`.
+   - _**Note:** If you were granted a different AWS role (e.g. `PowerUserAccess`, `AdministratorAccess`), you can enter that in the last line (`sso_role_name`) instead of `DataUserAccess`._
 4. Configure `kubectl` and test your configuration using the following commands:
    ```commandline
    kubectl config set-context --current --namespace cpuc-irp
@@ -101,7 +102,19 @@ In this current pilot phase, we think that this step will only work with the pro
 2. Run the command: `nmt submit`. This will:
    - Upload the data folder specified in your `.nmt.config.json`
    - Submit all the cases that are listed in your `cases_to_run.csv` to be run
-3. Retrieve results using the `nmt download-outputs` command
+3. You can check the status of your runs in two ways:
+   - `Datadog`: Go to this URL from any device: https://app.datadoghq.com/logs?query=e3x.model%3Aresolve
+     ![Datadog interface](../_images/datadog.png)
+   - `Argo`: You'll need access to a computer with `kubectl` installed to see the Argo UI:
+     - Run this command:
+       ```commandline
+       kubectl port-forward -n cpuc-irp svc/argo-workflows-server 2746 
+       ```
+     - Go to this URL, which will open Argo's HTML interface, which will show you a list of active jobs & their progress as a tree: 
+       http://localhost:2746
+       ![Argo Workflow interface](../_images/argo.png)
+4. Once the cases are done, retrieve results using the `nmt download-outputs` command, which will bring 
+   the results back to your `reports/` folder.
 
 
 ### Cluster FAQs
