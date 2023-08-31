@@ -79,8 +79,9 @@ For every computer that you use to submit jobs to the cluster, you will need to 
    argo-workflows-server-5f96bf68cf-7fdfv               1/1     Running   0             14d
    argo-workflows-workflow-controller-d6cf98c86-xl7cc   1/1     Running   1 (43h ago)   14d
    ```
-5. Set up your project using the command `nmt init cpuc-irp`. This will create a file called `.nmt.config.json` in 
-your project folder to configure the following command settings:
+5. Activate the `new-modeling-toolkit` conda environment (see {ref}`setting-up-conda` for a refresher).
+6. From your `new-modeling-toolkit` project folder, set up your project using the command `nmt init cpuc-irp`. 
+   This will create a file called `.nmt.config.json` in your project folder to configure the following command settings:
    - **"data":** The name of the data folder to upload
    - **"solver":** The name of the solver to use
    - **"raw_results":** Whether you want to save raw Pyomo component results
