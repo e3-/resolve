@@ -6,6 +6,11 @@ contain the root `toctree` directive.
 -->
 # Resolve
 
+```{note}
+Resolve documentation is being migrated from the `new-modeling-toolkit`
+repo to this one, so some documentation may still be on the [`new-modeling-toolkit` repo (linked here)](https://e3-new-modeling-toolkit.readthedocs-hosted.com/en/latest/)
+```
+
 ```{toctree}
 :hidden:
 
@@ -15,6 +20,17 @@ system/index
 settings/index
 cases/index
 ```
+
+:::{toctree}
+:caption: Other kit Tools
+:hidden:
+
+kit <https://e3-new-modeling-toolkit.readthedocs-hosted.com/>
+be-toolkit
+Pathways
+Recap
+Resolve <https://e3-resolve.readthedocs-hosted.com/>
+:::
 
 Welcome to the new `Resolve` documentation! 
 
