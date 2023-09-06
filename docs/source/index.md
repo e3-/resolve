@@ -22,14 +22,14 @@ cases/index
 ```
 
 :::{toctree}
-:caption: Other kit Tools
+:caption: Related Links
 :hidden:
 
-kit <https://e3-new-modeling-toolkit.readthedocs-hosted.com/>
-be-toolkit
-Pathways
-Recap
-Resolve <https://e3-resolve.readthedocs-hosted.com/>
+E3 Homepage <https://www.ethree.com/>
+kit Docs <https://e3-new-modeling-toolkit.readthedocs-hosted.com/>
+be-toolkit Docs
+Pathways Docs
+Recap Docs
 :::
 
 Welcome to the new `Resolve` documentation! 
