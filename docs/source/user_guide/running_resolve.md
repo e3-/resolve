@@ -104,16 +104,27 @@ In this current pilot phase, we think that this step will only work with the pro
    - Upload the data folder specified in your `.nmt.config.json`
    - Submit all the cases that are listed in your `cases_to_run.csv` to be run
 3. You can check the status of your runs in two ways:
-   - `Datadog`: Go to this URL from any device: https://app.datadoghq.com/logs?query=e3x.model%3Aresolve
-     ![Datadog interface](../_images/datadog.png)
-   - `Argo`: You'll need access to a computer with `kubectl` installed to see the Argo UI:
-     - Run this command:
-       ```commandline
-       kubectl port-forward -n cpuc-irp svc/argo-workflows-server 2746 
-       ```
-     - Go to this URL, which will open Argo's HTML interface, which will show you a list of active jobs & their progress as a tree: 
-       http://localhost:2746
-       ![Argo Workflow interface](../_images/argo.png)
+
+    a.**`Datadog`:** Go to [this URL](https://app.datadoghq.com/logs?query=e3x.model%3Aresolve%20service%3Anmt) from any device:
+      - **Time range filter (top right corner):** If you don't see anything in the log, this may be because 
+        activity may be outside the selected time range.
+      - **Additional filters (left sidebar):**
+        - **Service:** Filter by `nmt`
+        - **Case:** Filter by `resolve` case name
+        - **Model:** Select `resolve`
+        - **Model Run:** Filter by run submission ID (which will be reported in the Command Prompt when you do `nmt submit`)
+        - **Owner:** Filter for jobs submitted by specific users
+
+        ![Datadog interface](../_images/datadog.png)
+
+    b. **`Argo`:** You'll need access to a computer with `kubectl` installed to see the Argo UI:
+
+      - Run this command:
+        ```commandline
+        kubectl port-forward -n cpuc-irp svc/argo-workflows-server 2746 
+        ```
+      - Go to [this URL](http://localhost:2746), which will open Argo's HTML interface, which will show you a list of active jobs & their progress as a tree:
+      ![Argo Workflow interface](../_images/argo.png)
 4. Once the cases are done, retrieve results using the `nmt download-outputs` command, which will bring 
    the results back to your `reports/` folder.
 
