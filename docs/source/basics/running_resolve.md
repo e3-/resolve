@@ -6,13 +6,13 @@
 If you plan to run `Resolve` on your laptop or an AWS EC2 instance, use the following instructions.
 
 1. In a command line, navigate into the `./new_modeling_toolkit/resolve` directory
-2. Activate the `new-modeling-toolkit` conda environment: `conda activate new-modeling-toolkit`
+2. Activate `kit` conda environment: `conda activate kit`
 3. Use the command `python run_opt.py` to run a case. The `run_opt.py` script accepts four arguments/options:
     ```
-     Usage: run_opt.py [OPTIONS] [RESOLVE_SETTINGS_NAME]                                    
+     Usage: run_opt.py [OPTIONS] [`Resolve`_SETTINGS_NAME]                                    
 
     ╭─ Arguments ──────────────────────────────────────────────────────────────────────────╮
-    │   resolve_settings_name      [RESOLVE_SETTINGS_NAME]  Name of a RESOLVE case (under  │
+    │   resolve_settings_name      [`Resolve`_SETTINGS_NAME]  Name of a `Resolve` case (under  │
     │                                                       ./data/settings/resolve). If   │
     │                                                       `None`, will run all cases     │
     │                                                       listed in                      │
@@ -31,7 +31,7 @@ If you plan to run `Resolve` on your laptop or an AWS EC2 instance, use the foll
     │                                                   Pyomo `tee=True` and               │
     │                                                   `symbolic_solver_labels` options.  │
     │                                                   [default: INFO]                    │
-    │ --extras                                    TEXT  Enables a RESOLVE 'extras' module, │
+    │ --extras                                    TEXT  Enables a `Resolve` 'extras' module, │
     │                                                   which contains project-specific    │
     │                                                   add-on constraints.                │
     │                                                   [default: None]                    │
@@ -56,8 +56,15 @@ For now, these commands differ from the "local" instructions described above, so
 
 For every computer that you use to submit jobs to the cluster, you will need to do this initial setup:
 
-1. Make sure you've installed the `new-modeling-toolkit` conda environment (see {ref}`setting-up-conda` for a refresher).
+1. Make sure you've installed `kit` conda environment (see {ref}`setting-up-conda` for a refresher).
 2. Install the [`aws-cli`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [`kubectl`](https://kubernetes.io/docs/tasks/tools/) by following the instructions on the linked pages.
+   - More detailed Windows instructions:
+      - Use these direct links to the [`aws-cli` installer](https://awscli.amazonaws.com/AWSCLIV2.msi) and the [`kubectl` executable](https://dl.k8s.io/release/v1.28.1/bin/windows/amd64/kubectl.exe)
+      - Follow the steps in the `aws-cli` installer
+      - Move the `kubectl` executable from your Downloads folder to a new folder called `C:/Users/[username]/kubectl`
+      - Add that new folder to your `PATH` environment variable (see [these instructions](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/) if you need a reminder on how to do that.)
+   - More detailed macOS instructions:
+     - Use these direct links to the [`aws-cli` installer](https://awscli.amazonaws.com/AWSCLIV2.pkg) and follow the instructions to install [`kubectl` using `curl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/#install-kubectl-on-macos)
 3. Configure the `aws-cli` permissions by running these commands in Terminal, Command Prompt, PowerShell, etc.
    ```commandline
    aws configure set region us-west-2
@@ -79,8 +86,8 @@ For every computer that you use to submit jobs to the cluster, you will need to 
    argo-workflows-server-5f96bf68cf-7fdfv               1/1     Running   0             14d
    argo-workflows-workflow-controller-d6cf98c86-xl7cc   1/1     Running   1 (43h ago)   14d
    ```
-5. Activate the `new-modeling-toolkit` conda environment (see {ref}`setting-up-conda` for a refresher).
-6. From your `new-modeling-toolkit` project folder, set up your project using the command `nmt init cpuc-irp`. 
+5. Activate `kit` conda environment (see {ref}`setting-up-conda` for a refresher).
+6. From your `kit` project folder, set up your project using the command `nmt init cpuc-irp`. 
    This will create a file called `.nmt.config.json` in your project folder to configure the following command settings:
    - **"data":** The name of the data folder to upload
    - **"solver":** The name of the solver to use

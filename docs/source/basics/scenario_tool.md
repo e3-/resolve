@@ -1,28 +1,15 @@
 (inputs)=
-# Setting Up a `Resolve` Case
-
-A `Resolve` case is made up of two primary parts:
-1. A `System` instance, defining the combination of `components` (loads, resources, etc.)
-2. `Resolve` case settings:
-   - Input data scenarios
-   - Financial settings
-   - Temporal settings
-   - Custom constraints
-
----
-
-## Using the Scenario Tool
-
+# Using the Scenario Tool
 Using the Scenario Tool can be thought of as three separate steps:
 
 1. **Defining component & linkage attributes**: This is synonymous with creating the attribute CSV files in `./data/interim` and 
 can be thought of as creating the conceptual "database" (in lieu of an actual database structure) of all the possible component & linkage options. 
 2. **Defining a system**: This is synonymous with creating the `./data/interim/system` instance folder, listing out all the 
 components & linkages that will constitute the system of study.
-3. **RESOLVE case settings**: These are the specific case configuration options, such as modeled years & which scenario inputs to include.
+3. **`Resolve` case settings**: These are the specific case configuration options, such as modeled years & which scenario inputs to include.
 
 ```{image} ../_images/scenario-tool-steps.png
-:alt: Screenshot of three "steps" of RESOLVE model setup, consisting of (1) defining component & linkage attributes, (2) defining a system, and (3) RESOLVE case settings. 
+:alt: Screenshot of three "steps" of `Resolve` model setup, consisting of (1) defining component & linkage attributes, (2) defining a system, and (3) `Resolve` case settings. 
 :width: 80%
 :align: center
 ```
@@ -31,13 +18,13 @@ components & linkages that will constitute the system of study.
 At this time, saving data out of the Scenario Tool may not work properly when there are row filters applied. 
 For now, users will need to remember to **clear or turn off any filters** on all sheets before saving data. 
 
-_Track progress on a resolution with issue [#545](https://github.com/e3-/new-modeling-toolkit/issues/545)._
+_Track progress on a resolution with issue [#545](https://github.com/e3-/kit/issues/545)._
 ```
 
 ```{note}
 Two major data structure changes from previous versions of the `main` Resolve code will affect 
 data management. 
-1. [#214](https://github.com/e3-/new-modeling-toolkit/issues/214) has been addressed, removing the extra 
+1. [#214](https://github.com/e3-/kit/issues/214) has been addressed, removing the extra 
 level of folders where all input CSVs were named `attributes.csv`. 
 2. Users can configure which `data` folder to point the 
 code to--this will be reflected in that the `test` case will be moved to a `data-test` folder, while "main" data from 
@@ -88,17 +75,17 @@ whether any components listed in the data tables is not included in the `System`
 It is then up to the user to determine whether that is intentional or not, as the `System` can include any subset of the 
 components & linkages defined with data.
 
-### 3. RESOLVE Case Settings
+### 3. `Resolve` Case Settings
 
-The RESOLVE Settings tab is where users specify how RESOLVE should run, as well as providing 
-a button that will run the code. The "Run RESOLVE Case" button will run the equivalent command:
+The `Resolve` Settings tab is where users specify how `Resolve` should run, as well as providing 
+a button that will run the code. The "Run `Resolve` Case" button will run the equivalent command:
 
 ```
 python run_opt.py --solver-name [solver name] --log-level INFO --extras cpuc_irp
 ```
 
 ```{warning}
-At this time, pressing teh "Run RESOLVE Case" button will run the model but will not show a Terminal/Command Prompt while the model is running.
+At this time, pressing teh "Run `Resolve` Case" button will run the model but will not show a Terminal/Command Prompt while the model is running.
 ```
 
 #### Settings
@@ -109,18 +96,18 @@ At this time, pressing teh "Run RESOLVE Case" button will run the model but will
 See {ref}`scenario_tags` for discussion about how to input scenario tagged data for components & linkages. 
 
 As discussed in {py:func}`new_modeling_toolkit.common.component.Component.from_csv`, input scenario tags are prioritized 
-based on the order of scenarios in the RESOLVE case. Scenarios listed toward the bottom of the scenario list are higher priority 
+based on the order of scenarios in the `Resolve` case. Scenarios listed toward the bottom of the scenario list are higher priority 
 and more likely to override other data if data is tagged with a "lower priority" scenario tag. In the screenshot below, for example, 
 data tagged with the `base` tag will the lowest priority, since it is the first tag in the scenario list. For any of the 
 subsequent scenario tags (e.g., `2021_PSP_22_23_TPP_ITC_ext`), to the extent that there is data that is tagged with the higher 
 priority scenario tag, that higher priority data will override any `base`-tagged data.
 
 ```{image} ../_images/scenario-settings.png
-:alt: Screenshot of user dropdown inputs to specify scenarios to be read in RESOLVE case.
+:alt: Screenshot of user dropdown inputs to specify scenarios to be read in `Resolve` case.
 :width: 60%
 :align: center
 ```
-On the RESOLVE Settings tab, users will find an orange dropdown inputs menu to help ensure that input scenarios selected 
+On the `Resolve` Settings tab, users will find an orange dropdown inputs menu to help ensure that input scenarios selected 
 are based on scenario tags that already are defined on the respective component & linkage attribute tabs. 
 In the first column, select the sheet on which to look up available scenario tags. Then, in the second column, the dropdown input 
 should only present scenario tags that are already defined on the respective sheet of the Scenario Too.
@@ -141,9 +128,9 @@ functionality.
 
 The model will now endogenously calculate the annual discount factors to use for each modeled year based on four pieces 
 of information:
-1. **Cost dollar year:** The dollar year that costs are input in & should be reported out in. In general, RESOLVE is designed 
+1. **Cost dollar year:** The dollar year that costs are input in & should be reported out in. In general, `Resolve` is designed 
 to be in real dollars for a specific dollar year.
-2. **Modeled years:** Which modeled years to include in the RESOLVE case.
+2. **Modeled years:** Which modeled years to include in the `Resolve` case.
 3. **End effect years:** The number of years to extrapolate out the last modeled year. In other words, considering 20 years 
 of end effects after 2045 would mean that the last model year's annual discount factor would represent the discounted cost 
 of 2045-2064, assuming that the 2045 costs are representative of a steady-state future for all end effect years.
@@ -185,7 +172,7 @@ shared across various cases. This does come with the tradeoff that—without car
 
     <div class="giscus-container">
         <script src="https://giscus.app/client.js"
-            data-repo="e3-/new-modeling-toolkit"
+            data-repo="e3-/kit"
             data-repo-id="MDEwOlJlcG9zaXRvcnkzMjkxMzIyNzQ="
             data-category="Documentation"
             data-category-id="DIC_kwDOE54o8s4CWsWE"

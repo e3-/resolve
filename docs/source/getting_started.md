@@ -2,11 +2,11 @@
 # Getting Started
 
 We want you to feel like a developer: empowered to both understand how `Resolve` works under the hood and contribute 
-changes, bug fixes, and new functionality to support the growing `Resolve` and `new-modeling-toolkit` ecosystem.
+changes, bug fixes, and new functionality to support the growing `Resolve` and `kit` ecosystem.
 
-## 1. Clone the Repository
+## 1. Clone the Repository for Each Project
 
-Clone the [`new-modeling-toolkit`](https://github.com/e3-/new-modeling-toolkit) repository. 
+Clone the [`kit`](https://github.com/e3-/kit) repository. 
 In general, we recommend most users use one of the following applications, though advanced users may feel comfortable
 using `git` commands directly. 
 
@@ -17,7 +17,7 @@ repository.
 
 For now, we'll want to `checkout` the `resolve/2023-training` branch.
 
-### Clone via Pycharm
+### Cloning via Pycharm
 
 If you use Pycharm as your IDE, the easiest way to clone the repository is to do so through Pycharm directly. Go to 
 "Git" --> "Clone..." and a pop-up window should open. Select "GitHub" on the left-hand side of this window and you 
@@ -25,17 +25,17 @@ should see a button to login to GitHub. This should take you to your browser, wh
 your GitHub account. This should link your GitHub account to Pycharm permanently. 
 
 Once you are done, return to Pycharm and you should see the window populate with a list of 
-available repositories. Select "e3-/new-modeling-toolkit" and specify the path where you want the repository to live
+available repositories. Select "e3-/kit" and specify the path where you want the repository to live
 on your computer. 
 
-### Clone via GitHub Desktop
+### Cloning via GitHub Desktop
 
 If you have GitHub Desktop installed, follow the instructions [here](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/adding-and-cloning-repositories/cloning-a-repository-from-github-to-github-desktop)
 to clone the repository. 
 
-### Clone via git CLI
+### Cloning via git CLI
 
-To clone via the git CLI, open the GitHub page for the `new-modeling-toolkit` repository in your broswer. Click the 
+To clone via the git CLI, open the GitHub page for `kit` repository in your broswer. Click the 
 green "Code" button and copy the HTTP link to your clipboard. 
 
 ```{warning}
@@ -44,7 +44,7 @@ the instructions [here](https://docs.github.com/en/enterprise-server@3.6/authent
 to create a PAT.   
 ```
 
-```{image} ../_images/github-clone.png
+```{image} ./_images/github-clone.png
 :alt: Screenshot of GitHub "Clone" button.
 :width: 60%
 :align: center
@@ -67,6 +67,14 @@ use the git CLI.
 
 (setting-up-conda)=
 ## 2. Setting Up a `conda` Environment
+
+````{hint}
+If updating the environment is taking an unusually long time, it can sometimes be easier to [remove the environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#removing-an-environment) 
+and then set up the environment fresh. This can be done with the following command:
+    ```commandline
+    conda env remove -n [environment name]
+    ```
+````
 
 We recommend using the [Anaconda](https://www.continuum.io/downloads) Python distribution and package manager. 
 You can also use [Miniconda](https://docs.conda.io/en/latest/miniconda.html), which is a smaller version that only includes `conda` not all the default packages. 
@@ -94,7 +102,7 @@ conda init powershell
  ```
  
 Then, close all Powershell windows, and open a new Powershell window using the "Run as 
-Administrator" option. Then, enter the following command: 
+Administrator" option (right-click on the PowerShell application icon in the Start Menu to find this option). Then, enter the following command: 
  
 ```commandline
 Set-ExecutionPolicy Unrestricted
@@ -105,29 +113,38 @@ Then, close the Powershell window and open a new one.
 We will use the `conda` command to create an isolated environment for the Resolve to run within, without 
 disturbing any other Python packages you may have already installed (see the [`conda` documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) for more details on conda environments).
 
-To create the `conda` environment, we will use the [`environment.yml`](https://github.com/e3-/new-modeling-toolkit/blob/main/environment.yml) 
+To create the `conda` environment, we will use the [`environment.yml`](https://github.com/e3-/kit/blob/main/environment.yml) 
 file at the top level of the repository. Open your shell of choice and navigate into your cloned copy of the repository.
 Then, run the following command:
 
-```commandline
-# Creates an environment called "new-modeling-toolkit"
-conda env create -f environment.yml
+-  Create an environment called `new-modeling-toolkit`:
+    ```commandline
+    conda env create -f environment.yml
+    ```
 
-# Or, if you want to give your environment a customized name, do the following:
-conda env create -f environment.yml -n desired-environment-name-goes-here 
-```
+-  Alternatively, if you want to give your environment a customized name (e.g., a project name suffix), do the following:
+    ```commandline
+    conda env create -f environment.yml -n [desired-environment-name-goes-here] 
+    ```
 
-To activate the environment, set it as the project default in your IDE or use the following command:
-```
-conda activate new-modeling-toolkit  # or whatever custom name you gave your environment 
-```
+- To activate the environment, set it as the project default in your IDE or use the following command:
+    ```
+    conda activate kit  # or whatever custom name you gave your environment 
+    ```
 
-If updates are made to the codebase which add new Python package dependencies to the model or change the required 
+- If updates are made to the codebase that add new Python package dependencies to the model or change the required 
 versions of existing dependencies, you can update your environment with the following command from the same location:
 
-```
-conda env update -n new-modeling-toolkit -f environment.yml  # Again, replace with custom name if necessary
-```
+    ```
+    conda env update -n new-modeling-toolkit -f environment.yml  # Again, replace with custom name if necessary
+    ```
+````{hint}
+If updating the environment is taking a long time, it can sometimes be easier to remove the environment completely 
+and set up the environment fresh. This can be done with the following command:
+    ```commandline
+    conda env remove -n [environment name]
+    ```
+````
 
 ```{note}
 Developers should use the `environment-dev.yml` file instead of `environment.yml`, which will install several additional 
@@ -138,31 +155,13 @@ dependencies (e.g., `pytest`, `sphinx`). See the "Development Guide" section for
 (getting-started/xlwings-setup)=
 ## 3. Setting Up `xlwings` for Excel User Interfaces
 
-Many of the `new-modeling-toolkit`'s user interfaces are Excel spreadsheets that rely on the [`xlwings`](https://www.xlwings.org) package. 
-Using `xlwings` means that the UI will now work with both Windows and macOS versions of Excel (with some minor differences in behavior). 
-
-As `xlwings` is a new dependency, please make sure to update your `new-modeling-toolkit` conda environment using the 
-following command from the top-level directory (see {ref}`setting-up-conda` for a refresher on `conda`). If your 
-environment was created in Spring 2023 or later, you probably can skip this step. To see if xlwings is installed in your
-environment, you can run:
-
-```commandline
- conda activate new-modeling-toolkit
- conda list
- ```
-
-And see if "xlwings" is in the outputted list of packages.
-
-
-```{hint}
-If updating the environment is taking an unusually long time, it can sometimes be easier to [remove the environment](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#removing-an-environment) 
-and then set up the environment fresh.
-```
+Many of `kit`'s user interfaces are Excel spreadsheets that rely on the [`xlwings`](https://www.xlwings.org) package. 
+Using `xlwings` means that the UI will now work with both Windows and macOS versions of Excel (with some minor differences in behavior).
 
 (configure-xlwings-macos)=
 ### Configuring `xlwings` on macOS
 
-Users using the spreadsheet tools on macOS need to do one more step the first time they set up the `new-modeling-toolkit` 
+Users using the spreadsheet tools on macOS need to do one more step the first time they set up `kit` 
 environment (due to how macOS deals with permissions):
 1. Open Terminal
 2. Activate the `new-modeling-toolkit` environment
@@ -184,7 +183,7 @@ A Windows executable is included in the `./solvers` subdirectory to allow users 
 
 For macOS and Linux systems, we do not include the corresponding executables (which are different than the Windows one). 
 You have two options for installing CBC:
-1. Use Anaconda to install CBC in your `new-modeling-toolkit` conda environment (see {ref}`setting-up-conda`):
+1. Use Anaconda to install CBC in your `kit` conda environment (see {ref}`setting-up-conda`):
 ```
 conda install -c conda-forge coincbc
 ```

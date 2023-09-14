@@ -5,14 +5,14 @@ The Resolve repository includes two sets of test case data to start with.
 ## Minimal Test Case
 
 The Resolve repository includes a minimal test case that should run out-of-the-box by running the `run_opt.py` 
-script with the `--data-folder data-test` command line argument (see [Running Resolve](../user_guide/running_resolve.md)).
+script with the `--data-folder data-test` command line argument (see [Running Resolve](../basics/running_resolve.md)).
 
-The `test` case settings can be found [here](https://github.com/e3-/new-modeling-toolkit/tree/main/data/settings/resolve/test), 
-and the `test` system components & linkages can be found  [here](https://github.com/e3-/new-modeling-toolkit/tree/main/data/interim/systems/test)
+The `test` case settings can be found [here](https://github.com/e3-/kit/tree/main/data/settings/resolve/test), 
+and the `test` system components & linkages can be found  [here](https://github.com/e3-/kit/tree/main/data/interim/systems/test)
 
 ### `test` System Components
 
-As you can see in the [`components.csv` file](https://github.com/e3-/new-modeling-toolkit/blob/main/data/interim/systems/test/components.csv), 
+As you can see in the [`components.csv` file](https://github.com/e3-/kit/blob/main/data/interim/systems/test/components.csv), 
 the `test` system is composed of:
 - 2 zones
 - 4 load components (two per zone)

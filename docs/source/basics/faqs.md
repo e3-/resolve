@@ -8,7 +8,7 @@
 
     <div class="giscus-container">
         <script src="https://giscus.app/client.js"
-            data-repo="e3-/new-modeling-toolkit"
+            data-repo="e3-/kit"
             data-repo-id="MDEwOlJlcG9zaXRvcnkzMjkxMzIyNzQ="
             data-category="Documentation"
             data-category-id="DIC_kwDOE54o8s4CWsWE"

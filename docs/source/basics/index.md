@@ -1,20 +1,12 @@
-# User Guide
+# The Basics
 
 ```{toctree}
 :hidden:
 
-getting_started
-cluster_setup
-portfolio_planning
 scenario_tool
+settings/index
 running_resolve
 results_viewing
-extending_resolve
-production_simulation
-resolve_recap
-modeling_loads
-modeling_resources
-modeling_policies
 ```
 
 :::{card} Getting Started
@@ -85,7 +77,7 @@ modeling_policies
 
     <div class="giscus-container">
         <script src="https://giscus.app/client.js"
-            data-repo="e3-/new-modeling-toolkit"
+            data-repo="e3-/kit"
             data-repo-id="MDEwOlJlcG9zaXRvcnkzMjkxMzIyNzQ="
             data-category="Documentation"
             data-category-id="DIC_kwDOE54o8s4CWsWE"

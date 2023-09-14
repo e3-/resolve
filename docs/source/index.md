@@ -7,17 +7,18 @@ contain the root `toctree` directive.
 # Resolve
 
 ```{note}
-Resolve documentation is being migrated from the `new-modeling-toolkit`
-repo to this one, so some documentation may still be on the [`new-modeling-toolkit` repo (linked here)](https://e3-new-modeling-toolkit.readthedocs-hosted.com/en/latest/)
+Resolve documentation is being migrated from `kit`
+repo to this one, so some documentation may still be on the [`kit` repo (linked here)](https://e3-kit.readthedocs-hosted.com/en/latest/)
 ```
 
 ```{toctree}
 :hidden:
 
 getting_started
-user_guide/index
+basics/index
+extras/index
+concepts/index
 system/index
-settings/index
 cases/index
 ```
 
@@ -25,29 +26,29 @@ cases/index
 :caption: Other kit Tools
 :hidden:
 
-kit <https://e3-new-modeling-toolkit.readthedocs-hosted.com/>
-be-toolkit
-Pathways
-Recap
-Resolve <https://e3-resolve.readthedocs-hosted.com/>
+E3 Homepage <https://www.ethree.com/>
+kit Docs <https://e3-kit.readthedocs-hosted.com/>
+BE-Toolkit Docs <https://e3-be-toolkit.readthedocs-hosted.com/>
+Pathways Docs <https://e3-pathways.readthedocs-hosted.com/>
+Recap Docs <https://e3-recap.readthedocs-hosted.com/>
 :::
 
 Welcome to the new `Resolve` documentation! 
 
-RESOLVE is an electricity resource planning model that identifies optimal long-term electric generation and transmission 
+`Resolve` is an electricity resource planning model that identifies optimal long-term electric generation and transmission 
 investments subject to reliability, policy, and technical constraints. 
 
 ![resolve-baseball-card.png](_images/resolve-baseball-card.svg)
 
 Designed in 2014 to assess the investment needs of systems seeking to integrate large quantities of variable renewable 
-resources, RESOLVE identifies optimal portfolios of renewable and conventional energy resources through capacity 
+resources, `Resolve` identifies optimal portfolios of renewable and conventional energy resources through capacity 
 expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
 the variable costs of reliably operating the grid, and additional values such as environmental attributes. 
-RESOLVE has been used to support resource planning and valuation for dozens of clients across North America.
+`Resolve` has been used to support resource planning and valuation for dozens of clients across North America.
 
 ## Relationship to Other E3 Tools
 
-`Resolve` is built on top of `new-modeling-toolkit`, E3's next-generation energy system modeling platform, which will 
+`Resolve` is built on top of `kit`, E3's next-generation energy system modeling platform, which will 
 see the tools increasingly share components.
 
 ![nmt.svg](./_images/nmt.svg)
@@ -74,7 +75,7 @@ E3 will continue to use both `Resolve` and `Plexos`.
 
     <div class="giscus-container">
         <script src="https://giscus.app/client.js"
-            data-repo="e3-/new-modeling-toolkit"
+            data-repo="e3-/kit"
             data-repo-id="MDEwOlJlcG9zaXRvcnkzMjkxMzIyNzQ="
             data-category="Documentation"
             data-category-id="DIC_kwDOE54o8s4CWsWE"
