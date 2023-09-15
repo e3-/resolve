@@ -40,13 +40,15 @@ of figures (see screenshot below):
 
 ### 2. Set Up your PowerPoint Template
 
+(pulling-results)=
 ### 3. Use the Jupyter Notebook to Orchestrate Results Viewer Loading
 
 Open the `notebooks/results_viewer.py` as a Jupyter notebook. You should be able to do this by:
-1. Activating your `new-modeling-toolkit` environment 
-2. Use the command `jupyter lab` to launch the JupyterLab interface 
-3. From the left sidebar file explorer, navigate to `./notebooks/results_viewer.py`
-4. Right-click the file and select "Open With > Jupytext Notebook" (see screenshot below):
+1. Open a terminal (e.g., Command Prompt)
+2. Activating your `new-modeling-toolkit` environment 
+3. Use the command `jupyter lab` to launch the JupyterLab interface 
+4. From the left sidebar file explorer, navigate to `./notebooks/results_viewer.py`
+5. Right-click the file and select "Open With > Jupytext Notebook" (see screenshot below):
 
 ```{image} ../_images/open-with-jupytext.png
 :alt: Screenshot of how to open a `.py` file as a Jupyter Notebook

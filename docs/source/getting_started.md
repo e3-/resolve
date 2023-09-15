@@ -77,7 +77,6 @@ and then set up the environment fresh. This can be done with the following comma
 ````
 
 We recommend using the [Anaconda](https://www.continuum.io/downloads) Python distribution and package manager. 
-You can also use [Miniconda](https://docs.conda.io/en/latest/miniconda.html), which is a smaller version that only includes `conda` not all the default packages. 
 During the installation process, we recommend selecting the "Add Anaconda3 to my PATH environment variable" option
 so that you have easy access to the `conda` command from the command line.
 
@@ -88,13 +87,17 @@ add Anaconda to your PATH (see [these instructions](https://www.geeksforgeeks.or
 ```
 
 In order for `conda` to work properly, you can either use the "Anaconda Prompt" application that comes packaged with 
-your installation, or you will need to initialize your shell of choice for use. If you use Command Prompt, open a new 
-Command Prompt window and enter:
+your installation, or you will need to initialize your shell of choice for use. 
+
+````{dropdown} Using Command Prompt
+If you use Command Prompt, open a new Command Prompt window and enter:
 
 ```commandline
 conda init cmd.exe
 ```
+````
 
+````{dropdown} Using PowerShell
 If you use Powershell, open a new Powershell window and enter:
 
 ```commandline
@@ -109,6 +112,7 @@ Set-ExecutionPolicy Unrestricted
 ```
 
 Then, close the Powershell window and open a new one. 
+````
 
 We will use the `conda` command to create an isolated environment for the Resolve to run within, without 
 disturbing any other Python packages you may have already installed (see the [`conda` documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) for more details on conda environments).
@@ -129,7 +133,7 @@ Then, run the following command:
 
 - To activate the environment, set it as the project default in your IDE or use the following command:
     ```
-    conda activate kit  # or whatever custom name you gave your environment 
+    conda activate new-modeling-toolkit  # or whatever custom name you gave your environment 
     ```
 
 - If updates are made to the codebase that add new Python package dependencies to the model or change the required 

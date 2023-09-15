@@ -54,15 +54,25 @@ For now, these commands differ from the "local" instructions described above, so
 
 ### One-Time Initial Setup
 
+```{note}
+If at any point during this process you get a "The SSO session associated this profile has expired..." message, just 
+use the command `aws sso login` to sign back into AWS.
+```   
+
 For every computer that you use to submit jobs to the cluster, you will need to do this initial setup:
 
-1. Make sure you've installed `kit` conda environment (see {ref}`setting-up-conda` for a refresher).
+1. Make sure you've installed `kit` conda environment (see {ref}`setting-up-conda` for a refresher) and are up to date on 
+   the `resolve/cpuc-irp-testing` branch.
 2. Install the [`aws-cli`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and [`kubectl`](https://kubernetes.io/docs/tasks/tools/) by following the instructions on the linked pages.
    - More detailed Windows instructions:
       - Use these direct links to the [`aws-cli` installer](https://awscli.amazonaws.com/AWSCLIV2.msi) and the [`kubectl` executable](https://dl.k8s.io/release/v1.28.1/bin/windows/amd64/kubectl.exe)
       - Follow the steps in the `aws-cli` installer
       - Move the `kubectl` executable from your Downloads folder to a new folder called `C:/Users/[username]/kubectl`
       - Add that new folder to your `PATH` environment variable (see [these instructions](https://helpdeskgeek.com/windows-10/add-windows-path-environment-variable/) if you need a reminder on how to do that.)
+      ```{note}
+     If you do not have Administrator permissions on your computer, you don't need to add `kubectl` to your `PATH`. 
+     However, every time the instructions tell you to use kubectl  
+     ```
    - More detailed macOS instructions:
      - Use these direct links to the [`aws-cli` installer](https://awscli.amazonaws.com/AWSCLIV2.pkg) and follow the instructions to install [`kubectl` using `curl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-macos/#install-kubectl-on-macos)
 3. Configure the `aws-cli` permissions by running these commands in Terminal, Command Prompt, PowerShell, etc.
@@ -74,7 +84,9 @@ For every computer that you use to submit jobs to the cluster, you will need to 
    aws configure set sso_role_name DataUserAccess
    aws eks update-kubeconfig --name e3x-enkap-main --alias e3x-enkap-main
    ```
-   - _**Note:** If you were granted a different AWS role (e.g. `PowerUserAccess`, `AdministratorAccess`), you can enter that in the last line (`sso_role_name`) instead of `DataUserAccess`._
+   ```{note}
+    If you were granted a different AWS role (e.g. `PowerUserAccess`, `AdministratorAccess`), you can enter that in the last line (`sso_role_name`) instead of `DataUserAccess`.
+   ```
 4. Configure `kubectl` and test your configuration using the following commands:
    ```commandline
    kubectl config set-context --current --namespace cpuc-irp
@@ -86,11 +98,11 @@ For every computer that you use to submit jobs to the cluster, you will need to 
    argo-workflows-server-5f96bf68cf-7fdfv               1/1     Running   0             14d
    argo-workflows-workflow-controller-d6cf98c86-xl7cc   1/1     Running   1 (43h ago)   14d
    ```
-5. Activate `kit` conda environment (see {ref}`setting-up-conda` for a refresher).
-6. From your `kit` project folder, set up your project using the command `nmt init cpuc-irp`. 
+5. Activate `new-modeling-toolkit` conda environment (see {ref}`setting-up-conda` for a refresher).
+6. From your project folder, set up your project using the command `nmt init cpuc-irp`. 
    This will create a file called `.nmt.config.json` in your project folder to configure the following command settings:
    - **"data":** The name of the data folder to upload
-   - **"solver":** The name of the solver to use
+   - **"solver":** The name of the solver to use. Set this to `gurobi`
    - **"raw_results":** Whether you want to save raw Pyomo component results
 
 ```{warning}
@@ -103,14 +115,10 @@ In this current pilot phase, we think that this step will only work with the pro
    ```commandline
    aws sso login
    ```
-   - You can test that the authentication was successful by issuing the following command:
-      ```commandline
-      aws s3 ls s3://e3x-cpuc-irp-data/
-      ```
-2. Run the command: `nmt submit`. This will:
-   - Upload the data folder specified in your `.nmt.config.json`
-   - Submit all the cases that are listed in your `cases_to_run.csv` to be run
-3. You can check the status of your runs in two ways:
+2. The current recommendation is to have your Scenario Tool save **directly** to the S3 bucket. Do this by setting the 
+   data folder path on `Cover & Configuration` tab to `s3://e3x-cpuc-irp-data/inputs/data`.
+3. Run the command: `nmt submit --no-upload-inputs`. This will start the cases you listed in `cases_to_run`
+4. You can check the status of your runs in two ways:
 
     a.**`Datadog`:** Go to [this URL](https://app.datadoghq.com/logs?query=e3x.model%3Aresolve%20service%3Anmt) from any device:
       - **Time range filter (top right corner):** If you don't see anything in the log, this may be because 
@@ -132,8 +140,7 @@ In this current pilot phase, we think that this step will only work with the pro
         ```
       - Go to [this URL](http://localhost:2746), which will open Argo's HTML interface, which will show you a list of active jobs & their progress as a tree:
       ![Argo Workflow interface](../_images/argo.png)
-4. Once the cases are done, retrieve results using the `nmt download-outputs` command, which will bring 
-   the results back to your `reports/` folder.
+5. Once the cases are done, retrieve results following the instructions on {ref}`pulling-results`
 
 
 ### Cluster FAQs
