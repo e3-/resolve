@@ -140,10 +140,7 @@ versions of existing dependencies, you can update your environment with the foll
     ```
 ````{hint}
 If updating the environment is taking a long time, it can sometimes be easier to remove the environment completely 
-and set up the environment fresh. This can be done with the following command:
-    ```commandline
-    conda env remove -n [environment name]
-    ```
+and set up the environment fresh. This can be done with the following command: `conda env remove -n [environment name]`
 ````
 
 ```{note}
