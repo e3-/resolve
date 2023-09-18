@@ -145,16 +145,26 @@ In this current pilot phase, we think that this step will only work with the pro
 
 ### Cluster FAQs
 
-#### What do I do if `nmt download-outputs` isn't working?
-If the `nmt download-outputs` command results in errors, you can manually download the results from a specific 
-submission using the **Run ID** that was printed when you submitted your runs by running the following command from
-your root NMT directory:
+#### How do I check inputs or outputs if they're on S3?
 
-```commandline
-aws s3 sync s3://e3x-your-project-name-data/runs/[your-run-id]/outputs/reports reports/
+You can use the `aws s3 sync` command to pull files from S3. Remember that you may need to `aws sso login`. 
+Remember the run ID associated with job you submitted.
 
-# e.g., for CPUC IRP with Run ID jsmith20230815.1
-aws s3 sync s3://e3x-cpuc-irp-data/runs/jsmith20230815.1/outputs/reports/ reports/ 
+- Pull all inputs associated with your submitted job:
+  ```commandline
+  aws s3 sync s3://e3x-your-project-name-data/runs/[your-run-id]/inputs/data/ ./data/
+  ```
+  - Filter for a certain filename pattern **order matters with the `--exclude` and `--include`** 
+    (the example below excludes all files with the `*` wildcard and **then only includes** files that have `9_17` in their path):
+    ```commandline
+    aws s3 sync s3://e3x-your-project-name-data/runs/[your-run-id]/inputs/data/ ./data/ --exclude "*" --include "*9_17*"
+    ```
+- Pull all inputs associated with your submitted job:
+  ```commandline
+  aws s3 sync s3://e3x-your-project-name-data/runs/[your-run-id]/outputs/reports/ ./reports/
+  ```
+  - Same patterns apply for filtering outputs
+
+```{note}
+The slashes at the end of the S3 URI (i.e., `s3://.../`) and the local folder path (i.e., `reports/`) are important!
 ```
-
-Note that the slashes at the end of the S3 URI (i.e., `s3://.../`) and the local folder path (i.e., `reports/`) are important!
