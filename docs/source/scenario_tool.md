@@ -21,9 +21,10 @@ older "snapshots" of the `data` folder for comparison. See [](comparing_cases.md
 ```
 
 
-### 1. Component & Linkage Attributes
+### Component Attributes
 
-Currently, component & linkage attributes tabs are colored green. 
+The Resolve system being modeled is made up of various components, such as load components, resource, and policies. 
+These components have attributes, such as heat rate, generation & load profiles, etc.
 
 (scenario_tags)=
 #### Scenario tagging functionality
@@ -49,27 +50,35 @@ whereas the scenario tags `2021_PSP_22_23_TPP` and `2021_PSP_22_23_TPP_High` are
 Hourly load & generation profiles are found [on Box](https://willdan.box.com/s/ryhm8yi22jmzjrk2aalfzb00ium9n71h) due to the relatively large size of all the CSV files. 
 Users should plan to download the folder and place the `profiles` folder inside `./data` (next to the `interim` subfolder). 
 
-### 2. System Setup
+### System Setup
 
 Currently, the system setup tab is dark blue. 
 
 In the initial version of the Scenario Tool, users need to enumerate every component (e.g., resource, transmission path) and 
 linkage (i.e., relationship between two components) to be included in the modeled `System` instance. Orange dropdowns help 
-users select the correct data values for the component & linkage class names (e.g., `Asset` and `AllToPolicy`). 
+users select the correct data values for the component & linkage class names (e.g., `Asset` and `AllToPolicy`).
 
-Component names should match the names of components on the various component & linkage attribute tabs. On each of the 
-component & linkage attribute tabs, users will find a column named "Included in Current System...", which helps users identify 
-whether any components listed in the data tables is not included in the `System` instance configured on the System tab. 
-It is then up to the user to determine whether that is intentional or not, as the `System` can include any subset of the 
-components & linkages defined with data.
+### `Resolve` Case Settings
 
-### 3. `Resolve` Case Settings
+#### Selecting Existing PSP Cases
+
+The RESOLVE Case Settings tab is populated with the cases included in the PSP Ruling. Select a case from the dropdown to 
+see what scenarios & case settings are used, as shown in the screenshot below:
+
+![selecting-case.png](_images/selecting-case.png)
+
+To the right, save the case settings out and save the list of cases you want to run using the "2. Save Resolve Cases to File" and
+"3. Run Resolve Cases" sections, as shown below:
+
+![cases-to-save-run.png](_images/cases-to-save-run.png)
+
+#### Running `Resolve` Cases
 
 The `Resolve` Settings tab is where users specify how `Resolve` should run, as well as providing 
-a button that will run the code. The "Run `Resolve` Case" button will run the equivalent command:
+a button that will run the code. The "Run `Resolve` Locally" button will run the equivalent command:
 
 ```
-python run_opt.py --solver-name [solver name] --log-level INFO --extras cpuc_irp
+python run_opt.py --solver-name [solver name] --log-level INFO
 ```
 
 
@@ -95,3 +104,4 @@ python run_opt.py --solver-name [solver name] --log-level INFO --extras cpuc_irp
             async>
         </script>
     </div>
+:::

@@ -6,10 +6,20 @@ contain the root `toctree` directive.
 -->
 # Resolve
 
-```{note}
-Resolve documentation is being migrated from `kit`
-repo to this one, so some documentation may still be on the [`kit` repo (linked here)](https://e3-kit.readthedocs-hosted.com/en/latest/)
-```
+
+Welcome to the new `Resolve` documentation! 
+
+`Resolve` is an electricity resource planning model that identifies optimal long-term electric generation and transmission 
+investments subject to reliability, policy, and technical constraints. 
+
+![resolve-baseball-card.png](_images/resolve-baseball-card.svg)
+
+Designed in 2014 to assess the investment needs of systems seeking to integrate large quantities of variable renewable 
+resources, `Resolve` identifies optimal portfolios of renewable and conventional energy resources through capacity 
+expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
+the variable costs of reliably operating the grid, and additional values such as environmental attributes. 
+`Resolve` has been used to support resource planning and valuation for dozens of clients across North America.
+
 
 ```{toctree}
 :hidden:
@@ -31,15 +41,3 @@ Pathways Docs <https://e3-pathways.readthedocs-hosted.com/>
 Recap Docs <https://e3-recap.readthedocs-hosted.com/>
 :::
 
-Welcome to the new `Resolve` documentation! 
-
-`Resolve` is an electricity resource planning model that identifies optimal long-term electric generation and transmission 
-investments subject to reliability, policy, and technical constraints. 
-
-![resolve-baseball-card.png](_images/resolve-baseball-card.svg)
-
-Designed in 2014 to assess the investment needs of systems seeking to integrate large quantities of variable renewable 
-resources, `Resolve` identifies optimal portfolios of renewable and conventional energy resources through capacity 
-expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
-the variable costs of reliably operating the grid, and additional values such as environmental attributes. 
-`Resolve` has been used to support resource planning and valuation for dozens of clients across North America.
