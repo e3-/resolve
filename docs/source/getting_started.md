@@ -91,7 +91,8 @@ Python environment and the data folder where you want to save inputs:
 - For your `resolve-env` Python path, open a command line and activate the environment using `conda activate resolve-env`. 
   Then type `where python`. The path should look something like `C:/Users/[username]/AppData/Local/Anaconda3/envs/resolve-env/python/exe` 
   on Windows or `/Users/[username]/anaconda/envs/resolve-env/bin/python`
-- By default the data folder is called `./data`, but you can rename it to another name as desired.
+- By default, the data folder is called `./data` (as included in the package), 
+  but you can rename it to another name as desired.
 
 ![scenario-tool-config.png](_images/scenario-tool-config.png)
 
