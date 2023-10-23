@@ -1,7 +1,0 @@
-Resource,Zone,Model Year,Planned Capacity (MW),New Build Capacity (MW),Retired Capacity (MW),Operational Capacity (MW),Potential (MW),Planned Capacity (MWh),New Build Capacity (MWh),Retired Capacity (MWh),Operational Capacity (MWh),Gross Increase Load (MWh),Gross Provide Power (MWh),Net Generation (MWh),Curtailed Energy (MWh),Number of Starts,Number of Shutdowns,Capital Cost ($),Fixed O&M Cost ($),Variable Cost ($),Fuel Cost ($),Curtailment Cost ($),Start Cost ($),Shutdown Cost ($)
-Battery,zone_1,2030-01-01,,-0.0,0.0,0.0,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,,,0.0,0.0,,0.0,0.0,,
-Gas_CCGT,zone_1,2030-01-01,,50854.302,0.0,50854.302,,,,,,,104124893.287,104124893.287,0.0,16229.689,16229.689,6102516189.303,1525629047.326,208249786.574,2191491665.834,0.0,0.0,0.0
-Gas_CCGT_2,zone_2,2030-01-01,,23987.335,0.0,23987.335,,,,,,,149873841.747,149873841.747,0.0,,,2878480221.798,719620055.449,299747683.494,3147350676.688,0.0,,
-Gas_CT,zone_1,2030-01-01,5000.0,0.0,0.0,5000.0,,,,,,,2937847.257,2937847.257,0.0,,,0.0,100000000.0,14689236.284,79321875.936,0.0,,
-Solar,zone_1,2030-01-01,,68590.424,0.0,68590.424,,,,,,,165647585.978,165647585.978,4254098.58,,,2400664844.882,342952120.697,,0.0,0.0,,
-Wind,zone_1,2030-01-01,8000.0,0.0,0.0,8000.0,,,,,,,18250867.524,18250867.524,1709183.103,,,0.0,80000000.0,,0.0,0.0,,
