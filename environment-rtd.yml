@@ -1,7 +1,8 @@
-name: resolve
+name: resolve-rtd
 
 channels:
   - conda-forge
+  - gurobi
 
 dependencies:
   - python==3.10

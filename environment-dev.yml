@@ -2,6 +2,7 @@ name: resolve-dev
 
 channels:
   - conda-forge
+  - gurobi
 
 dependencies:
   - python>=3.9,<3.11                     # Managed git commit hooks

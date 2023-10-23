@@ -44,7 +44,7 @@ In order for `conda` to work properly, you will need to initialize your "shell" 
 ````{dropdown} Using Command Prompt
 If you use Command Prompt, open a new Command Prompt window and enter:
 
-```commandline
+```
 conda init cmd.exe
 ```
 ````
@@ -52,14 +52,14 @@ conda init cmd.exe
 ````{dropdown} Using PowerShell
 If you use Powershell, open a new Powershell window and enter:
 
-```commandline
+```
 conda init powershell
  ```
  
 Then, close all Powershell windows, and open a new Powershell window using the "Run as 
 Administrator" option (right-click on the PowerShell application icon in the Start Menu to find this option). Then, enter the following command: 
  
-```commandline
+```
 Set-ExecutionPolicy Unrestricted
 ```
 
@@ -70,7 +70,7 @@ Then, close the Powershell window and open a new one.
 Since macOS Catalina (10.15), the default "shell" program is `zsh`. Earlier versions of macOS use `bash`, 
 so replace `zsh` in the command below with `bash`.
 
-```commandline
+```
 conda init zsh
 ```
 ````
@@ -85,7 +85,7 @@ file at the top level of the repository. Open your shell of choice and navigate 
 Then, run the following command:
 
 -  Create an environment called `resolve-env`:
-    ```commandline
+    ```
     conda env create -f environment.yml
     ```
 

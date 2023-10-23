@@ -1,7 +1,8 @@
-name: resolve
+name: resolve-env
 
 channels:
   - conda-forge
+  - gurobi
 
 dependencies:
   - python>=3.9,<3.11
