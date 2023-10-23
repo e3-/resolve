@@ -4,6 +4,8 @@
 This version of `Resolve` requires Python 3 and either Office 365 Excel, Excel 2021, or later. This page 
 goes through instructions to set up `Resolve` on your computer.
 
+---
+
 ## System Requirements
 - Supported Operating Systems: 
   - Windows: Has been tested on Windows 10, Windows 11, and Windows Server 2022
@@ -13,6 +15,8 @@ goes through instructions to set up `Resolve` on your computer.
 - Python: 3.9+ (via Anaconda distribution)
 - Excel: Excel for Microsoft 365, Excel 2021, or later
 
+---
+
 ## Download or Clone the `Resolve` Code
 
 The latest release of `Resolve` can be downloaded from [GitHub](https://github.com/e3-/resolve/releases/latest)
@@ -21,6 +25,27 @@ The latest release of `Resolve` can be downloaded from [GitHub](https://github.c
 Stakeholders for the 2023 California Public Utilities Integrated Resource Planning (2023 CPUC IRP) process can download 
 `Resolve` and additional data, ruling case results directly from the [2022-23 IRP Events & Materials page](https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/electric-power-procurement/long-term-procurement-planning/2022-irp-cycle-events-and-materials).
 :::
+
+### What's Included & Default Folder Structure
+
+Once you've downloaded or cloned the Resolve package, you should see (at a minimum) the following files & subfoldrers:
+
+* **LICENSE.md:** GNU AGPLv3 open-source license used for `Resolve`
+  * **data/:** Data folder for any pre-existing data & case settings
+  * **src/resolve/:** `Resolve` source code
+* **environment.yml:** Python environment settings
+* **pyproject.toml:** Python dependencies
+* **User Guide** {bdg-warning}`.pdf`
+* **Scenario Tool** {bdg-info}`.xlsm`
+* **Results Viewer** {bdg-info}`.xlsm`
+
+#### 2023 CPUC IRP Files
+
+The 2023 CPUC IRP release will also include additional files or files that have been renamed:
+- **CPUC IRP Resource Cost & Build - PUBLIC** {bdg-success}`.xlsx`
+- **Scenario Tool** → Resolve Scenario Tool - CPUC IRP 2023 PSP - PUBLIC - v1.1 {bdg-info}`.xlsm`
+- **Results Viewer** → Resolve Results Viewer - CPUC IRP 2023 PSP - PUBLIC - v1.1 {bdg-info}`.xlsm`
+- **results/:** Results for released 2023-23 PSP cases 
 
 ---
 
@@ -123,7 +148,7 @@ For completeness, type the full path to the data folder, may look something like
 2. {bdg-warning}`First time setup only` Run the command `xlwings runpython install`. You should see a prompt from macOS 
    asking you for permission for Terminal to automate Excel. **You must allow this.**
 3. Type the command `which python` to see where the `resolve-env` version of Python is stored. This should look like: 
-  `/Users/[username]/.../anaconda3/envs/resolve-env/bin/python`. Paste this path into the **Python Path** cell.
+  `/Users/[username]/anaconda3/envs/resolve-env/bin/python`. Paste this path into the **Python Path** cell.
   :::{warning}
   Make sure to use a forward slash `/` (and not a backslash `\`) on macOS for the Python path.
   :::
@@ -137,8 +162,9 @@ For completeness, type the full path to the data folder, may look something like
 
 ## Install Commercial Solvers {bdg-info-line}`Optional`
 
-The `resolve-env` environment comes with the open-source `HiGHS` solver, which enables out-of-the-box solving of 
-`Resolve` cases on any platform. Commercial solvers like Gurobi, IBM CPLEX, and FICO XPRESS offer additional solver features & 
+The `resolve-env` environment comes with the open-source [`HiGHS`](https://highs.dev/) solver, which enables 
+out-of-the-box solving of`Resolve` cases on any platform. 
+Commercial solvers like Gurobi, IBM CPLEX, and FICO XPRESS offer additional solver features & 
 typically substantially faster solve times. If you have licenses for any of these solvers, `Resolve` will work with them; 
 follow the vendor installation & licensing instructions.
 
