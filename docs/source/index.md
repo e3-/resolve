@@ -25,7 +25,7 @@ For more information, contact us: <platform@ethree.com>
 :hidden:
 
 getting_started
-creating_inputs
+user_guide/index
 running_resolve
 ```
 

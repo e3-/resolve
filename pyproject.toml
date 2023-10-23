@@ -11,7 +11,7 @@ dependencies = [
     "ipywidgets==8.0.4",
     "joblib==1.2.0",
     "jupyterlab==3.5.3",
-    "jupytext==1.14.7",
+    "jupytext==1.15.1",
     "kmedoids==0.4.3",
     "line-profiler==4.0.3",
     "loguru==0.6.0",

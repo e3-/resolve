@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.7
+#       jupytext_version: 1.15.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -21,9 +21,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from loguru import logger
 from plotly.subplots import make_subplots
-from sklearn.metrics.pairwise import euclidean_distances
-
 from resolve.common.load_component import Load
+from sklearn.metrics.pairwise import euclidean_distances
 
 # %%
 logger.remove()
