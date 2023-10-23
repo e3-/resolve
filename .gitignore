@@ -1,6 +1,7 @@
 # Repo-specific files
-data/
+data*/
 reports/
+**/*.xls*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
