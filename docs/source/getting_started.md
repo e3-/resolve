@@ -41,7 +41,7 @@ add Anaconda to your PATH (see [these instructions](https://www.geeksforgeeks.or
 
 In order for `conda` to work properly, you will need to initialize your "shell" (command line, e.g., Command Prompt). 
 
-````{dropdown} Using Command Prompt
+````{dropdown} Option 1: Using Command Prompt
 If you use Command Prompt, open a new Command Prompt window and enter:
 
 ```
@@ -49,7 +49,7 @@ conda init cmd.exe
 ```
 ````
 
-````{dropdown} Using PowerShell
+````{dropdown} Option 2: Using PowerShell
 If you use Powershell, open a new Powershell window and enter:
 
 ```
@@ -66,7 +66,7 @@ Set-ExecutionPolicy Unrestricted
 Then, close the Powershell window and open a new one. 
 ````
 
-````{dropdown} Using macOS Terminal
+````{dropdown} Option 3: Using macOS Terminal
 Since macOS Catalina (10.15), the default "shell" program is `zsh`. Earlier versions of macOS use `bash`, 
 so replace `zsh` in the command below with `bash`.
 
@@ -129,7 +129,7 @@ For completeness, type the full path to the data folder, may look something like
   :::
 **Configure Data Folder Path:** 
 
-By default, this folder is called `data` and located in the project folder next to the `scr` folder. 
+By default, this folder is called `data` and located in the project folder next to the `src` folder. 
 For completeness, type the full path to the data folder, may look something like `~/.../resolve/data`
 ::::
 
@@ -137,7 +137,7 @@ For completeness, type the full path to the data folder, may look something like
 
 ## Install Commercial Solvers {bdg-info-line}`Optional`
 
-The `resolve-env` environment comes with the open-source `HiGHS` solver, which will enable out-of-the-box solving of 
+The `resolve-env` environment comes with the open-source `HiGHS` solver, which enables out-of-the-box solving of 
 `Resolve` cases on any platform. Commercial solvers like Gurobi, IBM CPLEX, and FICO XPRESS offer additional solver features & 
 typically substantially faster solve times. If you have licenses for any of these solvers, `Resolve` will work with them; 
 follow the vendor installation & licensing instructions.
