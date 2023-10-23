@@ -1,0 +1,13 @@
+Resource,Zone,Fuel,Model Year,Annual Fuel Consumption (MMBtu)
+Battery,zone_1,Electrolytic Hydrogen,2030-01-01,0.0
+Battery,zone_1,Fossil_Natural_Gas,2030-01-01,0.0
+Gas_CCGT,zone_1,Electrolytic Hydrogen,2030-01-01,0.0
+Gas_CCGT,zone_1,Fossil_Natural_Gas,2030-01-01,730497221.945
+Gas_CCGT_2,zone_2,Electrolytic Hydrogen,2030-01-01,0.0
+Gas_CCGT_2,zone_2,Fossil_Natural_Gas,2030-01-01,1049116892.229
+Gas_CT,zone_1,Electrolytic Hydrogen,2030-01-01,0.0
+Gas_CT,zone_1,Fossil_Natural_Gas,2030-01-01,26440625.312
+Solar,zone_1,Electrolytic Hydrogen,2030-01-01,0.0
+Solar,zone_1,Fossil_Natural_Gas,2030-01-01,0.0
+Wind,zone_1,Electrolytic Hydrogen,2030-01-01,0.0
+Wind,zone_1,Fossil_Natural_Gas,2030-01-01,0.0

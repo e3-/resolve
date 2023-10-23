@@ -1,0 +1,7 @@
+Policy,Resource,Model Year,Annual Policy Contribution (MWh)
+RPS,Battery,2030-01-01,0.0
+RPS,Gas_CCGT,2030-01-01,0.0
+RPS,Gas_CCGT_2,2030-01-01,0.0
+RPS,Gas_CT,2030-01-01,0.0
+RPS,Solar,2030-01-01,165647585.978
+RPS,Wind,2030-01-01,18250867.524

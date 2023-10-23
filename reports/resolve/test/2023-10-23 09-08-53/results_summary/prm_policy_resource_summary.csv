@@ -1,0 +1,10 @@
+Policy,Resource,Model Year,Reliability Capacity (MW),NQC (MW)
+PRM,Asset,2030-01-01,,0.0
+PRM,Battery,2030-01-01,,0.0
+PRM,Gas_CCGT,2030-01-01,50854.302,48311.586
+PRM,Gas_CCGT_2,2030-01-01,,0.0
+PRM,Gas_CT,2030-01-01,5000.0,4750.0
+PRM,Hydrogen Electrolysis,2030-01-01,,0.0
+PRM,Solar,2030-01-01,68590.424,0.0
+PRM,TxPath,2030-01-01,,0.0
+PRM,Wind,2030-01-01,8000.0,0.0

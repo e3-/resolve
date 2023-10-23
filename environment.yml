@@ -5,9 +5,11 @@ channels:
 
 dependencies:
   - python>=3.9,<3.11
+  - gurobi=10.0.2
+  - highs=1.5.3
   - pip=22.3.1
   - setuptools=66.1.1
 
   - pip:
       # Install current repo as editable package
-      - -e ".[extras]"
+      - -e ".[ui]"

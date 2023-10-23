@@ -1,0 +1,2 @@
+Transmission Path,Zone From,Zone To,Model Year,Capital Cost ($),Forward Hurdle Cost ($),Reverse Hurdle Cost ($),Forward Flow Value (To Zone) ($),Forward Flow Value (From Zone) ($),Reverse Flow Value (To Zone) ($),Reverse Flow Value (From Zone) ($),Gross Reverse Flow (MWh),Gross Forward Flow (MWh)
+TxPath,zone_1,zone_2,2030-01-01,15334501.77,141256694.125,261500016.948,512588368.704,354497172.81,2464734213.07,2726234230.017,52289545.48,35305347.194

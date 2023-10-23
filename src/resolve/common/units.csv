@@ -1,0 +1,99 @@
+component,attribute,unit
+Asset,financial_lifetime,year
+Asset,new_capacity_annualized_all_in_fixed_cost_by_vintage,USD / (kW year)
+Asset,new_capacity_fixed_om_by_vintage,USD / (kW year)
+Asset,physical_lifetime,year
+Asset,planned_fixed_om_by_model_year,USD / (kW year)
+Asset,planned_installed_capacity,MW
+Asset,ramp_rate,1 / hour
+Asset,ramp_rate_2_hour,1 / (2 hour)
+Asset,ramp_rate_3_hour,1 / (3 hour)
+Asset,ramp_rate_4_hour,1 / (4 hour)
+Asset,td_losses_adjustment,dimensionless
+Asset,stochastic_outage_rate,1 / year
+Asset,td_losses_adjustment,dimensionless
+BiomassResource,feedstock_limit_metric_tons,tonne
+BiomassResourceToCandidateFuel,conversion_cost,USD / tonne
+BiomassResourceToCandidateFuel,conversion_efficiency,tonne / million_Btu
+CandidateFuel,annual_price,USD / million_Btu
+CandidateFuel,electrofuel_parasitic_loss,1 / hour
+CandidateFuel,electrofuel_storage_limit_mmbtu,million_Btu
+CandidateFuel,fuel_price_per_mmbtu,USD / million_Btu
+CandidateFuel,monthly_price_multiplier,USD / million_Btu
+CandidateFuel,production_limit_mmbtu,million_Btu
+StockRolloverSubsectorToCandidateFuelToPollutant,emission_factor,dimensionless
+EnergyDemandSubsectorToCandidateFuelToPollutant,emission_factor,dimensionless
+ResourceToCandidateFuelToPollutant,emission_factor,dimensionless
+TransmissionPathToPollutant,forward_dir_multiplier,dimensionless
+TransmissionPathToPollutant,reverse_dir_multiplier,dimensionless
+FinalFuelDemand,demand,million_Btu
+Load,annual_energy_forecast,MWh
+Load,annual_peak_forecast,MW
+OutageDistribution,derate,dimensionless
+OutageDistribution,derate_prob,dimensionless
+Plant,increase_load_potential_profile,dimensionless
+Plant,provide_power_min_profile,dimensionless
+Plant,provide_power_potential_profile,dimensionless
+Plant,variable_cost_increase_load,USD/MWh
+Plant,variable_cost_provide_power,USD/MWh
+Reserve,penalty_unserved_reserve,USD / MW
+Reserve,requirement,MW
+Resource,adjacency,hour
+Resource,charging_efficiency,dimensionless
+Resource,curtailment_cost,USD/MWh
+Resource,discharging_efficiency,dimensionless
+Resource,duration,hour
+Resource,fuel_burn_intercept,million_Btu / hour
+Resource,fuel_burn_slope,million_Btu / MWh
+Resource,min_down_time,hour
+Resource,min_stable_level,dimensionless
+Resource,min_up_time,hour
+Resource,new_storage_annual_fixed_cost_dollars_per_kwh_yr_by_vintage,USD / (kWh year)
+Resource,new_storage_capacity_fixed_om_by_vintage,USD / (kWh year)
+Resource,parasitic_loss,1 / hour
+Resource,planned_storage_capacity,MWh
+Resource,planned_storage_capacity_fixed_om_by_model_year,USD / (kWh year)
+Resource,shutdown_cost,USD
+Resource,start_cost,USD
+Resource,start_fuel_use,million_Btu
+Resource,unit_size_mw,MWh
+TXPath,forward_rating_profile,dimensionless
+TXPath,hurdle_rate_forward_direction,USD / MWh
+TXPath,hurdle_rate_reverse_direction,USD / MWh
+TXPath,reverse_rating_profile,dimensionless
+Zone,penalty_overgen,USD / MWh
+Zone,penalty_unserved_energy,USD / MWh
+StockRolloverSubsector,base_year_age_distribution_fraction_of_stock,dimensionless
+StockRolloverSubsector,survival_profile,dimensionless
+StockRolloverSubsector,total_stock,dimensionless
+Device,annual_service_demand_per_device_mmbtu,million_Btu
+Device,base_year_stock_share,dimensionless
+DeviceToFinalFuel,device_efficiency,dimensionless
+Device,early_retirements_frac_of_stock,dimensionless
+Device,sales_share_early_retirement,dimensionless
+Device,sales_share_natural_replacements,dimensionless
+Device,sales_share_new_stock_additions,dimensionless
+Device,out_stocks,dimensionless
+Device,out_sales,dimensionless
+Device,out_natural_retirements,dimensionless
+Device,out_early_retirements,dimensionless
+Device,out_capital_cost,dimensionless
+Device,out_o_and_m_cost,dimensionless
+Device,capital_costs,USD
+Device,o_and_m_costs,USD
+EnergyDemandSubsectorToFinalFuel,default_energy_demand_trajectory,million_Btu
+EnergyDemandSubsectorToFinalFuel,efficiency_fraction,dimensionless
+EnergyDemandSubsectorToFinalFuel,efficiency_cost,USD / million_Btu
+EnergyDemandSubsectorFuelSwitching,conversion_fraction,dimensionless
+EnergyDemandSubsectorFuelSwitching,conversion_efficiency,dimensionless
+EnergyDemandSubsectorFuelSwitching,conversion_cost,USD / million_Btu
+EnergyDemandSubsectorFuelSwitching,out_fuel_switching_cost,USD
+NonEnergySubsectorToPollutant,emissions,dimensionless
+NonEnergySubsectorToPollutant,cost,USD
+EnergyDemandSubsectorToFinalFuel,out_final_energy_demand,million_Btu
+EnergyDemandSubsectorToFinalFuel,out_efficiency_cost,dimensionless
+DeviceToFinalFuel,out_final_energy_demand,million_Btu
+NegativeEmissionsTechnology,levelized_cost_per_unit_of_emissions,dimensionless
+NegativeEmissionsTechnology,max_emissions_removed_per_year,dimensionless
+Asset,mean_time_to_repair,hour
+Asset,random_seed,dimensionless

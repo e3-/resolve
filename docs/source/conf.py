@@ -111,7 +111,7 @@ myst_enable_extensions = [
 """
 1. If you need to update the autodoc files (e.g., structure changes),
    run the following command from the docs/ directory
-    sphinx-apidoc -f -o source [absolute path to new_modeling_toolkit directory]
+    sphinx-apidoc -f -o source [absolute path to src directory]
 2. Add text to the RST files manually for more documentation
 3. Run make html to update the HTML files
 4. Run make latex to update LaTeX files
