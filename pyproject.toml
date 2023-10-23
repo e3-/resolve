@@ -65,12 +65,12 @@ climate = [
     "pvlib-python"
 ]
 
-[tool.setuptools]
-packages = ["resolve"]
-package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
 
 [tool.setuptools.package-data]
-"resolve.common" = ["units.csv"]
+"src.common" = ["units.csv"]
 
 [tool.black]
 line_length = 120

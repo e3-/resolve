@@ -1,6 +1,8 @@
 (running_resolve)=
 # Running `Resolve`
 
+## Running `Resolve` from the Scenario Tool
+
 ## Running `Resolve` from Command Line
 
 If you plan to run `Resolve` via a command line/terminal, use the following instructions. 

@@ -11,7 +11,7 @@ assignees: ''
 A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
 
 **Link to ReadTheDocs URL where the change should be made**
-https://e3-new-modeling-toolkit.readthedocs-hosted.com/en/latest/
+https://e3-resolve.readthedocs-hosted.com/en/latest/
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
