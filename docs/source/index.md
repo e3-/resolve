@@ -14,7 +14,7 @@ investments subject to reliability, policy, and technical constraints.
 
 ![resolve-baseball-card.png](_images/resolve-baseball-card.svg)
 
-Designed in 2014 to assess the investment needs of systems seeking to integrate large quantities of variable renewable 
+Initially developed in 2014 to assess the investment needs of systems seeking to integrate large quantities of variable renewable 
 resources, `Resolve` identifies optimal portfolios of renewable and conventional energy resources through capacity 
 expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
 the variable costs of reliably operating the grid, and additional values such as environmental attributes. 
@@ -31,13 +31,8 @@ comparing_cases
 ```
 
 :::{toctree}
-:caption: Other kit Tools
+:caption: Related Links
 :hidden:
 
 E3 Homepage <https://www.ethree.com/>
-kit Docs <https://e3-kit.readthedocs-hosted.com/>
-BE-Toolkit Docs <https://e3-be-toolkit.readthedocs-hosted.com/>
-Pathways Docs <https://e3-pathways.readthedocs-hosted.com/>
-Recap Docs <https://e3-recap.readthedocs-hosted.com/>
 :::
-
