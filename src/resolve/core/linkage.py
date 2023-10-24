@@ -8,12 +8,11 @@ from typing import Optional
 import pandas as pd
 import pydantic
 from loguru import logger
-from tqdm import tqdm
-
 from resolve import get_units
 from resolve.core import component
 from resolve.core.custom_model import convert_str_float_to_int
 from resolve.core.temporal import timeseries as ts
+from tqdm import tqdm
 
 
 @enum.unique
@@ -143,7 +142,7 @@ class Linkage(component.Component):
         unmatched_linkages = []
         for name_from, name_to in tqdm(
             linkage_pairs,
-            desc=f"Loading {cls.__name__}".rjust(32),
+            desc=f"Loading {cls.__name__}".rjust(48),
             bar_format="{l_bar}{bar:30}{r_bar}{bar:-10b}",
         ):
             # For `AllToPolicy` class the component_type from is an input, for all the other classes it is a class
@@ -209,7 +208,7 @@ class Linkage(component.Component):
         for linkage_type, linkage_instances in cls._instances.items():
             for linkage in tqdm(
                 linkage_instances,
-                desc=f"Loading {cls.__name__}".rjust(32),
+                desc=f"Loading {cls.__name__}".rjust(48),
                 bar_format="{l_bar}{bar:30}{r_bar}{bar:-10b}",
             ):
                 logger.debug(
@@ -957,7 +956,7 @@ def find_component_type(components_dict: dict[str, dict[str, component.Component
     # Warn if no components found or multiple components found (i.e., components with the same name but different types)
     if not matching_component_types:
         err = f"{instance_name} not found in System components"
-        logger.exception(err)
+        logger.debug(err)
         return None
     elif (
         len(matching_component_types) > 1
