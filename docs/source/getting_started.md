@@ -66,6 +66,8 @@ add Anaconda to your PATH (see [these instructions](https://www.geeksforgeeks.or
 
 In order for `conda` to work properly, you will need to initialize your "shell" (command line, e.g., Command Prompt). 
 
+:::::{dropdown} Windows
+
 ````{dropdown} Option 1: Using Command Prompt
 If you use Command Prompt, open a new Command Prompt window and enter:
 
@@ -75,29 +77,33 @@ conda init cmd.exe
 ````
 
 ````{dropdown} Option 2: Using PowerShell
-If you use Powershell, open a new Powershell window and enter:
+If you use PowerShell, open a new PowerShell window and enter:
 
 ```
-conda init powershell
- ```
+conda init PowerShell
+```
  
-Then, close all Powershell windows, and open a new Powershell window using the "Run as 
+Then, close all PowerShell windows, and open a new PowerShell window using the "Run as 
 Administrator" option (right-click on the PowerShell application icon in the Start Menu to find this option). Then, enter the following command: 
  
 ```
 Set-ExecutionPolicy Unrestricted
 ```
 
-Then, close the Powershell window and open a new one. 
+Then, close the PowerShell window and open a new one. 
 ````
 
-````{dropdown} Option 3: Using macOS Terminal
-Since macOS Catalina (10.15), the default "shell" program is `zsh`. Earlier versions of macOS use `bash`, 
-so replace `zsh` in the command below with `bash`.
+:::::
+
+````{dropdown} macOS Terminal
+Since macOS Catalina (10.15), the default "shell" program is `zsh`. These instructions assume you're on a recent version of macOS. 
+Open Terminal and use the following command:  
 
 ```
 conda init zsh
 ```
+Earlier versions of macOS use `bash`, so replace `zsh` in the command above with `bash`.
+
 ````
 
 ### Creating the Environment
@@ -126,7 +132,11 @@ Then, run the following command:
 On the Scenario Tool's `Cover & Configuration` tab, you will need to tell the Scenario Tool how to find your `resolve-env` 
 **Python path** and the **data folder** where you want to save inputs.
 
-![scenario-tool-config.png](_images/scenario-tool-config.png)
+```{image} _images/scenario-tool-config.png
+:alt: Screenshot of user dropdown inputs to specify scenarios to be read in `Resolve` case.
+:width: 60%
+:align: center
+```
 
 ::::{dropdown} Windows Excel
 **Configure Python Path:** 
@@ -160,7 +170,9 @@ For completeness, type the full path to the data folder, may look something like
 
 ---
 
-## Install Commercial Solvers {bdg-info-line}`Optional`
+## Install Commercial Solvers 
+
+{bdg-info-line}`Optional`
 
 The `resolve-env` environment comes with the open-source [`HiGHS`](https://highs.dev/) solver, which enables 
 out-of-the-box solving of`Resolve` cases on any platform. 

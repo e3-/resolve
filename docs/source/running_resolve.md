@@ -1,21 +1,31 @@
 (running_resolve)=
 # Running `Resolve`
 
+After saving your input data & case settings (as described in {ref}`saving-inputs`), you are now ready 
+to run `Resolve`!
+
 ## Running `Resolve` from the Scenario Tool
+
+As in previous versions of `Resolve`, users can run cases directly from the Scenario Tool. 
+Below the "Run Resolve Cases" header on the right of that tab, you'll find a green "Run Resolve Cases Locally" 
+button. 
+- On Windows, this will create a new command line window, and you will see `Resolve` progress. 
+- On macOS, we have not yet figured out how to show the command line window as `Resolve` is running. 
+  For now, we recommend macOS users run `Resolve` from Terminal themselves, as described in the next section. 
 
 ## Running `Resolve` from Command Line
 
 If you plan to run `Resolve` via a command line/terminal, use the following instructions. 
-Running `Resolve` via the command line gives you more options for how the model is run, as discussed below.
+Running `Resolve` via the command line gives you more options for how the model is run than are exposed in the 
+Scenario Tool, as discussed below.
 
-1. In a command line (e.g., Command Prompt), navigate into the `./resolve/resolve` directory
-2. Activate `kit` conda environment: `conda activate kit`
+1. In a command line (e.g., Command Prompt), navigate into the `./src/resolve/resolve` directory
+2. Activate `resolve-env` conda environment: `conda activate resolve-env`
 3. Use the command `python run_opt.py` to run a case. The `run_opt.py` script accepts the following arguments:
 - `--data-folder`: The name of your data folder (if different than the default `.\data`)
-- `--solver-name`: The name of the solver to use
-- `--log-level`: Controls how many log messages you see as `Resolve` runs
+- `--solver-name`: The name of the solver to use (e.g., `gurobi`, `cplex`, `amplxpress`, `appsi_highs`)
 - `--raw-results`: Save all raw Pyomo model components as CSVs (for detailed model inspection).
-- `--symbolic-solver-labels`: To enable descriptive variable names in the Pyomo model formulation--helpful for debugging.
+- `--symbolic-solver-labels`: Enable descriptive variable names in the Pyomo model formulation--helpful for debugging.
 
 ```{note}
 Hint: If you're in your command line and unsure what arguments to pass to `run_opt.py`, use the command 

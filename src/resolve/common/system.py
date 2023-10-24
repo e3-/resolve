@@ -8,8 +8,6 @@ import pandas as pd
 from loguru import logger
 from pydantic import Field
 from pydantic import validator
-from tqdm import tqdm
-
 from resolve.common import asset
 from resolve.common import biomass_resource
 from resolve.common import elcc
@@ -31,6 +29,7 @@ from resolve.core.custom_model import convert_str_float_to_int
 from resolve.core.temporal import timeseries as ts
 from resolve.core.utils.core_utils import timer
 from resolve.core.utils.util import DirStructure
+from tqdm import tqdm
 
 # Mapping between `System` attribute name and component class to construct.
 
@@ -210,7 +209,6 @@ class System(component.Component):
                 except Exception as e:
                     raise AssertionError(f"Error encountered when revalidating instance `{instance.name}`") from e
 
-        logger.info("Running remaining validations...")
 
     @timer
     def _construct_components(self):
