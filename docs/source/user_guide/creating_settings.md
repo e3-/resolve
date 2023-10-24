@@ -1,7 +1,8 @@
 # 3. Define Case Settings
 
 This page will discuss the various settings that can be toggled in a `Resolve` run. 
-Most settings on the "Resolve Settings" tab are linked to pre-populated settings on the "Case List" tab.
+Most settings on the "Resolve Settings" tab are formula-linked to pre-populated settings on the "Case List" tab. 
+You can update these settings by adding columns to the "Case List" tab.
 
 :::{admonition} 2023 CPUC IRP {octicon}`zap`
 CPUC IRP stakeholders will find case settings for all the cases posted on the CPUC website pre-populated 
@@ -97,5 +98,11 @@ To open this notebook:
   :width: 80%
   :align: center
   ```
-4. Run the cells (using the {octicon}`play` button or by using `Shift + Enter` keyboard shortcut) (for Jupyter notebook basics, users can [start here](https://realpython.com/jupyter-notebook-introduction/#running-cells)).
-5. 
+4. In the second "cell", change the case name from "Core_25MMT" to the case you want to use. The notebook will then 
+   load the case and its corresponding system data to start the timeseries sampling process.
+5. Run the cells (using the {octicon}`play` button or by using `Shift + Enter` keyboard shortcut). 
+   (For Jupyter notebook basics, users can [start here](https://realpython.com/jupyter-notebook-introduction/#running-cells)).
+6. If the notebook runs successfully, a CSV file will be created in the `./notebooks` folder called `map_to_rep_periods.csv`. 
+   Paste the data in that CSV into the "Rep Periods" tab of the Scenario Tool (insert columns in the yellow input 
+   table areas as-needed).
+7. Toggle between different timeseries samples by updating your case settings on the "Case List" tab.
