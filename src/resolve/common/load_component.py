@@ -6,7 +6,6 @@ import pandas as pd
 from loguru import logger
 from pydantic import Field
 from pydantic import root_validator
-
 from resolve import get_units
 from resolve.core import component
 from resolve.core import linkage
@@ -198,7 +197,7 @@ class Load(component.Component):
             scale_offset = 0
         elif to_energy is False:
             if profile_median_peak == 0:
-                logger.warning(
+                logger.debug(
                     f"Attempting to scale load profile `{profile.name}` by peak when the existing median peak is 0. "
                     f"Scaling factor will be set to 0."
                 )
@@ -209,7 +208,7 @@ class Load(component.Component):
             logger.debug(f"Scaling {profile.name} to median peak.")
         elif to_peak is False:
             if profile_median_peak == 0:
-                logger.warning(
+                logger.debug(
                     f"Attempting to scale load profile `{profile.name}` by energy when the existing mean annual energy "
                     f"is 0. Scaling factor will be set to 0"
                 )
