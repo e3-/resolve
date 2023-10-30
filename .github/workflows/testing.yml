@@ -28,7 +28,7 @@ jobs:
 
       - name: Create NMT environment (Miniconda)
         run: |
-          conda env create -q -f docker.environment.yml
+          conda env create -q -f environment-rtd.yml
           conda update -q -y -n nmt --all
 
       - name: Install pytest (Miniconda)
