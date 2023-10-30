@@ -12,6 +12,7 @@ dependencies = [
     "joblib==1.2.0",
     "jupyterlab==3.5.3",
     "jupytext==1.15.1",
+    "kaleido==0.2.1",
     "kmedoids==0.4.3",
     "line-profiler==4.0.3",
     "loguru==0.6.0",
