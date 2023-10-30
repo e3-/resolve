@@ -153,20 +153,19 @@ def save_extras(settings_name: str, data_folder: Optional[os.PathLike] = None):
     extras_dir.mkdir(parents=True, exist_ok=True)
 
     # Simultaneous flow
-    for sheet_name in ["Transmission Paths", "Zones and Transmission"]:  # nosec
+    tx_sheets = ["Transmission Paths", "Zones and Transmission"]
+    for sheet_name in [sheet.name for sheet in wb.sheets if sheet.name in tx_sheets]:  # nosec
         sheet = wb.sheets[sheet_name]
-        if "simultaneous_flow_groups" in sheet.names:
-            df = sheet.range("simultaneous_flow_groups").options(pd.DataFrame).value
-            if not df.isnull().values.all():
-                df = df.dropna(how="all")
-                df.to_csv(extras_dir / "simultaneous_flow_groups.csv")
+        df = sheet.range("simultaneous_flow_groups").options(pd.DataFrame).value
+        if not df.isnull().values.all():
+            df = df.dropna(how="all")
+            df.to_csv(extras_dir / "simultaneous_flow_groups.csv")
 
-        if "simultaneous_flow_limits" in sheet.names:
-            df = sheet.range("simultaneous_flow_limits").options(pd.DataFrame).value
-            if not df.isnull().values.all():
-                df = df.dropna(how="all")
-                df.columns = df.columns.astype(int)
-                df.to_csv(extras_dir / "simultaneous_flow_limits.csv")
+        df = sheet.range("simultaneous_flow_limits").options(pd.DataFrame).value
+        if not df.isnull().values.all():
+            df = df.dropna(how="all")
+            df.columns = df.columns.astype(int)
+            df.to_csv(extras_dir / "simultaneous_flow_limits.csv")
 
     # HECO
     if "Extras - HECO" in [sheet.name for sheet in wb.sheets]:
