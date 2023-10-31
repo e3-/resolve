@@ -26,15 +26,10 @@ jobs:
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gcc python3-dev
 
-      - name: Create NMT environment (Miniconda)
+      - name: Create Resolve environment (Miniconda)
         run: |
           conda env create -q -f environment-rtd.yml
-          conda update -q -y -n nmt --all
-
-      - name: Install pytest (Miniconda)
-        run: |
-          conda run -n nmt --no-capture-output conda install -q pytest
 
       - name: Run pytest
         run: |
-          conda run -n nmt --no-capture-output --cwd tests/resolve/ pytest test_run_opt.py
+          conda run -n resolve-env --no-capture-output --cwd tests/resolve/ pytest test_run_opt.py
