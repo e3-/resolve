@@ -27,6 +27,25 @@ Scenario Tool, as discussed below.
 - `--raw-results`: Save all raw Pyomo model components as CSVs (for detailed model inspection).
 - `--symbolic-solver-labels`: Enable descriptive variable names in the Pyomo model formulation--helpful for debugging.
 
+Examples:
+- Run all cases listed in `./data/settings/resolve/cases_to_run.csv`:
+  ```
+  python run_opt.py 
+  ```
+- To run a single case called `Core_25MMT`, type the name of the case into the command line:
+  ```
+  python run_opt.py Core_25MMT
+  ```
+- Run all cases from a different data folder called `data-new` (listed in `./data-new/settings/resolve/cases_to_run.csv`):
+  ```
+  python run_opt.py --data-folder data-new
+  ```
+- Run all cases using `cplex` as your solver:
+  ```
+  python run_opt.py --solver-name cplex
+  ```
+
+
 ```{note}
 Hint: If you're in your command line and unsure what arguments to pass to `run_opt.py`, use the command 
 `python run_opt.py --help` to get help!
