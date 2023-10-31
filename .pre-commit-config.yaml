@@ -1,4 +1,4 @@
-exclude: .*\.html
+exclude: docs/source/_images/.*
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.4.0
