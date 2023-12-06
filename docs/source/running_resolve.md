@@ -51,7 +51,8 @@ Hint: If you're in your command line and unsure what arguments to pass to `run_o
 `python run_opt.py --help` to get help!
 ```
 
-```{seealso} Note for E3 Staff
+```{admonition} Note for E3 Staff
+:class: seealso
 
 Instructions for running Resolve on `ethree.cloud` available on the [encyclopedia](https://e3-encyclopedia.readthedocs-hosted.com/en/latest/cloud/resolve.html)
 ```
