@@ -50,3 +50,8 @@ Examples:
 Hint: If you're in your command line and unsure what arguments to pass to `run_opt.py`, use the command 
 `python run_opt.py --help` to get help!
 ```
+
+```{seealso} Note for E3 Staff
+
+Instructions for running Resolve on `ethree.cloud` available on the [encyclopedia](https://e3-encyclopedia.readthedocs-hosted.com/en/latest/cloud/resolve.html)
+```
