@@ -6,6 +6,7 @@
 creating_inputs
 creating_system
 creating_settings
+comparing_inputs
 ```
 
 (saving-inputs)=
