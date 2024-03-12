@@ -1,3 +1,9 @@
+## 0.1.4 (2024-03-12)
+
+### Fix
+
+- Remove whitespace from timestamp (due to CPLEX file path issue)
+
 ## 0.1.3 (2024-03-12)
 
 ### Fix
