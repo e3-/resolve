@@ -84,7 +84,7 @@ class DirStructure:
                 path.mkdir(parents=True, exist_ok=True)
 
     def make_simplified_emissions_module_dir(self, simplified_emissions_module_settings_name):
-        timestamp = time.strftime("%Y-%m-%d %H-%M-%S")
+        timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
         self.simplified_emissions_module_settings_dir = (
             self.data_settings_dir / "simplified_emissions_module" / simplified_emissions_module_settings_name
         )
