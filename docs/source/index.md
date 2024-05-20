@@ -37,7 +37,9 @@ This documentation will briefly cover each step.
 ## Contact Us
 
 Please file [bug reports on GitHub](https://github.com/e3-/resolve/issues/new/choose).
-For 1-on-1 installation support, please book time using [this Calendly link](https://calendly.com/goroderickgo/resolve-install-support).
+
+For support from E3 staff related to the 2022-23 CPUC IRP proceeding, use [this booking link](https://outlook.office365.com/owa/calendar/ResolveInstallSupport@ethree.com/bookings/)
+
 For any other questions or more information on `Resolve` and E3's other modeling tools, email us: <platform@ethree.com>.
 
 ```{toctree}
