@@ -52,9 +52,24 @@ viewing_results
 ```
 
 :::{toctree}
-:caption: Related Links
+:caption: CPUC IRP Links
+:hidden:
+
+2022-23 CPUC IRP PSP <https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/electric-power-procurement/long-term-procurement-planning/2022-irp-cycle-events-and-materials>
+:::
+
+:::{toctree}
+:caption: CEC EPC-19-056 Links
+:hidden:
+
+CEC Project Page <https://www.energizeinnovation.fund/projects/assessing-long-duration-energy-storage-deployment-scenarios-meet-californias-energy-goals>
+E3 Modeling Dataset <https://zenodo.org/doi/10.5281/zenodo.10866454>
+Form Energy Dataset <https://zenodo.org/doi/10.5281/zenodo.8045595>
+:::
+
+:::{toctree}
+:caption: E3 Links
 :hidden:
 
 E3 Homepage <https://www.ethree.com/>
-2022-23 CPUC IRP PSP <https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/electric-power-procurement/long-term-procurement-planning/2022-irp-cycle-events-and-materials>
 :::

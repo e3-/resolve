@@ -105,7 +105,7 @@ conda init zsh
 Earlier versions of macOS use `bash`, so replace `zsh` in the command above with `bash`.
 
 ````
-
+(conda_command)=
 ### Creating the Environment
 
 We will use the `conda` command to create an isolated environment for the Resolve to run within, without 
@@ -116,12 +116,12 @@ file at the top level of the repository. Open your shell of choice and navigate 
 Then, run the following command:
 
 -  Create an environment called `resolve-env`:
-    ```
+    ```bash
     conda env create -f environment.yml
     ```
 
 - To activate the environment, set it as the project default in your IDE or use the following command:
-    ```
+    ```bash
     conda activate resolve-env 
     ```
 
@@ -184,3 +184,24 @@ See [](./running_resolve.md) for instructions on how to change which solver `Res
 
 
 That's it! 
+
+## Frequently Asked Questions
+
+:::{dropdown} How do I fix a `No module named 'resolve'` error message?
+
+![](../../source/_images/no_module_named_resolve.png)
+
+1. On the `Cover & Configuration` tab, check that the `Python Path` input is filled in with a valid file path to a 
+python executable (as described in {ref}`conda_command`)
+2. If the `Cover & Configuration` tab looks correct, you may need to re-install your `conda` environment. The fastest 
+way to do so is as follows:
+   1. From a shell (e.g., Command Prompt or Anaconda Prompt), use the command: 
+   ```bash
+   conda env remove -n resolve-env --yes
+   ```
+   2. Reinstall the environment as described before, using the command from the top level of your `resolve` project folder:
+   ```bash
+   conda env create -f environment.yml
+   ```
+
+:::
