@@ -7,6 +7,7 @@ sphinx-quickstart on Sun Feb 14 15:12:03 2021.
 You can adapt this file completely to your liking, but it should at least
 contain the root `toctree` directive.
 -->
+
 # Resolve
 
 Welcome to the new `Resolve` documentation! These docs are still under construction, so please bear with us 
@@ -16,6 +17,10 @@ as we continue to build out the content.
 expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
 the variable costs of reliably operating the grid, and additional values such as environmental attributes. 
 `Resolve` has been used to support resource planning and valuation for dozens of clients across North America.
+
+More detailed information along with relevant projects and reports that have leaned on RESOLVE can be found on
+[this webpage](https://www.ethree.com/tools/resolve/).
+
 
 ![resolve-baseball-card.png](_images/resolve-baseball-card.svg)
 
@@ -40,13 +45,22 @@ Please file [bug reports on GitHub](https://github.com/e3-/resolve/issues/new/ch
 For 1-on-1 installation support, please book time using [this Calendly link](https://calendly.com/goroderickgo/resolve-install-support).
 For any other questions or more information on `Resolve` and E3's other modeling tools, email us: <platform@ethree.com>.
 
+
+## Kicking it off
+
+Now that we have some background on what `Resolve` is, let's 
+explore how we can run this remarkable model and plan systems for the future. 👷‍♂️🏗️
+
 ```{toctree}
 :hidden:
 
-getting_started
+getting_started/index
+Initial Model Set-Up/index
+World of Scenario Tool/index
 user_guide/index
 running_resolve
 viewing_results
+
 ```
 
 :::{toctree}

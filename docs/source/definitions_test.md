@@ -1,5 +1,5 @@
 (Definitions)=
-# RESOLVE Definitions [TEST]
+# RESOLVE Definitions
 
 The following section will cover some key definitions in the RESOLVE Scenario Tool
 
