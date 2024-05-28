@@ -10,5 +10,4 @@ Experimenting with the Scenario Tool
 ```
 
 
-(saving-inputs)=
-## Saving Input Data & Case Settings
+Welcome to the crazy world of the Scenario Tool

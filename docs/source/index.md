@@ -57,9 +57,11 @@ explore how we can run this remarkable model and plan systems for the future. ðŸ
 getting_started/index
 Initial Model Set-Up/index
 World of Scenario Tool/index
-user_guide/index
-running_resolve
-viewing_results
+Setting up cases/index
+Good Stuff/index
+Better Stuff/index
+Bad Stuff/index
+FAQs/index
 
 ```
 
