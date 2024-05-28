@@ -1,12 +1,13 @@
 [project]
-name="resolve"
-description="Resolve capacity expansion model."
-version="0.1.4"
+name="new-modeling-toolkit"
+description="E3's New Modeling Toolkit"
+version="0.17.2"
 authors=[
     { name = "Energy and Environmental Economics, Inc." }
 ]
 requires-python = ">=3.9,<3.11"
 dependencies = [
+    "fastparquet==2023.10.1",
     "highspy==1.5.3",
     "ipywidgets==8.0.4",
     "joblib==1.2.0",
@@ -17,18 +18,18 @@ dependencies = [
     "line-profiler==4.0.3",
     "loguru==0.6.0",
     "matplotlib==3.6.3",
-    "nrel-pysam==4.0.0",       # PySAM install doesn't seem to work for Python 3.11
+    "memory-profiler==0.61.0",
     "numpy==1.24.1",
     "pandas==1.5.3",
     "pint==0.20.1",
     "plotly==5.13.0",
+    "pyarrow==14.0.1",
     "pydantic==1.10.8",
     "pyomo==6.4.4",
-    "rich==13.3.1",
+    "rich==13.7.0",
     "s3fs==2023.9.0",
     "scikit-learn==1.2.1",
     "scipy==1.10.0",
-    "seaborn==0.12.2",
     "tqdm==4.64.1",
     "typer==0.7.0",
     "ujson==5.8.0",
@@ -37,41 +38,33 @@ dependencies = [
 
 [project.optional-dependencies]
 ui = [
-    "xlwings==0.29.0",
+    "ipyfilechooser==0.6.0",
     "python-pptx==0.6.21",
+    "streamlit==1.28.2",
+    "xlwings==0.29.0",
 ]
 dev = [
-    "autodoc_pydantic==1.8.0",
-    "commitizen==3.2.2",
-    "darker==1.6.1",
-    "furo==2022.12.7",
+    "autodoc_pydantic==1.9.0",
+    "commitizen==3.13.0",
+    "darker==1.7.2",
+    "furo==2023.9.10",
     "graphviz==0.20.1",
-    "myst-parser==0.18.1",
-    "pre-commit==3.0.2",
-    "pytest==7.2.1",
-    "pytest-sugar==0.9.6",
-    "sphinx==5.3.0",
-    "sphinx-copybutton==0.5.1",
-    "sphinx-design==0.3.0",
+    "myst-parser==2.0.0",
+    "pre-commit==3.6.0",
+    "pytest==7.4.4",
+    "pytest-sugar==0.9.7",
+    "pytest-xdist[psutil]==3.5.0",
+    "sphinx==7.2.6",
+    "sphinx-copybutton==0.5.2",
+    "sphinx-design==0.5.0",
 ]
 
-ml = [
-    "tensorflow",
-]
-
-climate = [
-    "cdsapi",
-    "cfgrib",
-    "multiprocess",
-    "pvlib-python"
-]
-
-[tool.setuptools]
-packages = ["resolve"]
-package-dir = {"" = "src"}
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["new_modeling_toolkit*"]
 
 [tool.setuptools.package-data]
-"resolve.common" = ["units.csv"]
+"new_modeling_toolkit.common" = ["units.csv"]
 
 [tool.black]
 line_length = 120

@@ -9,3 +9,6 @@ zone_1,PRM,1/1/2030,multiplier,1.2
 zone_1_BE,PRM,1/1/2030,multiplier,1.23
 zone_1,RPS,1/1/2030,multiplier,1
 zone_1_BE,RPS,1/1/2030,multiplier,1
+Solar,ThreePillars,1/1/2000,multiplier,1
+Wind,ThreePillars,1/1/2000,multiplier,1
+zone_1,ThreePillars,1/1/2030,multiplier,1

@@ -12,7 +12,7 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../src/resolve"))
+sys.path.insert(0, os.path.abspath("../../new_modeling_toolkit"))
 
 
 # -- Project information -----------------------------------------------------

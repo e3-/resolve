@@ -19,6 +19,9 @@ AllToPolicy,Gas_CCGT,PRM
 AllToPolicy,Gas_CT,PRM
 AllToPolicy,Solar,RPS
 AllToPolicy,Wind,RPS
+AllToPolicy,zone_1,ThreePillars
+AllToPolicy,Solar,ThreePillars
+AllToPolicy,Wind,ThreePillars
 AllToPolicy,Gas_CCGT,CO2
 AllToPolicy,Gas_CT,CO2
 AllToPolicy,Solar,PRM

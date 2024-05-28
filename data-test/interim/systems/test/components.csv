@@ -20,6 +20,7 @@ Reserve,downward_reg
 PlanningReserveMargin,PRM
 AnnualEnergyStandard,RPS
 AnnualEmissionsPolicy,CO2
+HourlyEnergyStandard,ThreePillars
 ELCCSurface,solar_wind
 TXPath,TxPath
 Asset,Asset
