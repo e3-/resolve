@@ -93,12 +93,13 @@ def save_attributes_files(
                     ]
                 )
             else:
-                logger.warning(f"{sheet_name} not found in current Scenario Tool")
+                wb.app.status_bar = f"{sheet_name} not found in current Scenario Tool"
 
         # Save to CSV
-        component_class.save_instance_attributes_csvs(
-            wb=wb, data=data, save_path=data_folder / f"{save_path}", overwrite=overwrite
-        )
+        if not data.empty:
+            component_class.save_instance_attributes_csvs(
+                wb=wb, data=data, save_path=data_folder / f"{save_path}", overwrite=overwrite
+            )
 
     # Clear status bar
     wb.app.status_bar = None
@@ -138,74 +139,78 @@ def save_linkages_csv(*, model, wb: Optional["Book"] = None, data_folder: Option
         other_column_first,
     ) in linkage_sheets:
         wb.app.status_bar = f"Saving {linkage} from {sheet}"
-        if column_type == "TupleColumn":
-            df = wb.sheets[sheet].range(named_range).options(pd.DataFrame, ndim=2, index=False, header=False).value
-            df.columns = [0, 1]
-        elif column_type == "BooleanColumn":
-            rngs = [
-                wb.sheets[sheet]
-                .range(other_column_named_range)
-                .options(pd.DataFrame, ndim=2, index=False, header=False)
-                .value,
-                wb.sheets[sheet].range(named_range).options(pd.DataFrame, ndim=2, index=False, header=False).value,
-            ]
-            if not other_column_first:
-                rngs = rngs[::-1]
-            df = pd.concat(
-                rngs,
-                axis=1,
-            )
+        if sheet in [sheet_obj.name for sheet_obj in wb.sheets]:
+            if column_type == "TupleColumn":
+                df = wb.sheets[sheet].range(named_range).options(pd.DataFrame, ndim=2, index=False, header=False).value
+                df.columns = [0, 1]
+            elif column_type == "BooleanColumn":
+                rngs = [
+                    wb.sheets[sheet]
+                    .range(other_column_named_range)
+                    .options(pd.DataFrame, ndim=2, index=False, header=False)
+                    .value,
+                    wb.sheets[sheet].range(named_range).options(pd.DataFrame, ndim=2, index=False, header=False).value,
+                ]
+                if not other_column_first:
+                    rngs = rngs[::-1]
+                df = pd.concat(
+                    rngs,
+                    axis=1,
+                )
 
-            # Rename columns
-            df.columns = [0] + wb.sheets[sheet].range(named_range).offset(row_offset=-3).resize(row_size=1).options(
-                ndim=1
-            ).value
+                # Rename columns
+                df.columns = [0] + wb.sheets[sheet].range(named_range).offset(row_offset=-3).resize(row_size=1).options(
+                    ndim=1
+                ).value
 
-            # Replace `True` values with name of columns
-            df.iloc[:, 1:] = df.iloc[:, 1:].replace(True, pd.Series(df.columns, df.columns))
+                # Replace `True` values with name of columns
+                df.iloc[:, 1:] = df.iloc[:, 1:].replace(True, pd.Series(df.columns, df.columns))
 
-            df["linkage"] = linkage
-        elif column_type == "NameColumn":
-            rngs = [
-                wb.sheets[sheet]
-                .range(other_column_named_range)
-                .options(pd.DataFrame, ndim=2, index=False, header=False)
-                .value,
-                wb.sheets[sheet].range(named_range).options(pd.DataFrame, ndim=2, index=False, header=False).value,
-            ]
-            df = pd.concat(
-                rngs,
-                axis=1,
-            )
-            df.iloc[:, 1] = df.iloc[:, 1].replace(
-                True, wb.sheets[sheet].range(named_range).offset(row_offset=-3).resize(1, 1).value
-            )
+                df["linkage"] = linkage
+            elif column_type == "NameColumn":
+                rngs = [
+                    wb.sheets[sheet]
+                    .range(other_column_named_range)
+                    .options(pd.DataFrame, ndim=2, index=False, header=False)
+                    .value,
+                    wb.sheets[sheet].range(named_range).options(pd.DataFrame, ndim=2, index=False, header=False).value,
+                ]
+                df = pd.concat(
+                    rngs,
+                    axis=1,
+                )
+                df.iloc[:, 1] = df.iloc[:, 1].replace(
+                    True, wb.sheets[sheet].range(named_range).offset(row_offset=-3).resize(1, 1).value
+                )
 
-            # Rename columns
-            df.columns = [0] + ([linkage] * wb.sheets[sheet].range(named_range).shape[1])
+                # Rename columns
+                df.columns = [0] + ([linkage] * wb.sheets[sheet].range(named_range).shape[1])
 
-        else:
-            raise ValueError(f"{linkage} linkages on {sheet} in Scenario Tool not recognized")
+            else:
+                wb.app.status_bar = f"{linkage} linkages on {sheet} in Scenario Tool not recognized"
 
-        # Add linkage name
-        df["linkage"] = linkage
+            # Add linkage name
+            if not df.empty:
+                df["linkage"] = linkage
 
-        # Get all scenario tags (or return a index-length list of None)
-        scenario: list = (
-            wb.sheets[sheet].range(f"{scenario_column}").value if scenario_column is not None else [None] * len(df)
-        )
-        df["scenario"] = scenario
+                # Get all scenario tags (or return a index-length list of None)
+                scenario: list = (
+                    wb.sheets[sheet].range(f"{scenario_column}").value
+                    if scenario_column is not None
+                    else [None] * len(df)
+                )
+                df["scenario"] = scenario
 
-        # Drop stray rows and melt
-        df = df.melt(id_vars=[0, "linkage", "scenario"]).dropna(subset=0).drop(columns=["variable"])
+                # Drop stray rows and melt
+                df = df.melt(id_vars=[0, "linkage", "scenario"]).dropna(subset=0).drop(columns=["variable"])
 
-        if other_column_first is True or other_column_first is None:
-            df = df.rename(columns={0: "component_from", "value": "component_to"})
-        elif other_column_first is False:
-            df = df.rename(columns={0: "component_to", "value": "component_from"})
+                if other_column_first is True or other_column_first is None:
+                    df = df.rename(columns={0: "component_from", "value": "component_to"})
+                elif other_column_first is False:
+                    df = df.rename(columns={0: "component_to", "value": "component_from"})
 
-        # Combine dataframes
-        linkages = pd.concat([linkages, df], ignore_index=True, axis=0)
+                # Combine dataframes
+                linkages = pd.concat([linkages, df], ignore_index=True, axis=0)
 
     # Remove `False` or `None` values in `component_to`
     linkages = linkages[linkages["component_to"] != False].dropna(subset="component_to")
