@@ -4,5 +4,5 @@
 
 why and how and what?
 
-## Solvers (optonal) for the most part 
+## Solvers (optional) for the most part 
 
