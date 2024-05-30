@@ -4415,12 +4415,13 @@ class ResolveCase(Component):
         def Total_Cost(model):
             """Get NPV of total cost in each model year"""
             return sum(
-                model.Total_Cost_In_Model_Year[model_year] +
-                sum(
-                    model.blocks[policy].slack_penalty[model_year]
-                    for policy in self.system.hourly_energy_policies.keys()
-                )
-                * self._get(self.temporal_settings.modeled_year_discount_factor, slice_by=model_year)
+                (
+                    model.Total_Cost_In_Model_Year[model_year] +
+                    sum(
+                        model.blocks[policy].slack_penalty[model_year]
+                        for policy in self.system.hourly_energy_policies.keys()
+                    )
+                ) * self._get(self.temporal_settings.modeled_year_discount_factor, slice_by=model_year)
                 for model_year in self.model.MODEL_YEARS
             )
 
