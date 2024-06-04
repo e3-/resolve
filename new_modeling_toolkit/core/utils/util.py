@@ -88,7 +88,7 @@ class DirStructure:
                 path.mkdir(parents=True, exist_ok=True)
 
     def make_simplified_emissions_module_dir(self, simplified_emissions_module_settings_name):
-        timestamp = time.strftime("%Y-%m-%d %H-%M-%S")
+        timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
         self.simplified_emissions_module_settings_dir = (
             self.data_settings_dir / "simplified_emissions_module" / simplified_emissions_module_settings_name
         )
@@ -105,9 +105,9 @@ class DirStructure:
         if timestamp is not None:
             # Check that the passed timestamp adheres to the desired format
             # Note: this will raise a ValueError if the timestamp cannot be converted to a time object using this format
-            time.strptime(timestamp, "%Y-%m-%d %H-%M-%S")
+            time.strptime(timestamp, "%Y-%m-%d-%H-%M-%S")
         else:
-            timestamp = time.strftime("%Y-%m-%d %H-%M-%S")
+            timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
 
         # resolve settings file location
         self.resolve_settings_dir = self.data_settings_dir / "resolve" / resolve_settings_name
@@ -139,7 +139,7 @@ class DirStructure:
 
     def make_reclaim_dir(self, reclaim_config_name):
         # reclaim config name
-        timestamp = time.strftime("%Y-%m-%d %H-%M-%S")
+        timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
         self.reclaim_config_name = reclaim_config_name
         self.reclaim_config_dir = self.data_settings_dir / "reclaim" / self.reclaim_config_name
 
@@ -169,7 +169,7 @@ class DirStructure:
         self.make_directories()
 
     def make_recap_dir(self, case_name=None, log_level="DEBUG", skip_creating_results_folder=False):
-        timestamp = time.strftime("%Y-%m-%d %H-%M-%S")
+        timestamp = time.strftime("%Y-%m-%d-%H-%M-%S")
 
         # Specify settings directory
         self.recap_settings_dir = self.data_settings_dir / "recap"
