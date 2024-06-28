@@ -1,8 +1,22 @@
 (getting_started)=
-# Installation
 
-This version of `Resolve` requires Python 3 and either Office 365 Excel, Excel 2021, or later. This page 
-goes through instructions to set up `Resolve` on your computer.
+# Resolve
+
+RESOLVE is an electricity resource planning model that identifies optimal long-term electric generation 
+and transmission investments subject to reliability, policy, and technical constraints.
+
+More detailed information along with relevant projects and reports that have leaned on RESOLVE can be found on
+[this webpage](https://www.ethree.com/tools/resolve/).
+
+---
+
+## Installation
+
+Now that we have some background on what `Resolve` is, let's 
+explore how we can run this remarkable model and plan systems for the future. 👷‍♂️🏗️
+
+This version of `Resolve` requires Python 3 and either Office 365 Excel, Excel 2021, or later. 
+Following are the instructions to set up `Resolve` on your computer.
 
 ---
 
@@ -17,16 +31,28 @@ goes through instructions to set up `Resolve` on your computer.
 
 ---
 
-## Download or Clone the `Resolve` Code
 
-The latest release of `Resolve` can be downloaded from [GitHub](https://github.com/e3-/resolve/releases/latest)
+## Github & Cloning
+
+- `Resolve` uses a combination of Excel spreadsheets, Jupyter notebooks, and Python scripts. 
+- [Github](https://github.com) helps in maintaining, operating and structuring these file types so that the model can work 
+seamlessly.
+- The latest release of `Resolve` can be downloaded from [GitHub](https://github.com/e3-/resolve/releases/latest)
+- You can use a python or anaconda package or software like PyCharm (Recommended by E3) that enables you to clone the repository
+- What is Cloning?
+  - Cloning in GitHub means making a copy of a repository (a project or codebase) from GitHub to your local computer. 
+  - This lets you work on the project locally, with all the files and history from the original repository.
+  - Further instructions on cloning and github can be found here:
+
 
 :::{admonition} 2023 CPUC IRP {octicon}`zap`
 Stakeholders for the 2023 California Public Utilities Integrated Resource Planning (2023 CPUC IRP) process can download 
 `Resolve` and additional data, ruling case results directly from the [2022-23 IRP Events & Materials page](https://www.cpuc.ca.gov/industries-and-topics/electrical-energy/electric-power-procurement/long-term-procurement-planning/2022-irp-cycle-events-and-materials).
 :::
 
-### What's Included & Default Folder Structure
+
+
+## What's Included & Default Folder Structure
 
 Once you've downloaded or cloned the Resolve package, you should see (at a minimum) the following files & subfoldrers:
 
@@ -39,7 +65,7 @@ Once you've downloaded or cloned the Resolve package, you should see (at a minim
 * **Scenario Tool** {bdg-info}`.xlsm`
 * **Results Viewer** {bdg-info}`.xlsm`
 
-#### 2023 CPUC IRP Files
+### 2023 CPUC IRP Files
 
 The 2023 CPUC IRP release will also include additional files or files that have been renamed:
 - **CPUC IRP Resource Cost & Build - PUBLIC** {bdg-success}`.xlsx`
