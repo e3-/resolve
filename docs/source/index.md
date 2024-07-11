@@ -10,8 +10,7 @@ contain the root `toctree` directive.
 
 # Resolve
 
-Welcome to the new `Resolve` documentation! These docs are still under construction, so please bear with us 
-as we continue to build out the content. 
+Welcome to the new `Resolve` documentation! These docs are periodically updated and improved for better user experience. 
 
 `Resolve` is a least-cost capacity expansion model that identifies optimal electricity supply portfolios through capacity 
 expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
@@ -46,7 +45,7 @@ For 1-on-1 installation support, please book time using [this Calendly link](htt
 For any other questions or more information on `Resolve` and E3's other modeling tools, email us: <platform@ethree.com>.
 
 
-## Kicking it off
+### Kicking it off
 
 Now that we have some background on what `Resolve` is, let's 
 explore how we can run this remarkable model and plan systems for the future. 👷‍♂️🏗️
