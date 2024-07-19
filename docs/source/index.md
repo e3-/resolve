@@ -48,7 +48,7 @@ For any other questions or more information on `Resolve` and E3's other modeling
 ### Kicking it off
 
 Now that we have some background on what `Resolve` is, let's 
-explore how we can run this remarkable model and plan systems for the future. 👷‍♂️🏗️
+understand and walk through the steps of running `Resolve` and plan clean and reliable electric systems. 👷‍♂️🏗️
 
 ```{toctree}
 :hidden:
@@ -56,10 +56,8 @@ explore how we can run this remarkable model and plan systems for the future. �
 getting_started/index
 Initial Model Set-Up/index
 World of Scenario Tool/index
-Setting up cases/index
-Good Stuff/index
-Better Stuff/index
-Bad Stuff/index
+Running Resolve/index
+RESOLVE Results Viewing/index
 FAQs/index
 
 ```
