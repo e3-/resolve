@@ -1,8 +1,12 @@
 (running_resolve)=
-# Running `Resolve`
+# Running Resolve
 
-After saving your input data & case settings (as described in {ref}`saving-inputs`), you are now ready 
+After saving your input data & case settings (refer below to see how this should
+look like) (as described in {ref}`saving-inputs`), you are now ready 
 to run `Resolve`!
+
+## Insert details on input file structure and directories and where reht are saved
+
 
 ## Running `Resolve` from the Scenario Tool
 
@@ -26,6 +30,10 @@ Scenario Tool, as discussed below.
 - `--solver-name`: The name of the solver to use (e.g., `gurobi`, `cplex`, `amplxpress`, `appsi_highs`)
 - `--raw-results`: Save all raw Pyomo model components as CSVs (for detailed model inspection).
 - `--symbolic-solver-labels`: Enable descriptive variable names in the Pyomo model formulation--helpful for debugging.
+
+Tip: If for the installation process, you had used Pycharm or any other Python software, then the recommended
+best practice is to run resolve from there after saving the ST as this avoids using macros which might cause computational
+issues relating to excel based macros as these are deprecated in newer configurations. [Ritvik to rephrase\]
 
 Examples:
 - Run all cases listed in `./data/settings/resolve/cases_to_run.csv`:

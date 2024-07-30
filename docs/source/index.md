@@ -7,15 +7,19 @@ sphinx-quickstart on Sun Feb 14 15:12:03 2021.
 You can adapt this file completely to your liking, but it should at least
 contain the root `toctree` directive.
 -->
+
 # Resolve
 
-Welcome to the new `Resolve` documentation! These docs are still under construction, so please bear with us 
-as we continue to build out the content. 
+Welcome to the new `Resolve` documentation! These docs are periodically updated and improved for better user experience. 
 
 `Resolve` is a least-cost capacity expansion model that identifies optimal electricity supply portfolios through capacity 
 expansion and production simulation modeling. Optimal investment plans account for the capital costs of new resources, 
 the variable costs of reliably operating the grid, and additional values such as environmental attributes. 
 `Resolve` has been used to support resource planning and valuation for dozens of clients across North America.
+
+More detailed information along with relevant projects and reports that have leaned on RESOLVE can be found on
+[this webpage](https://www.ethree.com/tools/resolve/).
+
 
 ![resolve-baseball-card.png](_images/resolve-baseball-card.svg)
 
@@ -42,13 +46,22 @@ For support from E3 staff related to the 2022-23 CPUC IRP proceeding, use [this 
 
 For any other questions or more information on `Resolve` and E3's other modeling tools, email us: <platform@ethree.com>.
 
+
+### Kicking it off
+
+Now that we have some background on what `Resolve` is, let's 
+understand and walk through the steps of running `Resolve` and plan clean and reliable electric systems. 👷‍♂️🏗️
+
 ```{toctree}
 :hidden:
 
-getting_started
-user_guide/index
-running_resolve
-viewing_results
+getting_started/index
+Initial Model Set-Up/index
+World of Scenario Tool/index
+Running Resolve/index
+RESOLVE Results Viewing/index
+FAQs/index
+
 ```
 
 :::{toctree}
