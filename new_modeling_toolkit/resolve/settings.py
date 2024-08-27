@@ -57,9 +57,9 @@ class CustomConstraints(custom_model.CustomModel):
                 operator=operators.loc[idx].values[0],
                 LHS={
                     # Relying on pd.to_numeric to correctly convert `object` columns to `int` when possible
-                    model_component: (
-                        df.get_group(idx).apply(pd.to_numeric, errors="ignore") if idx in df.groups else pd.DataFrame()
-                    )
+                    model_component: df.get_group(idx).apply(pd.to_numeric, errors="ignore")
+                    if idx in df.groups
+                    else pd.DataFrame()
                     for model_component, df in lhs_dict.items()
                 },
             )

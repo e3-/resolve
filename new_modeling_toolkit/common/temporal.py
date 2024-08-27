@@ -207,13 +207,13 @@ class TemporalSettings(component.Component):
 
         return hash(
             (
-                (
-                    tuple(sorted(self.weather_years_to_use.data[self.weather_years_to_use.data == True].index.year))
-                    if self.weather_years_to_use is not None
-                    else 0
-                ),
+                tuple(sorted(self.modeled_years.data[self.modeled_years.data == True].index.year)),
+                tuple(sorted(self.weather_years_to_use.data[self.weather_years_to_use.data == True].index.year))
+                if self.weather_years_to_use is not None
+                else 0,
                 self.representative_periods_amount,
                 string_to_int(self.representative_periods_duration),
+                tuple(self.rep_periods.iloc[:, 0].values),
             )
         )
 
@@ -595,6 +595,7 @@ class TemporalSettings(component.Component):
         self.rep_periods = self.chrono_periods.loc[cluster_result.medioids]
         self.map_to_rep_periods = cluster_result.cluster_map
         self.rep_period_weights = cluster_result.weights
+        self.representative_periods_amount = len(self.rep_periods)
 
     def set_timesteps(self):
         """
@@ -668,7 +669,9 @@ class TemporalSettings(component.Component):
             if getattr(self, attr) is not None:
                 getattr(self, attr).to_csv(self.attr_path.parent / (attr + ".csv"))
 
-        self.annual_discount_rate.data.to_csv(self.attr_path.parent / "annual_discount_rate.csv")
+        if self.annual_discount_rate is not None:
+            self.annual_discount_rate.data.to_csv(self.attr_path.parent / "annual_discount_rate.csv")
+
         self.modeled_year_discount_factor.data.to_csv(self.attr_path.parent / "modeled_year_discount_factor.csv")
 
 

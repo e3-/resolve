@@ -118,9 +118,9 @@ def convert_pyomo_object_to_dataframe(
                         "Body": pyo.value(model_component[idx].body),
                         "Upper Bound": pyo.value(model_component[idx].upper),
                         "Dual": model_component[idx].get_suffix_value("dual"),
-                        "Expression": (
-                            model_component[idx].expr if model_component.name in constraints_to_print_expr else None
-                        ),
+                        "Expression": model_component[idx].expr
+                        if model_component.name in constraints_to_print_expr
+                        else None,
                     }
                     for idx in model_component
                 },

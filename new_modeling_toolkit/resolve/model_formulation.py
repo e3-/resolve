@@ -14,6 +14,7 @@ import pyomo.environ as pyo
 import scipy.optimize
 from loguru import logger
 from pydantic import root_validator
+from pydantic import validate_model
 from tqdm import tqdm
 
 from new_modeling_toolkit.common import system
@@ -22,13 +23,17 @@ from new_modeling_toolkit.common.asset.plant import ResourceCategory
 from new_modeling_toolkit.core.component import Component
 from new_modeling_toolkit.core.linkage import DeliverabilityStatus
 from new_modeling_toolkit.core.linkage import IncrementalReserveType
+from new_modeling_toolkit.core.linkage import Linkage
 from new_modeling_toolkit.core.temporal import timeseries as ts
+from new_modeling_toolkit.core.three_way_linkage import ThreeWayLinkage
 from new_modeling_toolkit.core.utils import util
 from new_modeling_toolkit.core.utils.core_utils import timer
 from new_modeling_toolkit.core.utils.pandas_utils import convert_index_levels_to_datetime
 from new_modeling_toolkit.core.utils.pyomo_utils import convert_pyomo_object_to_dataframe
 from new_modeling_toolkit.core.utils.pyomo_utils import mark_pyomo_component
 from new_modeling_toolkit.resolve import settings
+from new_modeling_toolkit.common.system import LINKAGE_TYPES
+from new_modeling_toolkit.common.system import THREE_WAY_LINKAGE_TYPES
 from new_modeling_toolkit.system.policy import ConstraintOperator
 
 
@@ -47,6 +52,9 @@ class ResolveCase(Component):
     solver_options: dict[str, dict[str, Any]]
 
     model: Optional[pyomo.core.ConcreteModel] = None
+
+    production_simulation_mode: bool = False
+    portfolio_build_results_dir: Optional[str] = None
 
     ###############################
     # Validators                 #
@@ -94,6 +102,11 @@ class ResolveCase(Component):
 
         # Initialize the resolve case based on the input and settings
         super().__init__(**kwargs)
+
+        # Set planned installed capacity values equal to optimized capacity values from previous model run
+        if self.production_simulation_mode:
+            logger.info("Running production simulation mode")
+            self._hourly_production_simulation()
 
         # Configure the model based on the settings. Currently only relate to finding rep periods.
         self._configure_model()
@@ -153,6 +166,10 @@ class ResolveCase(Component):
             self.temporal_settings.modeled_years.data.values
         ].sort_index()
 
+        if self.production_simulation_mode:
+            self.temporal_settings.modeled_year_discount_factor.data = self.temporal_settings.modeled_year_discount_factor.data.reindex(
+            self.temporal_settings.modeled_years.data.index)
+
         # Resample `System` instance timeseries attributes to modeled years
         weather_years = (
             self.temporal_settings.chrono_periods.melt()["value"].dt.year.min(),
@@ -178,6 +195,171 @@ class ResolveCase(Component):
                     f"Monthly energy budgets not currently implemented in RESOLVE. As such, dispatch for {r.name} "
                     f"may differ from expectation."
                 )
+
+    ##########################################
+    # HOURLY PRODUCTION SIMULATION FUNCTIONS  #
+    ##########################################
+
+    def _update_planned_capacity(self, prev_model_results_file: str, attribute: str, operational_capacity_units: str):
+        """
+        Called in production simulation mode, this function updates the planned capacities to those selected in the
+         pre-defined model build.
+        Args:
+            prev_model_results_file: the path of the model build case on which planned capacities will be based
+            attribute: the attribute to update: either planned_installed_capacity or planned_storage_capacity
+            operational_capacity_units: the units of the planned capacity that is being updated
+
+        Returns: a dictionary where each component in this component type is the key and the updated planned capacity is the value
+        """
+        # Retrieve operating capacity of this system component from previous run's results_summary
+        filepath = (
+            self.dir_structure.output_resolve_dir.parent.parent
+            / self.portfolio_build_results_dir
+            / "results_summary"
+            / prev_model_results_file
+        )
+        component_summary = pd.read_csv(filepath)
+
+        # Loop through components in component summary (first column)
+        components = component_summary.iloc[:, 0].unique()  # resources in resource_summary, assets in assets_summary, etc.
+        component_planned_installed_capacity_dict = {}
+        for component in components:
+            # get results for this component
+            operational_capacity_column = "Operational Capacity " + operational_capacity_units
+            operational_capacity_results = component_summary.loc[
+                (component_summary.iloc[:, 0] == component), ["Model Year", operational_capacity_column]
+            ]
+
+            # change model year to datetimeindex, reset index
+            operational_capacity_results["Model Year"] = pd.DatetimeIndex(
+                pd.to_datetime(operational_capacity_results["Model Year"])
+            )
+            operational_capacity_results.set_index("Model Year", inplace=True)
+
+            # update new planned installed capacity
+            planned_installed_capacity_name = component + ":" + attribute
+            new_planned_installed_capacity = operational_capacity_results[operational_capacity_column]
+            component_planned_installed_capacity_dict[component] = ts.NumericTimeseries(
+                name=planned_installed_capacity_name, data=new_planned_installed_capacity
+            )
+
+        return component_planned_installed_capacity_dict
+
+    def _hourly_production_simulation(self):
+        """
+        For each component class with a planned_installed_capacity and planned_storage_capacity, this function calls
+            updated_planned_capacity and sets the new planned capacities to the corresponding component dictionary
+        """
+
+        missing_components = set()
+
+        # Iterate over relevant results summary files to read nameplate capacities of components
+        for results_file, attribute, component_units, target_component_dict in [
+            ("resource_summary.csv", "planned_installed_capacity", "(MW)", self.system.resources),
+            ("resource_summary.csv", "planned_storage_capacity", "(MWh)", self.system.resources),
+            ("asset_summary.csv", "planned_installed_capacity", "(MW)", self.system.generic_assets),
+            ("electrolyzer_summary.csv", "planned_installed_capacity", "(MW)", self.system.electrolyzers),
+            ("fuel_conversion_plant_summary.csv", "planned_installed_capacity", "(MMBtu/hr)", self.system.fuel_conversion_plants),
+            ("fuel_storage_summary.csv", "planned_installed_capacity", "(MMBtu/hr)", self.system.fuel_storages),
+            ("fuel_storage_summary.csv", "planned_storage_capacity", "(MMBtu)", self.system.fuel_storages),
+            ("fuel_transportation_summary.csv", "planned_installed_capacity", "(MMBtu/hr)", self.system.fuel_transportations),
+            ("transmission_summary.csv", "planned_installed_capacity", "(MW)", self.system.tx_paths)
+        ]:
+            # Read total operational capacity of component type
+            planned_capacity_dict = self._update_planned_capacity(results_file, attribute, component_units)
+
+            # Set planned capacity of existing components equal to the total operational capacity of the loaded results
+            #  and disable any changes to the portfolio build
+            # Note: the relevant components are replaced with copies that are modified using `update` argument because
+            #  this skips Pydantic validation. Validations may fail within the loop because components are not fully
+            #  updated until all results files have been read. Pydantic validation is manually re-run below.
+            for component_name, new_planned_capacity in planned_capacity_dict.items():
+                if component_name not in target_component_dict:
+                    missing_components.add(component_name)
+                else:
+                    if component_name in missing_components:
+                        missing_components.remove(component_name)
+
+                    target_component_dict[component_name] = target_component_dict[component_name].copy(
+                        update={attribute: new_planned_capacity, "can_retire": False, "can_build_new": False}
+                    )
+
+            # Check for any components which are present in the current system that were not in the previous system
+            #  and disable their build decisions
+            components_without_previous_results = set(planned_capacity_dict.keys()).difference(
+                set(planned_capacity_dict.keys())
+            )
+            if len(components_without_previous_results) > 0:
+                logger.warning(
+                    f"The following Components did not have results in the specified RESOLVE run used to construct the "
+                    f"production simulation porfolio: `{components_without_previous_results}`. Only the planned capacity"
+                    f"for these Components will be used, and no build decisions will be allowed."
+                )
+                for component_name in components_without_previous_results:
+                    target_component_dict[component_name].can_retire = False
+                    target_component_dict[component_name].can_build_new = False
+
+        if len(missing_components) > 0:
+            logger.warning(
+                f"The following Components were found in the loaded results files for production simulation, but were"
+                f"not present in the current System: `{missing_components}`. They will not be included in the current"
+                f"simulation."
+            )
+
+        # Re-announce the linkages to the new components
+        self.system.linkages = self.system._construct_linkages(
+            linkage_subclasses_to_load=LINKAGE_TYPES, linkage_type="linkages", linkage_cls=Linkage
+        )
+        self.system.three_way_linkages = self.system._construct_linkages(
+            linkage_subclasses_to_load=THREE_WAY_LINKAGE_TYPES,
+            linkage_type="three_way_linkages",
+            linkage_cls=ThreeWayLinkage,
+        )
+
+        Linkage.announce_linkage_to_instances()
+
+        # Re-run Pydantic validation on all components that were updated
+        for component in self.system.assets.values():
+            *_, validation_error = validate_model(component.__class__, component.__dict__)
+            if validation_error:
+                logger.error(
+                    f"Validation error for Component `{component.name}` encountered after updating for "
+                    f"production simulation"
+                )
+                raise validation_error
+
+
+        # Update modeled year discount factors to match the desired capacity expansion case
+        temporal_settings_filepath = (
+                self.dir_structure.output_resolve_dir.parent.parent
+                / self.portfolio_build_results_dir
+                / "results_summary"
+                / "temporal_settings_summary.csv"
+        )
+        previous_temporal_settings = pd.read_csv(temporal_settings_filepath, index_col=["Model Year"], parse_dates=["Model Year"])
+        if len(previous_temporal_settings.loc[:, "Cost Dollar Year"].unique()) != 1:
+            logger.warning(
+                "Temporal settings from the capacity expansion run do not have a singular value for "
+               "'cost dollar year' and will be ignored. Modeled year discount factors for this run may be"
+               "different from the capacity expansion case."
+            )
+        else:
+            # Check that the dollar years are the same between the two cases
+            previous_cost_dollar_year = previous_temporal_settings.loc[:, "Cost Dollar Year"].unique()[0]
+            if self.temporal_settings.cost_dollar_year is not None and previous_cost_dollar_year != self.temporal_settings.cost_dollar_year:
+                logger.warning(
+                    "The cost dollar used in the capacity expansion run is different from the current cost dollar year."
+                    "New modeled year discount factors will be calculated for this run."
+                )
+            else:
+                logger.info("Updating modeled year discount factors to match the capacity expansion run.")
+                self.temporal_settings.annual_discount_rate = None
+                self.temporal_settings.end_effect_years = None
+                self.temporal_settings.modeled_year_discount_factor = ts.NumericTimeseries(
+                    name="modeled_year_discount_factor",
+                    data=previous_temporal_settings.loc[:, "Discount Factor"]
+                )
+
 
     ###############################
     # HELPER METHODS & FUNCTIONS  #
@@ -393,8 +575,9 @@ class ResolveCase(Component):
 
         Ideally want to parallelize this, but `self` is not picklable, so need to make this a static method instead of instance method.
         """
-        logger.info(f"Looking for re-scaled profiles using ID {hash(self.temporal_settings)}")
-        rescaled_profile_dir = self.dir_structure.data_processed_dir / "resolve" / "rescaled profiles" / f"{hash(self.temporal_settings)}"
+        hash_id = hash((self.system.name, tuple(self.system.scenarios), self.temporal_settings))
+        logger.info(f"Looking for re-scaled profiles using ID {hash_id}")
+        rescaled_profile_dir = self.dir_structure.data_processed_dir / "resolve" / "rescaled profiles" / f"{hash_id}"
         rescaled_profile_dir.mkdir(parents=True, exist_ok=True)
 
         for resource, obj in tqdm(
@@ -635,7 +818,7 @@ class ResolveCase(Component):
 
         # The length of each representative period
         self.model.timepoints_per_period = pyo.Param(
-            initialize=sum(self.temporal_settings.timesteps), within=pyo.PositiveIntegers
+            initialize=sum(self.temporal_settings.timesteps.astype(int)), within=pyo.PositiveIntegers
         )
 
         @self.model.Param(self.model.MODEL_YEARS, within=pyo.PositiveReals)
@@ -1376,7 +1559,7 @@ class ResolveCase(Component):
                     - model.Provide_Power_MW[resource, model_year, rep_period, hour]
                 )
             else:
-                return None
+                return 0.0
 
         ##################################################
         # ZONAL BALANCE                                  #
@@ -1480,8 +1663,8 @@ class ResolveCase(Component):
                 return model.Transmit_Power_MW[asset, model_year, rep_period, hour]
 
             return (
-                model.Provide_Power_MW[asset, model_year, rep_period, hour] if asset in model.PLANTS_THAT_PROVIDE_POWER else 0 -
-                model.Increase_Load_MW[asset, model_year, rep_period, hour] if asset in model.PLANTS_THAT_INCREASE_LOAD else 0
+                (model.Provide_Power_MW[asset, model_year, rep_period, hour] if asset in model.PLANTS_THAT_PROVIDE_POWER else 0) -
+                (model.Increase_Load_MW[asset, model_year, rep_period, hour] if asset in model.PLANTS_THAT_INCREASE_LOAD else 0)
             )
 
         ######### ANNUAL AGGREGATED EXPRESSIONS ######################
@@ -2176,8 +2359,10 @@ class ResolveCase(Component):
         @mark_pyomo_component
         @self.model.Constraint(self.model.ASSETS, self.model.MODEL_YEARS)
         def Min_Cumulative_New_Build_Constraint(model, asset, model_year):
-            if min_cumulative_new_build := self._get(
-                self.system.assets[asset].min_cumulative_new_build, default_val=None, slice_by=model_year
+            if (not self.production_simulation_mode) and (
+                min_cumulative_new_build := self._get(
+                    self.system.assets[asset].min_cumulative_new_build, default_val=None, slice_by=model_year
+                )
             ):
                 return model.Operational_New_Capacity_MW[asset, model_year] >= min_cumulative_new_build
             else:
@@ -3729,6 +3914,10 @@ class ResolveCase(Component):
 
             If target is inf/-inf, the policy constraint will not be constructed.
             """
+            if self.production_simulation_mode and self.system.policies[policy].type == "prm":
+                logger.warning(f"Disabling PRM policy `{policy}` for production simulation mode")
+                return pyo.Constraint.Skip
+
             if self.system.policies[policy].target is None:
                 return pyo.Constraint.Skip
 
@@ -3736,18 +3925,16 @@ class ResolveCase(Component):
                 self.system.policies[policy].target_adjustment, slice_by=model_year
             )
 
-            policy_target_adjusted -= model.Policy_Slack[policy, model_year]
-
             # Construct >=, ==, or <= constraints, as defined by user.
             if self.system.policies[policy].constraint_operator == ConstraintOperator.LESS_THAN_OR_EQUAL_TO:
                 return model.Policy_LHS[policy, model_year]\
-                    <= policy_target_adjusted
+                    <= policy_target_adjusted + model.Policy_Slack[policy, model_year]
             elif self.system.policies[policy].constraint_operator == ConstraintOperator.EQUAL_TO:
                 return model.Policy_LHS[policy, model_year]\
                     == policy_target_adjusted
             elif self.system.policies[policy].constraint_operator == ConstraintOperator.GREATER_THAN_OR_EQUAL_TO:
                 return model.Policy_LHS[policy, model_year]\
-                    >= policy_target_adjusted
+                    >= policy_target_adjusted - model.Policy_Slack[policy, model_year]
             else:
                 raise ValueError(f"Policy operator {self.system.policies[policy].constraint_operator}")
 

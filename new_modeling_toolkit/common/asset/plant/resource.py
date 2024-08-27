@@ -274,7 +274,9 @@ class Resource(Plant):
     def validate_storage_duration(cls, values):
         if values["duration"] is not None and values["planned_storage_capacity"] is not None:
             if not np.isclose(
-                values["planned_installed_capacity"].data * values["duration"], values["planned_storage_capacity"].data
+                values["planned_installed_capacity"].data * values["duration"],
+                values["planned_storage_capacity"].data,
+                rtol=0.001,
             ).all():
                 raise ValueError(
                     f"For Resource `{values['name']}`, the specified `planned_storage_capacity` does not "

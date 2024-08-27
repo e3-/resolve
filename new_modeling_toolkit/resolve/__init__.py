@@ -1,0 +1,2 @@
+class ResolveModel:
+    pass

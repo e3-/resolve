@@ -11,6 +11,7 @@ from new_modeling_toolkit import get_units
 from new_modeling_toolkit.core import component
 from new_modeling_toolkit.core import dir_str
 from new_modeling_toolkit.core import linkage
+from new_modeling_toolkit.core import three_way_linkage
 from new_modeling_toolkit.core.temporal import timeseries as ts
 
 
@@ -43,6 +44,8 @@ class CandidateFuel(component.Component):
     final_fuels: dict[str, linkage.Linkage] = {}
     resources: dict[str, linkage.Linkage] = {}
     policies: dict[str, linkage.Linkage] = {}
+    pollutants: dict[str, linkage.Linkage] = {}
+    sector_candidate_fuel_blending: dict[tuple[str, str], three_way_linkage.ThreeWayLinkage] = {}
 
     ######################
     # Attributes #
@@ -208,8 +211,17 @@ class FinalFuel(component.Component):
     ######################
     # Mapping Attributes #
     ######################
+    ccs_plants: dict[str, linkage.Linkage] = {}
+    devices: dict[str, linkage.Linkage] = {}
+    energy_demand_subsectors: dict[str, linkage.Linkage] = {}
+    negative_emissions_technologies: dict[str, linkage.Linkage] = {}
+    fuel_switchings: Optional[dict[tuple[str, str], three_way_linkage.ThreeWayLinkage]] = None
     candidate_fuels: dict[str, linkage.Linkage] = {}
     policies: dict[str, linkage.Linkage] = {}
+    sector_candidate_fuel_blending: Optional[dict[tuple[str, str], three_way_linkage.ThreeWayLinkage]] = None
+    energy_demand_subsector_to_final_fuel_to_ccs_plant: Optional[
+        dict[tuple[str, str], three_way_linkage.ThreeWayLinkage]
+    ] = None
     fuel_zones: dict[str, linkage.Linkage] = {}
 
     ######################

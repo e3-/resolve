@@ -5,10 +5,10 @@ from typing import Optional
 
 import pandas as pd
 import upath
-import xlwings as xw
 from loguru import logger
 
 import new_modeling_toolkit.ui
+import xlwings as xw
 from new_modeling_toolkit.core.utils.util import DirStructure
 
 # Set traceback limit to 0 so that error message is more readable in Excel popup window
@@ -97,6 +97,16 @@ def save_RESOLVE_case_settings(
     settings_dir = data_folder / "settings" / model / settings_name
     settings_dir.mkdir(parents=True, exist_ok=True)
 
+    # Save passthrough files
+    passthrough_dir = data_folder / "settings" / "resolve" / settings_name / "passthrough"
+    passthrough_dir.mkdir(parents=True, exist_ok=True)
+
+    passthrough_files = wb.sheets["Lists"].range("passthrough_ranges").options(pd.DataFrame, index=False).value
+    for _, (named_range, sheet_name) in passthrough_files.iterrows():
+        df = wb.sheets[sheet_name].range(named_range).options(pd.DataFrame, index=False).value
+        df = df.dropna(axis=1,how='all')
+        df.to_csv(passthrough_dir / f"{named_range}.csv", index=False)
+
     # Save case settings
     for filename, settings in settings_files_dict.items():
         # Create new settings directory if necessary
@@ -106,7 +116,7 @@ def save_RESOLVE_case_settings(
 
         dfs = []
         for setting in settings["static"]:
-            df = sheet.range(setting["range"]).options(pd.DataFrame).value
+            df = sheet.range(setting["range"]).options(pd.DataFrame, chunksize=1_000).value
             df = df.loc[df.index.dropna()].reset_index()
             df["timestamp"] = "None"
             df = df.set_index(["timestamp", "attribute"])
@@ -116,7 +126,7 @@ def save_RESOLVE_case_settings(
         for setting in settings["timeseries"]:
             df = (
                 sheet.range(setting["range"])
-                .options(pd.DataFrame)
+                .options(pd.DataFrame, chunksize=1_000)
                 .value.melt(ignore_index=False)
                 .dropna(subset="value")
                 .reset_index()
@@ -127,7 +137,7 @@ def save_RESOLVE_case_settings(
 
         for setting in settings["flat"]:
             # TODO: Understand why does this not work for the components_to_consider.csv
-            df = sheet.range(setting).options(pd.DataFrame).value
+            df = sheet.range(setting).options(pd.DataFrame, chunksize=1_000).value
             df = df.loc[df.index.dropna()]
             dfs += [df]
 
@@ -168,12 +178,12 @@ def save_extras(settings_name: str, wb: Optional[xw.Book] = None, data_folder: O
     tx_sheets = ["Transmission Paths", "Zones and Transmission"]
     for sheet_name in [sheet.name for sheet in wb.sheets if sheet.name in tx_sheets]:  # nosec
         sheet = wb.sheets[sheet_name]
-        df = sheet.range("simultaneous_flow_groups").options(pd.DataFrame).value
+        df = sheet.range("simultaneous_flow_groups").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.all():
             df = df.dropna(how="all")
             df.to_csv(extras_dir / "simultaneous_flow_groups.csv")
 
-        df = sheet.range("simultaneous_flow_limits").options(pd.DataFrame).value
+        df = sheet.range("simultaneous_flow_limits").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.all():
             df = df.dropna(how="all")
             df.columns = df.columns.astype(int)
@@ -182,43 +192,43 @@ def save_extras(settings_name: str, wb: Optional[xw.Book] = None, data_folder: O
     # HECO
     if "Extras - HECO" in [sheet.name for sheet in wb.sheets]:
         sheet = wb.sheets["Extras - HECO"]
-        df = sheet.range("erm_group").options(pd.DataFrame).value
+        df = sheet.range("erm_group").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "erm_group.csv")
 
-        df = sheet.range("erm_params").options(pd.DataFrame).value
+        df = sheet.range("erm_params").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "erm_params.csv")
 
-        df = sheet.range("erm_resource_group_map").options(pd.DataFrame).value
+        df = sheet.range("erm_resource_group_map").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "erm_resource_group_map.csv")
 
-        df = sheet.range("erm_shapes").options(pd.DataFrame).value
+        df = sheet.range("erm_shapes").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "erm_shapes.csv")
 
-        df = sheet.range("erm_timepoint_params").options(pd.DataFrame).value
+        df = sheet.range("erm_timepoint_params").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "erm_timepoint_params.csv")
 
-        df = sheet.range("flexible_params").options(pd.DataFrame).value
+        df = sheet.range("flexible_params").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "flexible_params.csv")
 
-        df = sheet.range("freq_resp_adjust_resources").options(pd.DataFrame).value
+        df = sheet.range("freq_resp_adjust_resources").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "freq_resp_adjust_resources.csv")
 
-        df = sheet.range("freq_resp_contingency_resources").options(pd.DataFrame).value
+        df = sheet.range("freq_resp_contingency_resources").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "freq_resp_contingency_resources.csv")
 
-        df = sheet.range("resource_storage_paired").options(pd.DataFrame).value
+        df = sheet.range("resource_storage_paired").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "resource_storage_paired.csv")
 
-        df = sheet.range("synchronous_condenser_resources").options(pd.DataFrame).value
+        df = sheet.range("synchronous_condenser_resources").options(pd.DataFrame, chunksize=1_000).value
         if not df.isnull().values.any():
             df.to_csv(extras_dir / "synchronous_condenser_resources.csv")
 
@@ -245,7 +255,7 @@ def save_manual_temporal_settings(
         "rep_period_weights",
     ]
     for f in files:
-        df = sheet.range(f).options(pd.DataFrame).value
+        df = sheet.range(f).options(pd.DataFrame, chunksize=1_000).value
         df = df.dropna()
         df.index = df.index.astype(int)
         if f in ["chrono_periods", "rep_periods"]:
@@ -262,8 +272,9 @@ def save_custom_constraints(
         wb = xw.Book.caller()
     sheet = wb.sheets["Custom Constraints"]
 
-    lhs = sheet.range("custom_constraints_lhs").options(pd.DataFrame).value
-    operator_and_rhs = sheet.range("custom_constraints_operator_and_rhs").options(pd.DataFrame).value
+    lhs = sheet.range("custom_constraints_lhs").options(pd.DataFrame, chunksize=1_000).value
+    # TODO 2024-09-15: All range conversions should use a chunk size to avoid timeout
+    operator_and_rhs = sheet.range("custom_constraints_operator_and_rhs").options(pd.DataFrame, chunksize=1_000).value
 
     # Define current working directory and path to settings directory
     if data_folder is None:
@@ -349,8 +360,10 @@ def save_custom_timepoint_constraints(
         wb = xw.Book.caller()
     sheet = wb.sheets["Custom Constraints"]
 
-    lhs = sheet.range("custom_constraints_timepoint_lhs").options(pd.DataFrame).value
-    operator_and_rhs = sheet.range("custom_constraints_timepoint_operator_and_rhs").options(pd.DataFrame).value
+    lhs = sheet.range("custom_constraints_timepoint_lhs").options(pd.DataFrame, chunksize=1_000).value
+    operator_and_rhs = (
+        sheet.range("custom_constraints_timepoint_operator_and_rhs").options(pd.DataFrame, chunksize=1_000).value
+    )
 
     # Define current working directory and path to settings directory
     if data_folder is None:
@@ -461,6 +474,9 @@ def export_scenario_tool_data(*, wb: "xw.Book", data_folder: str, start_dir: Opt
 
     wb.app.calculate()
 
+    # update __names__ using the VBA macro assumed to be embedded in the Scenario Tool
+    wb.macro("ListNamedRanges")()
+
     logger.info("Saving component data")
     new_modeling_toolkit.ui.scenario_tool.save_attributes_files(wb=wb, data_folder=dir_str.data_dir, model="resolve")
 
@@ -479,12 +495,8 @@ if __name__ == "__main__":
     curr_dir = upath.UPath(__file__).parent
     xw.Book(
         # "/Users/skramer/code/new-modeling-toolkit/Resolve Scenario Tool - CPUC IRP 2023 PSP - PUBLIC - v1.0.2-hydrogen.xlsm"
-        "/Users/skramer/Library/CloudStorage/OneDrive-SharedLibraries-EnergyandEnvironmentalEconomics,Inc/CPUC IRP (1460) - Documents/RSP and PSP Analyses/RESOLVE 2023 PSP and 2024-25 TPP/Model UIs/Resolve Scenario Tool - CPUC IRP 2023 PSP - PUBLIC - v1.0.2-hydrogen.xlsm"
+        "/Users/rgo/PycharmProjects/kit/Resolve Scenario Tool - 25-26-TPP - v7.xlsm"
     ).set_mock_caller()
     wb = xw.Book.caller()
     # Call functions
-    # save_RESOLVE_case_settings(sheet_name="RESOLVE Case Settings")
-    # load_RESOLVE_case_settings(sheet_name="RESOLVE Case Settings")
-    save_RESOLVE_case_settings(
-        sheet_name=r"RESOLVE Settings", data_folder="/Users/skramer/code/new-modeling-toolkit/data-hydrogen/"
-    )
+    # save_RESOLVE_case_settings(sheet_name=r"RESOLVE Settings", data_folder="/Users/rgo/PycharmProjects/kit/data-tpp/")
