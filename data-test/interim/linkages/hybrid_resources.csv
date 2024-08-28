@@ -1,5 +1,0 @@
-component_from,component_to,timestamp,attribute,value,scenario
-Hybrid_Battery_Storage,CA_Solar_Hybrid,1/1/2030,interconnection_limit_mw,200,
-Hybrid_Battery_Storage,CA_Solar_Hybrid,None,grid_charging_allowed,TRUE,
-ISONE_Hybrid_Battery_Storage,ISONE_Solar_Hybrid,1/1/2050,interconnection_limit_mw,8000,
-ISONE_Hybrid_Battery_Storage,ISONE_Solar_Hybrid,None,grid_charging_allowed,TRUE,

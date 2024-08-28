@@ -1,6 +1,0 @@
-timestamp,attribute,value,scenario
-2030-01-01 00:00:00,planned_installed_capacity,100.0,
-2030-01-01 00:00:00,variable_cost_provide_power,500.0,
-2030-01-01 00:00:00,provide_power_potential_profile,1.0,
-None,max_call_duration,4,
-None,max_annual_calls,5,

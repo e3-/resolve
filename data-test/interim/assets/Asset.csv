@@ -1,8 +1,0 @@
-timestamp,attribute,value,scenario
-None,can_build_new,1,
-None,can_retire,0,
-2020-01-01 00:00:00,new_capacity_annualized_all_in_fixed_cost_by_vintage,45,
-2030-01-01 00:00:00,new_capacity_annualized_all_in_fixed_cost_by_vintage,24,
-2025-01-01 00:00:00,new_capacity_fixed_om_by_vintage,6,
-2026-01-01 00:00:00,new_capacity_fixed_om_by_vintage,6,
-2020-01-01,min_cumulative_new_build,500

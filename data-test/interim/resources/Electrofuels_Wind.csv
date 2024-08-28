@@ -1,8 +1,0 @@
-timestamp,attribute,value,scenario
-None,can_build_new,TRUE,base
-None,can_retire,FALSE,base
-1/1/2020,planned_installed_capacity,0,base
-1/1/2020,potential,2000,base
-1/1/2020,variable_cost_provide_power,15.72606009,base
-None,provide_power_potential_profile,.\data-test\interim\resources\Electrofuels_Wind_profile.csv,base
-None,provide_power_min_profile,.\data-test\interim\resources\Electrofuels_Wind_profile.csv,base

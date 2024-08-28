@@ -1,8 +1,0 @@
-timestamp,attribute,value,scenario
-None,conversion_efficiency,2.389078498,base
-None,can_build_new,TRUE,base
-None,can_retire,FALSE,base
-1/1/2020,potential,1000,base
-1/1/2020,new_capacity_annualized_all_in_fixed_cost_by_vintage,112.6345855,base
-1/1/2020,increase_load_potential_profile,1,base
-1/1/2020,variable_cost_increase_load,10,base

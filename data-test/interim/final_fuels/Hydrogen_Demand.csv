@@ -1,5 +1,0 @@
-timestamp,attribute,value,scenario
-None,fuel_is_electricity,FALSE,base
-1/1/2020,demand,8225299.811,annual
-1/1/2020,demand,22075200,kg
-None,demand,.\data-test\interim\final_fuels\Hydrogen_Demand_profile.csv,base
