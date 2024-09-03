@@ -1,7 +1,7 @@
 [project]
 name="new-modeling-toolkit"
 description="E3's New Modeling Toolkit"
-version="0.17.3"
+version="0.17.2"
 authors=[
     { name = "Energy and Environmental Economics, Inc." }
 ]
@@ -59,12 +59,17 @@ dev = [
     "sphinx-design==0.5.0",
 ]
 
+[project.scripts]
+nmt = "new_modeling_toolkit.cli:main"
+kit-ui = "new_modeling_toolkit.cli.new:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["new_modeling_toolkit*"]
 
 [tool.setuptools.package-data]
 "new_modeling_toolkit.common" = ["units.csv"]
+"new_modeling_toolkit.ui" = ["runTerminalCommand-0.24.0.applescript"]
 
 [tool.black]
 line_length = 120

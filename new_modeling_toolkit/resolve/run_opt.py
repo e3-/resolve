@@ -1,6 +1,7 @@
 import contextlib
 import importlib
 import pathlib
+import shutil
 import sys
 import traceback
 from typing import Optional
@@ -241,6 +242,10 @@ def main(
             except Exception as e:
                 logger.error(f"Case {resolve_settings_name} failed. See error traceback below:")
                 logger.error(traceback.format_exc())
+
+        shutil.copytree(
+            dir_str.resolve_passthrough_inputs, dir_str.output_resolve_dir / "passthrough", dirs_exist_ok=True
+        )  # Fine
 
         logger.info("Done.")
 

@@ -487,7 +487,6 @@ class Component(custom_model.CustomModel):
         sheet = wb.sheets[sheet_name]
 
         # Clear filters applied to sheet
-        wb.app.status_bar = f"Getting {cls.__name__} attributes from {sheet_name}"
         sheet.api.AutoFilterMode = False
 
         # Add single quotes around sheet names with spaces (to match Excel naming convention)
@@ -495,7 +494,11 @@ class Component(custom_model.CustomModel):
             sheet_name = f"'{sheet_name}'"
 
         # Get all named ranges that refer to the current sheet
-        named_ranges: set = {name.name for name in wb.names if name.refers_to.split("!")[0][1:] == sheet_name}
+        # 2024-04-15: Workaround due to `wb.names` timing out on macOS because it's slow
+        all_names = wb.sheets["__names__"].range("A1").expand().options(pd.DataFrame, index=False, header=False).value
+        all_names.columns = ["name", "address"]
+        named_ranges: set = set(all_names.loc[all_names["address"].str.contains(sheet_name), "name"].tolist())
+        wb.app.status_bar = f"Found {len(named_ranges)} attribute tables for {cls.__name__} on {sheet_name}"
 
         # By default, the component as a named range must exist at least once on a sheet
         tables = [cls.__name__]

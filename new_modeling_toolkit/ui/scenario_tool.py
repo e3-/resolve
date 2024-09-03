@@ -5,8 +5,9 @@ from typing import Optional
 
 import pandas as pd
 import upath
-import xlwings as xw
 from loguru import logger
+
+import xlwings as xw
 
 
 # Set traceback limit to 0 so that error message is more readable in Excel popup window
@@ -462,6 +463,7 @@ def run_mock_pathways(wb: Optional[xw.Book] = None):
         logger.exception("It seems like you're running on Linux. Running the Excel UIs on Linux is not supported.")
 
     # Save files
+    save_simplified_emissions_module_case_settings(sheet_name="PATHWAYS Case Settings")
     save_attributes_files(wb=wb)
     save_system(sheet_name="System")
 
@@ -488,12 +490,17 @@ def run_mock_resolve():
 if __name__ == "__main__":
     curr_dir = upath.UPath(__file__).parent
     xw.Book(
-        # "/Users/skramer/Library/CloudStorage/OneDrive-SharedLibraries-EnergyandEnvironmentalEconomics,Inc/CPUC IRP (1460) - Documents/RSP and PSP Analyses/RESOLVE 2023 PSP and 2024-25 TPP/Model UIs/Resolve Scenario Tool - CPUC IRP 2023 PSP - PUBLIC - v1.0.2-hydrogen.xlsm"
-        "/Users/skramer/code/new-modeling-toolkit/Resolve Scenario Tool - CPUC IRP 2023 PSP - PUBLIC - v1.0.2-hydrogen.xlsm"
+        str(
+            (
+                upath.UPath("../..") / "/Users/rgo/PycharmProjects/kit/Resolve Scenario Tool - 25-26-TPP - v7.xlsm"
+            ).absolute()
+        )
     ).set_mock_caller()
     wb = xw.Book.caller()
 
     # regroup_columns_by_modeled_years(wb=wb)
-    # save_attributes_files(model="resolve", wb=wb, data_folder="/Users/skramer/code/new-modeling-toolkit/data-hydrogen/")
-    save_linkages_csv(model="resolve", wb=wb, data_folder="/Users/skramer/code/new-modeling-toolkit/data-hydrogen/")
-    save_system(sheet_name="System", wb=wb, data_folder="/Users/skramer/code/new-modeling-toolkit/data-hydrogen/")
+    list_named_ranges = wb.macro("ListNamedRanges")
+    list_named_ranges()
+    save_attributes_files(model="resolve", wb=wb, data_folder=upath.UPath("../../data-tpp").absolute())
+    # save_linkages_csv(model="resolve", wb=wb, data_folder=upath.UPath("../../data-cpuc-test").absolute())
+    # save_system(sheet_name="System", wb=wb, data_folder=upath.UPath("../../data-cpuc-test").absolute())

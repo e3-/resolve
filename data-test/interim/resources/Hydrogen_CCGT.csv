@@ -1,5 +1,0 @@
-timestamp,attribute,value,scenario
-None,can_build_new,TRUE,base
-None,can_retire,FALSE,base
-1/1/2020,planned_installed_capacity,0,base
-1/1/2020,potential,1000,base

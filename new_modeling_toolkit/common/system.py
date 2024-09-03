@@ -18,10 +18,12 @@ from new_modeling_toolkit.common.asset import tx_path
 from new_modeling_toolkit.common.asset.plant import resource
 from new_modeling_toolkit.core import component
 from new_modeling_toolkit.core import linkage
+from new_modeling_toolkit.core import three_way_linkage
 from new_modeling_toolkit.core.custom_model import convert_str_float_to_int
 from new_modeling_toolkit.core.temporal import timeseries as ts
 from new_modeling_toolkit.core.utils.core_utils import timer
 from new_modeling_toolkit.core.utils.util import DirStructure
+from new_modeling_toolkit.core.utils.util import run_non_component_validations
 from new_modeling_toolkit.system import fuel
 from new_modeling_toolkit.system import policy
 from new_modeling_toolkit.system.agriculture import feedstock
@@ -41,6 +43,7 @@ NON_COMPONENT_FIELDS = [
     "linkages",
     "name",
     "scenarios",
+    "three_way_linkages",
     "year_end",
     "year_start",
 ]
@@ -49,6 +52,12 @@ NON_COMPONENT_FIELDS = [
 LINKAGE_TYPES = [
     cls_obj
     for cls_name, cls_obj in inspect.getmembers(sys.modules["new_modeling_toolkit.core.linkage"])
+    if inspect.isclass(cls_obj)
+]
+
+THREE_WAY_LINKAGE_TYPES = [
+    cls_obj
+    for cls_name, cls_obj in inspect.getmembers(sys.modules["new_modeling_toolkit.core.three_way_linkage"])
     if inspect.isclass(cls_obj)
 ]
 
@@ -66,7 +75,6 @@ class SystemCost(component.Component):
         up_method="ffill",
         down_method="annual",
     )
-
 
 class System(component.Component):
     """Initializes Component and Linkage instances."""
@@ -124,6 +132,7 @@ class System(component.Component):
     # Linkages #
     ############
     linkages: dict[str, list[linkage.Linkage]] = {}
+    three_way_linkages: dict[str, list[three_way_linkage.ThreeWayLinkage]] = {}
 
     ##########
     # FIELDS #
@@ -204,6 +213,11 @@ class System(component.Component):
         self.linkages = self._construct_linkages(
             linkage_subclasses_to_load=LINKAGE_TYPES, linkage_type="linkages", linkage_cls=linkage.Linkage
         )
+        self.three_way_linkages = self._construct_linkages(
+            linkage_subclasses_to_load=THREE_WAY_LINKAGE_TYPES,
+            linkage_type="three_way_linkages",
+            linkage_cls=three_way_linkage.ThreeWayLinkage,
+        )
 
         ##########################
         # ADDITIONAL VALIDATIONS #
@@ -215,6 +229,9 @@ class System(component.Component):
                     instance.revalidate()
                 except Exception as e:
                     raise AssertionError(f"Error encountered when revalidating instance `{instance.name}`") from e
+
+        logger.info("Running remaining validations...")
+        run_non_component_validations(self)
 
     @timer
     def _construct_components(self):
@@ -375,6 +392,16 @@ class System(component.Component):
                 bar_format="{l_bar}{bar:30}{r_bar}{bar:-10b}",
             ):
                 extrapolated[", ".join(linkage_inst.name)] = linkage_inst.resample_ts_attributes(
+                    modeled_years,
+                    weather_years,
+                    resample_weather_year_attributes=resample_weather_year_attributes,
+                    resample_non_weather_year_attributes=resample_non_weather_year_attributes,
+                )
+
+        # Regularize timeseries attributes, if any, in three way linkages (same as components above)
+        for three_way_linkage_class in self.three_way_linkages:
+            for three_way_linkage_inst in self.three_way_linkages[three_way_linkage_class]:
+                extrapolated[three_way_linkage_inst.name] = three_way_linkage_inst.resample_ts_attributes(
                     modeled_years,
                     weather_years,
                     resample_weather_year_attributes=resample_weather_year_attributes,

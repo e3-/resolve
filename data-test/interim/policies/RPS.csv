@@ -1,5 +1,0 @@
-timestamp,attribute,value
-2030-01-01 00:00:00,target,0.3
-2030-01-01 00:00:00,target_adjustment,0
-None,target_basis,sales
-None,target_units,relative

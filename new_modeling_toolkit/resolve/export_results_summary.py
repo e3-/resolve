@@ -67,6 +67,10 @@ _FUEL_STORAGE_COLUMN_ATTRIBUTE_MAPPING = {
     "Variable Cost ($)": "opt_annual_variable_cost_dollars",
 }
 _FUEL_TRANSPORTATION_ATTRIBUTE_COLUMN_MAPPING = {
+    "Planned Capacity (MMBtu/hr)": "planned_installed_capacity",
+    "New Build Capacity (MMBtu/hr)": "opt_operational_new_capacity",
+    "Retired Capacity (MMBtu/hr)": "opt_retired_capacity",
+    "Operational Capacity (MMBtu/hr)": "opt_total_operational_capacity",
     "Capital Cost ($)": "opt_annual_installed_cost_dollars",
     "Forward Hurdle Cost ($)": "opt_annual_hurdle_cost_forward_dollars",
     "Reverse Hurdle Cost ($)": "opt_annual_hurdle_cost_reverse_dollars",
@@ -133,6 +137,11 @@ _TRANSMISSION_ATTRIBUTE_COLUMN_MAPPING = {
     "Reverse Flow Value (From Zone) ($)": "opt_reverse_flow_from_zone_value",
     "Gross Reverse Flow (MWh)": "opt_annual_transmit_power_reverse_mwh",
     "Gross Forward Flow (MWh)": "opt_annual_transmit_power_forward_mwh",
+    "Planned Capacity (MW)": "planned_installed_capacity",
+    "New Build Capacity (MW)": "opt_operational_new_capacity",
+    "Retired Capacity (MW)": "opt_retired_capacity",
+    "Operational Capacity (MW)": "opt_total_operational_capacity",
+    "Potential (MW)": "potential",
 }
 _ZONAL_ATTRIBUTE_COLUMN_MAPPING = {
     "Unserved Energy (MWh)": "opt_annual_unserved_energy_mwh",
@@ -293,9 +302,9 @@ def _create_temporal_settings_summary(resolve_case: ResolveCase) -> pd.DataFrame
     ).to_frame()
     temporal_settings_summary = temporal_settings_summary.rename_axis(MODEL_YEAR)
     temporal_settings_summary.loc[:, "Cost Dollar Year"] = resolve_case.temporal_settings.cost_dollar_year
-    temporal_settings_summary.loc[temporal_settings_summary.index.max(), "End Effect Years"] = (
-        resolve_case.temporal_settings.end_effect_years
-    )
+    temporal_settings_summary.loc[
+        temporal_settings_summary.index.max(), "End Effect Years"
+    ] = resolve_case.temporal_settings.end_effect_years
 
     temporal_settings_summary = temporal_settings_summary.rename_axis(MODEL_YEAR)
 

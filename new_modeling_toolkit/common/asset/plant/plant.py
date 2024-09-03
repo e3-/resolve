@@ -43,7 +43,6 @@ class Plant(Asset):
         units=get_units("provide_power_potential_profile"),
     )
     provide_power_potential_profile__type: TimeseriesType = TimeseriesType.WEATHER_YEAR
-
     @validator("provide_power_potential_profile")
     def floor_small_values(cls, provide_power_potential_profile):
         """Remove any ``provide_power_potential_profile`` values below 1e-4."""

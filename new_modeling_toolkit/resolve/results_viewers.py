@@ -14,6 +14,8 @@ from PIL import ImageGrab
 
 summary_sheet_mapping = [
     # Pull in some raw results as a band-aid
+    # Further need to make sure that for any/all project specific RVs that come up all required input csvs that are needed are listed below
+
     ("constraints/ELCC_Facet_Constraint_LHS.csv", "ELCC_Facet_Constraint_LHS"),
     ("expressions/ELCC_Facet_Value.csv", "ELCC_Facet_Value"),
     ("variables/ELCC_MW.csv", "ELCC_MW"),
@@ -35,11 +37,12 @@ summary_sheet_mapping = [
     ("results_summary/temporal_settings_summary.csv", "Temporal Settings"),
     ("results_summary/transmission_summary.csv", "Transmission Summary"),
     ("results_summary/zonal_summary.csv", "Zonal Summary"),
+    ("results_summary/temporal_settings_summary.csv", "Temporal Settings"),
+    ("temporal_settings/rep_periods.csv", "Representative Sample Days"),
     # ("temporal_settings/rep_periods.csv", "Representative Sample Days"),
     # ("resource_dispatch_summary.csv", "Dispatch"),
     # ("parameters/input_load_mw.csv", "Demand"),
 ]
-
 
 def get_valid_results_folders(sheet_name: str, rng_name: str, wb: Optional["Book"] = None):
     """Get all RESOLVE results folders with non-empty ``results_summary`` subfolders."""

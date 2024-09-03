@@ -1,0 +1,15 @@
+name: nmt
+
+channels:
+  - conda-forge
+  - gurobi
+
+dependencies:
+  - python>=3.9,<3.11
+  - gurobi=10.0.2
+  - pip=22.3.1
+  - setuptools=66.1.1
+
+  - pip:
+      # Install current repo as editable package
+      - -e .

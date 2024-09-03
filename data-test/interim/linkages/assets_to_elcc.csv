@@ -1,7 +1,0 @@
-component_from,component_to,timestamp,attribute,value
-Solar,solar_wind,None,elcc_axis_index,1
-Solar,nested_solar_only,None,elcc_axis_index,1
-Solar,solar_wind,None,elcc_axis_multiplier,0.25
-Solar,nested_solar_only,None,elcc_axis_multiplier,0.25
-Wind,solar_wind,None,elcc_axis_multiplier,0.33
-Wind,solar_wind,None,elcc_axis_index,2

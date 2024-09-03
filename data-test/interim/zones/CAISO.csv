@@ -1,3 +1,0 @@
-timestamp,attribute,value,scenario
-None,penalty_overgen,50000.0,base
-None,penalty_unserved_energy,50000.0,base
