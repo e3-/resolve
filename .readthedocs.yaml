@@ -10,3 +10,7 @@ build:
 
 conda:
   environment: environment-rtd.yml
+
+sphinx:
+  configuration: docs/source/conf.py
+
