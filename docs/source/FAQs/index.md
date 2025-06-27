@@ -2,11 +2,8 @@
 
 ## This section will cover FAQs, Common errors, Troubleshooting steps in detail 
 
-----
 
 ### ST FAQ 
-
-----
 
 ### Tech FAQ
 
@@ -18,10 +15,8 @@ the solver is able to identify the infeasibility, sometimes called Irreducible I
 `Resolve` will save the infeasibility in the run's report folder (e.g., Gurobi will produce a text file 
 with a `.ilp` file extension).
 
-----
 
 ### RV FAQ
 
-----
 
 
