@@ -1,28 +1,15 @@
-# RESOLVE Results Viewing
+## Instructions for Loading Case Results in Results Viewer
 
+-   Check the instructions on readthedocs and copy over any material that’s still relevant.
 
-Once `Resolve` is done solving, it will save a series of CSVs that summarize the portfolio 
-investment & operational decisions. These files are stored in the run's report folder, which 
-is found in `./reports/resolve/[case name]/[timestamp]/`
+-   Make sure to add descriptions to the cover page in Live RV and also include here or a screenshot of the final table:
 
-The `Resolve` package includes a spreadsheet Results Viewer, which is powered by VBA and will load 
-the data from the CSVs for viewing as formatted figures & tables. See the spreadsheet for more 
-instructions.
+-   See example below and edit as needed:
 
-If users pass the `--raw-results` command line argument when running `Resolve`, a CSV for every 
-Pyomo Param, Var, Expression, and Constraint will be created and stored in the run's report folder. 
+-   <https://ethreesf.sharepoint.com/:x:/s/CPUCIRP/ET_L169FdWdKiN8eLeBHlx4BMAYKwm-Cn9iymjaRW11NaQ?e=yuMpqF>
 
-## Output File Structures
+-   Add instructions for loading cases. Example: [Resolve Results Viewer - CPUC IRP 2023 PSP - PUBLIC - v1.1.xlsm](https://ethreesf.sharepoint.com/:x:/s/CPUCIRP/EddYhWaj1vZHnL7HeOZ1lYQBgH4tBp7ewQI9yJtK9i8fHA?e=ifH9Uc)
 
-This section will walk you through what a typical output file structure for RESOLVE looks like 
+-   Add case loading macro back to live RV. Use one of the existing ones from before of just ask Chatgpt to write the code
 
-## Raw & Summary Results 
-
-Some files offer valuable insights compared to others, this section will look at key outputs and summary results of the run
-
-## RESOLVE Results Viewer
-
-This section will cover where will the end-of-the-day resolve story live 
-
-
-
+-   The script will also be included in the package as an additional option
