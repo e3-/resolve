@@ -141,7 +141,6 @@ Commercial solvers like Gurobi, IBM CPLEX, and FICO XPRESS offer additional solv
 typically substantially faster solve times. If you have licenses for any of these solvers, `Resolve` will work with them; 
 follow the vendor installation & licensing instructions.
 
-[Add point regarding runtime based on solvers]
-
+Please note that CPUC RESOLVE cases are typically large and often take 4-8 hours to run (including saving inputs to creating the optimization problem, to solving the optimization and saving the results). Although other solver options are available, E3 only has used Gurobi solver and does not have experience with running RESOLVE with other solvers.
 
 
