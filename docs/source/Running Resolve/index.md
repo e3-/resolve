@@ -14,6 +14,6 @@ Table 1. The subfolders in the
 | The “results” folder                              |                                                                                                                                                                                                                                                                                                  |
 | Subfolders in “resolve” folder for each case name | Includes results of a case run. If a run is successful, the main results will be saved in the “summary” folder for the case. Results folder for a case will still be created if the run fails but no summary results will be available. The log file may help identify the case failure reason.  |
 
-![RESOLVE Data Folder Structure](06124daeeb86dd1b8d9246153b3dc8c0.emf)
+![RESOLVE Data Folder Structure](_images/06124daeeb86dd1b8d9246153b3dc8c0.emf)
 
 Figure 1. RESOLVE Data Folder Structure

@@ -5,7 +5,7 @@ Once RESOLVE is done solving, it will save a series of CSVs that summarize the p
 
 Once you have a RESOLVE case fully done, the output directory structure will look something similar to this:
 
-![Example of a RESOLVE case results](b0ea53918fd18611287549e2c85b9431.png)
+![Example of a RESOLVE case results](_images/b0ea53918fd18611287549e2c85b9431.png)
 
 The output file size will also be dependent on the case settings and components, for example, including hourly and raw results might amplify the file size and outputs.
 
@@ -27,11 +27,11 @@ As you run the first couple blocks of code, you will be asked to enter the file 
 
 This is what that selection process should look like:
 
-![Path selection for RESOLVE Results Viewer template and Case results folder](c2eb90cc8d2d1e10a869aeb90ba893e6.png)
+![Path selection for RESOLVE Results Viewer template and Case results folder](_images/c2eb90cc8d2d1e10a869aeb90ba893e6.png)
 
 Once you have confirmed the selection, you would need to add the name of the case and the timestamp of it that you want loaded, this input would go here:
 
-![Example of case results sufolder names](65aa4f936e8f28af02ced7c79cae48e3.png)
+![Example of case results sufolder names](_images/65aa4f936e8f28af02ced7c79cae48e3.png)
 
 Additionally, there are clear instructions in the RV as well that should help guide users during this process.
 
@@ -41,7 +41,7 @@ Once this is done, users can move ahead to the `generate_rv` function, after whi
 
 As soon as this happens, the script will start loading in the RV and the script will provide updates as follows:
 
-![Logs shown when a case is successfully loaded in Results Viewer](56291fc65b012f9da9e15988c6cb75e2.png)
+![Logs shown when a case is successfully loaded in Results Viewer](_images/56291fc65b012f9da9e15988c6cb75e2.png)
 
 After this the users can find the Results viewer in the folder specified.
 
@@ -56,6 +56,6 @@ The hourly results viewer notebook provides a workflow for analyzing and visuali
 
 The user then has the option to export hourly load-resource balance results (that is, generation, load, zonal imports and exports, and battery charge and discharge results) for each specified zone and modeled year. Moreover, one can create hourly dispatch plots for a specified dispatch window (a.k.a. representative period) with the resource aggregation and color coding defined in the Excel Results Viewer workbook.
 
-![Example of hourly results aggregation and dispatch plots](aafe6b90a4ee192e3b380fdccfafcea1.emf)
+![Example of hourly results aggregation and dispatch plots](_images/aafe6b90a4ee192e3b380fdccfafcea1.emf)
 
 Figure 1. Example of hourly results aggregation and dispatch plots

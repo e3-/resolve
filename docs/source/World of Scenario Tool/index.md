@@ -8,7 +8,7 @@ The RESOLVE Scenario Tool is a user-centric model interface, designed to link da
 
 As an initial step, make sure that the Scenario tool is in the directory of the kit folder. Next in the Scenario Tool head to the xlwings.conf tab, which should be towards the end. On cell B10, “Location of kit code” please input the appropriate file directory. Depending on your machine update the Python Path in Cell B1 or Cell B2. Keep everything else in this tab empty.
 
-![xlwings settings in Scenario Tool](9605b5f4325425ea339e296be27c1a79.png)
+![xlwings settings in Scenario Tool](_images/9605b5f4325425ea339e296be27c1a79.png)
 
 **Windows Excel**
 
@@ -44,7 +44,7 @@ Make sure to use a forward slash / (and not a backslash \\) on macOS for the Pyt
 
 For example, if you are using windows, open the command terminal and activate the environment. In this instance, the environment is called cpuc-irp
 
-![List of Python paths](da247021e3f75a4457b061ee70c3aeb1.png)
+![List of Python paths](_images/da247021e3f75a4457b061ee70c3aeb1.png)
 
 Use the file path which has the environment name embedded in it.
 
@@ -52,7 +52,7 @@ Once this is done, please head to the Cover tab at the beginning of the Scenario
   
 Your cover tab should look something like this:
 
-![Example of Cover Sheet Settings in Scenario Tool](d790f357cf18ca01a6aa21c77ec04962.png)
+![Example of Cover Sheet Settings in Scenario Tool](_images/d790f357cf18ca01a6aa21c77ec04962.png)
 
 Figure 01 Example of Cover Sheet Settings in Scenario Tool
 
@@ -62,7 +62,7 @@ With this, the initial set-up phase of the Scenario tool should be completed, an
 
 The main data are organized in RESOLVE upstream workbooks, most importantly, the baseline, load and candidate resource workbooks that also have duplicates of the RESOLVE template tables for easy data transfer to the RESOLVE model. These workbooks are made available if CPUC desires, but the users should not need to interact and can directly rely on Scenario Tool for reviewing or using the data.
 
-![Illustration of data flow from upstream workbooks to RESOLVE Scenario Tool](85fa70b0b069f5db5c2e6c0606aa4e2a.png)
+![Illustration of data flow from upstream workbooks to RESOLVE Scenario Tool](_images/85fa70b0b069f5db5c2e6c0606aa4e2a.png)
 
 Figure 01 Illustration of data flow from upstream workbooks to RESOLVE Scenario Tool
 
@@ -103,7 +103,7 @@ Additional details are also covered in the FAQ section. Comprehensive informatio
 
 Users who want to run pre-existing cases can save all necessary inputs from the “RESOLVE Case Setup” tab of the Scenario Tool. There are three main macros to interact with for setting up a new case or running RESOLVE.
 
-| ![RESOLVE Case Setup Macros](256b1eb8c9c542258520545f2e529cbd.png) | ![RESOLVE Case Setup Macros](fa539a0c4687d0970c68b3227fef4bb1.png) |
+| ![RESOLVE Case Setup Macros](_images/256b1eb8c9c542258520545f2e529cbd.png) | ![RESOLVE Case Setup Macros](_images/fa539a0c4687d0970c68b3227fef4bb1.png) |
 |--------------------------------------------------------------------|--------------------------------------------------------------------|
 
 Figure 02. RESOLVE Case Setup Macros
@@ -132,6 +132,6 @@ Here are some general tips to have in mind when updating the Scenario Tool or se
 
 5.  Most worksheets have small tables that list all existing scenarios on the worksheet, as well as a list of table column names and a hyperlink for easier navigation in large data tables. The links are useful to click on and jump to the related section of interest.
 
-    ![Example of a RESOLVE Candidate Assets Worksheet ](f6ec5766658051e7c5b5c506d4e9618f.png)
+    ![Example of a RESOLVE Candidate Assets Worksheet ](_images/f6ec5766658051e7c5b5c506d4e9618f.png)
 
 Figure 03. Example of a RESOLVE Candidate Assets Worksheet
