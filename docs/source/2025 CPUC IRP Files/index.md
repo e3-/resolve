@@ -1,6 +1,6 @@
-# 2025 CPUC IRP Files
+## 2025 CPUC IRP Files
 
-The core of the RESOLVE public package includes the following content:
+The core of the RESOLVE public package includes the following content that the user may directly need to use:
 
 | **Content**                       | **Description**                                                                                                                                                                 |
 |-----------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

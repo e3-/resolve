@@ -1,306 +1,137 @@
-# RESOLVE Scenario Tool 
+# RESOLVE Scenario Tool
 
+The RESOLVE Scenario Tool is a user-centric model interface, designed to link data, inputs, assumptions, and constraints with the RESOLVE code. The primary step in being able to make that linkage is making sure that xlwings is correctly set-up.
 
+## Configuring Xlwings
 
-The `Resolve` Scenario Tool is a user-centric model interface, designed to link data, inputs, assumptions, and constraints with the `Resolve` code.
-The primary step in being able to make that linkage is making sure that xlwings is correctly set-up
+The RESOLVE Scenario Tool is a user-centric model interface, designed to link data, inputs, assumptions, and constraints with the RESOLVE code. The primary step in being able to make that linkage is making sure that xlwings is correctly set up.
 
-## Configuring xlwings
+As an initial step, make sure that the Scenario tool is in the directory of the kit folder. Next in the Scenario Tool head to the xlwings.conf tab, which should be towards the end. On cell B10, “Location of kit code” please input the appropriate file directory. Depending on your machine update the Python Path in Cell B1 or Cell B2. Keep everything else in this tab empty.
 
-![Overall add a figure for describing the flow of inputs into ST from
-1. GEnlist
-2. RC&B
-3. RP&T
-co-ordinate w ANgineh]
+![xlwings settings in Scenario Tool](9605b5f4325425ea339e296be27c1a79.png)
 
-![Additionally we need to add a Data-catalog - table where the data sources are outlined
-Eg for load we refer to IEPR...
-To be decided
-We can add it to the ST but in the doc we can refer back to it]
+**Windows Excel**
 
+**Configure Python Path:**
 
-We have seen that running resolve requires interfacing with both `excel` as well as `python` based code. xlwings is a tool that helps
-in interfacing excel and python and something that is very necessary for the model to run smoothly 
+1.  Open Command Prompt or PowerShell and activate the environment with the command `conda activate resolve-env`
 
-More standalone information on xlwings can be found [here:](https://docs.xlwings.org/en/latest/)
+2.  Type the command `where python` to see where the resolve-env version of Python is stored. This should look like:  
+      
+    `C:\Users\[username]\Anaconda3\envs\resolve-env\python.exe`   
+      
+    Paste this path into the **Python Path** cell.
 
-For our purposes we will focus on installing xlwings and making it work with the Resolve Scenario Tool excel workbook
+⚠️**Warning**  
+Make sure to use a backslash \\ (and not a forward slash /) on Windows for the Python path.
 
-On the Scenario Tool's `Cover & Configuration` tab, you will need to tell the Scenario Tool how to find your `resolve-env` 
-**Python path** and the **data folder** where you want to save inputs.
+**macOS Excel**
 
-```{image} _images/scenario-tool-config.png
-:alt: Screenshot of user dropdown inputs to specify scenarios to be read in `Resolve` case.
-:width: 60%
-:align: center
-```
+**Configure Python Path:**
 
-::::{dropdown} Windows Excel
-**Configure Python Path:** 
-1. Open Command Prompt or PowerShell and activate the environment with the command `conda activate resolve-env`
-2. Type the command `where python` to see where the `resolve-env` version of Python is stored. This should look like: 
-  `C:\Users\[username]\Anaconda3\envs\resolve-env\python.exe`. Paste this path into the **Python Path** cell.
-  :::{warning}
-  Make sure to use a backslash `\` (and not a forward slash `/`) on Windows for the Python path. 
-  :::
-**Configure Data Folder Path:** 
+1.  Open Terminal and activate the environment with the command `conda activate resolve-env`
 
-By default, this folder is called `data` and located in the project folder next to the `scr` folder. 
-For completeness, type the full path to the data folder, may look something like `~/.../resolve/data`
-::::
+2.  **First time setup only**: Run the command `xlwings runpython install`. You should see a prompt from macOS asking you for permission for Terminal to automate Excel. **You must allow this.**
 
-::::{dropdown} macOS Excel
-**Configure Python Path:** 
-1. Open Terminal and activate the environment with the command `conda activate resolve-env`
-2. {bdg-warning}`First time setup only` Run the command `xlwings runpython install`. You should see a prompt from macOS 
-   asking you for permission for Terminal to automate Excel. **You must allow this.**
-3. Type the command `which python` to see where the `resolve-env` version of Python is stored. This should look like: 
-  `/Users/[username]/anaconda3/envs/resolve-env/bin/python`. Paste this path into the **Python Path** cell.
-  :::{warning}
-  Make sure to use a forward slash `/` (and not a backslash `\`) on macOS for the Python path.
-  :::
-**Configure Data Folder Path:** 
+3.  Type the command `which python` to see where the resolve-env version of Python is stored. This should look like:  
+      
+    `/Users/[username]/anaconda3/envs/resolve-env/bin/python`   
+      
+    Paste this path into the **Python Path** cell.
 
-By default, this folder is called `data` and located in the project folder next to the `src` folder. 
-For completeness, type the full path to the data folder, may look something like `~/.../resolve/data`
-::::
+⚠️**Warning**  
+Make sure to use a forward slash / (and not a backslash \\) on macOS for the Python path.
 
----
+For example, if you are using windows, open the command terminal and activate the environment. In this instance, the environment is called cpuc-irp
+
+![List of Python paths](da247021e3f75a4457b061ee70c3aeb1.png)
+
+Use the file path which has the environment name embedded in it.
+
+Once this is done, please head to the Cover tab at the beginning of the Scenario Tool. If you have made the right updates and have installed the environment correctly, you should be able to recalculate the spreadsheet and notice that the Cells C22 & C23 are now filled up. In cell C31, you will have information on the xlwings version, make sure that this is v 0.30.15 or above.  
+  
+Your cover tab should look something like this:
+
+![Example of Cover Sheet Settings in Scenario Tool](d790f357cf18ca01a6aa21c77ec04962.png)
+
+Figure 01 Example of Cover Sheet Settings in Scenario Tool
+
+With this, the initial set-up phase of the Scenario tool should be completed, and the user should be able to make changes/updates to the scenario tool and run cases.
+
+## Overview of Data Organization in the Scenario Tool
+
+The main data are organized in RESOLVE upstream workbooks, most importantly, the baseline, load and candidate resource workbooks that also have duplicates of the RESOLVE template tables for easy data transfer to the RESOLVE model. These workbooks are made available if CPUC desires, but the users should not need to interact and can directly rely on Scenario Tool for reviewing or using the data.
+
+![Illustration of data flow from upstream workbooks to RESOLVE Scenario Tool](85fa70b0b069f5db5c2e6c0606aa4e2a.png)
+
+Figure 01 Illustration of data flow from upstream workbooks to RESOLVE Scenario Tool
 
 ## Structure & Tabs of the Scenario Tool
 
-| Scenario Tool Tab               | Short Description                                                                                                         |
-|:--------------------------------|:--------------------------------------------------------------------------------------------------------------------------|
-| Cover & Configuration           | Key starting point, takes input for Python & Folder Path as defined by the user                                           |
-| Case List                       | A tab where users can look at existing case designs, make new cases and record them                                       |
-| RESOLVE Settings                | Primary place to save input data and case settings, includes Macros for running cases<br/>(More detail on this tab below) |
-| Temporal Settings & Rep Periods | RESOLVE uses representative days o run the simulatuion, additional details on the same can be found on these tabs         |
-| System                          | A tab to define and create new systems that encapsulate all sectors of the electric systems                               |
-| Loads                           | Defines different load components and values for the system                                                               |
-| Transmission Paths              | Defines Tx paths, forward and reverse ratings as well as hurdle rates                                                     |
+All CPUC RESOLVE Scenario Tools have the following main worksheets.
 
-The Scenario Tool has a plethora of other information and tabs that all flow into the model. Not all of these tabs are defined
-in detail in the documentation, however some of the tabs are self-explanatory. 
+| **Scenario Tool Tab**         | **Short Description**                                                                                                                                                                                                                                                                                                       |
+|-------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Cover                         | Takes input for Python & Folder Path as defined by the user                                                                                                                                                                                                                                                                 |
+| Resolve Case Setup            | A tab where users can look at existing case designs, make new cases, record them, save data inputs and case settings                                                                                                                                                                                                        |
+| Timeseries Clusters           | Sample days represented in RESOLVE as well as chronological days representing inter-day sharing are included here                                                                                                                                                                                                           |
+| Zonal Topology                | Zones, inter-zonal power flow paths, and path expansion options as well as simultaneous flow limits are defined                                                                                                                                                                                                             |
+| Load Components               | Defines different load components and values for each zone                                                                                                                                                                                                                                                                  |
+| Passthrough Inputs            | Gathers all inputs across multiple tabs that contain useful information to carry to RESOLVE case outputs                                                                                                                                                                                                                    |
+| Fuels                         | Includes all defined fuels and their price and GHG and carbon price policy attributes                                                                                                                                                                                                                                       |
+| Carbon Price                  | Includes carbon price scenarios                                                                                                                                                                                                                                                                                             |
+| Emissions Policy              | Includes emissions target scenarios and policy adjustments                                                                                                                                                                                                                                                                  |
+| Clean Energy Policy           | Includes clean energy targets for RPS and SB100 scenarios and policy adjustments at CAISO level                                                                                                                                                                                                                             |
+| System Reliability            | Includes ELCCs, and system reliability target scenarios and adjustments at the CAISO level                                                                                                                                                                                                                                  |
+| Baseline Resources - Default  | Includes all existing resources across all zones. Represents their cost and operational inputs as well as their policy attributes and memberships with asset groups. Additional worksheets with “Baseline” in the name include additional scenarios related to all or subset of Baseline resources.                         |
+| Min Local Capacity Groups     | Include min operational capacity that has to be maintained in local areas aggregated at the IOU level                                                                                                                                                                                                                       |
+| Candidate Resources - Default | Includes all candidate resources across all zones. Represents their cost and operational inputs as well as their policy attributes and memberships with operational group and asset groups. Additional worksheets with “Baseline” in the name include additional scenarios related to all or subset of Candidate resources. |
+| Resource Dispatch Groups      | Includes details on operational groups. (A group of one or more resources that are similar operationally, are dispatched with their operational groups)                                                                                                                                                                     |
+| Min Build Groups              | Includes all min build requirement for all or subset of candidate resources                                                                                                                                                                                                                                                 |
+| Max Build Groups              | Includes all max build requirement for all or subset of candidate resources                                                                                                                                                                                                                                                 |
+| Candidate Shed DR             | Includes Shed Dr candidate resource options and their attributes                                                                                                                                                                                                                                                            |
+| Tx Constraints                | Includes CAISO transmission constraints such as existing headrooms for FCDS, SSN and EODS deliverability periods                                                                                                                                                                                                            |
+| CAISO Tx Upgrades             | Includes candidate upgrades potential and costs to expand CAISO Tx constraints                                                                                                                                                                                                                                              |
+| Tx Membership                 | Includes CAISO transmission memberships with resources and transmission upgrades with FCDS, SSN and EODS deliverability coefficients                                                                                                                                                                                        |
+| Lists                         | Includes dropdown options defined in the workbook                                                                                                                                                                                                                                                                           |
+| Scenarios                     | Includes all scenarios within all worksheets                                                                                                                                                                                                                                                                                |
+| xlwings.conf                  | Includes paths to user’s RESOLVE `python` link and `kit` folder directory                                                                                                                                                                                                                                                   |
 
-For eg: Different resource types have their own tabs - taking variable resources as an example, the 
-`Variable` tab lists all the variable resources in the CAISO system, along with what zone they are in, what are the operating characteristics of that resource
-as well as whether or not there is potential to build additional capacity of that resource.
-
-Additional comprehensive information on some of these inputs and assumptions present in the Scenario Tool can be found
-in the [Inputs & Assumptions document](https://www.cpuc.ca.gov/-/media/cpuc-website/divisions/energy-division/documents/integrated-resource-plan-and-long-term-procurement-plan-irp-ltpp/2023-irp-cycle-events-and-materials/inputs-assumptions-2022-2023_final_document_10052023.pdf) released by the CPUC. 
-
-For users planning on comprehensively using the Model, a thorough reading of the I&A document is recommended. 
+Additional details are also covered in the FAQ section. Comprehensive information on the key inputs and assumptions present in the Scenario Tool can be found in the [Inputs & Assumptions document](https://www.cpuc.ca.gov/-/media/cpuc-website/divisions/energy-division/documents/integrated-resource-plan-and-long-term-procurement-plan-irp-ltpp/2024-2026-irp-cycle-events-and-materials/draft-2025-inputs-and-assumptions-document.pdf) released by the CPUC. For users planning on comprehensively using the Model, a thorough reading of the I&A document is recommended.
 
 ## Saving Input Data & Case Settings
 
-Users who want to run pre-existing cases can save all necessary inputs from the "Resolve Settings" tab of the Scenario Tool.
+Users who want to run pre-existing cases can save all necessary inputs from the “RESOLVE Case Setup” tab of the Scenario Tool. There are three main macros to interact with for setting up a new case or running RESOLVE.
 
-```{image} ../_images/scenario-tool-settings.png
-:alt: Three buttons on the `Resolve` Settings tab to create case inputs & settings.
-:width: 80%
-:align: center
-```
+| ![RESOLVE Case Setup Macros](256b1eb8c9c542258520545f2e529cbd.png) | ![RESOLVE Case Setup Macros](fa539a0c4687d0970c68b3227fef4bb1.png) |
+|--------------------------------------------------------------------|--------------------------------------------------------------------|
 
-1. Save the `Component` input data (e.g., resource heat rates, etc.) using the "Save Component Data" button
-2. Save the `System` configuration (i.e., the combination of loads, resources, etc. to model) using the "Save System Configuration" button
-3. Save a single case (e.g., years to model, scenarios, etc.) by selecting a case name from the "Case Name" dropdown and pressing the "Save Case Settings" button
-   - To the right side of the "Resolve Settings" tab, you can also save *multiple* cases out of the Scenario Tool:
+Figure 02. RESOLVE Case Setup Macros
 
-```{image} ../_images/cases-to-save-run.png
-:alt: List cases to save and cases to run as a batch.
-:width: 60%
-:align: center
-```
-     
----
-For users who want to update or create new inputs data, systems, and cases, the subsequent pages discuss 
-how to update data in the Scenario Tool in more detail.
+1.  Save the System Data via the Export System Data to CSV macro button. This will take about 20 minutes for all the data in all tabs to be saved in the “data” folder. Running this macro is needed everything data updates are introduced to the Scenario Tool.
 
-### 1. `Component` Data
+2.  Save a setup case by finding the case name from “Case to Retrieve” dropdown options, and run Retrieve Stored Case Settings via macro button. This will also set the “Case Name” to the specified case name and update the list of scenarios in the Case Settings Configurator list
 
-`Components` are the fundamental building block of what `Resolve` models. All `Components` have attributes that 
-can be set via the Scenario Tool. 
+3.  Next, by clicking on the Export Case to CSV macro button, you are able to save the case in your data directory and ready to setup your case run.
 
-| Class                 | Description                                                                                           |
-|-----------------------|-------------------------------------------------------------------------------------------------------|
-| AnnualEmissionsPolicy | Annual emissions accounting that can encompass generation & importing transmission paths.             |
-| AnnualEnergyStandard  | Renewable Portfolio Standard (RPS) or Clean Energy Standard (CES)-type policies.                      |
-| Asset                 | Any physical asset where we want to track & optimize investment costs.                                |
-| CandidateFuel         | A fuel that can be used by generators (or created if using electrolytic fuel production)              |
-| ELCCSurface           | ELCC surface inputs                                                                                   |
-| Load                  | A load component consisting of an hourly profile and an annual energy and/or peak forecast.           |
-| PlanningReserveMargin | A Planning Reserve Margin (PRM) reliability accounting constraint, interacts with `ELCCSurface`.      |
-| Reserve               | Operating reserves, such as spin, regulation, load following.                                         |
-| Resource              | An `Asset` used for electric sector operations (e.g., thermal generator, battery, variable resource). |
-| TXPath                | `Resolve` uses a "transportation" ("pipe-and-bubble") model for transmission flows between zones.     |
-| Zone                  | A location, constrained by transmission, where loads & resources are located.                         |
+4.  Alternatively, go to Cases to Save & Run section and choose a list of cases interested in running and save all case settings via a single macro button of Export Cases to CSV.
 
+## General Tips for updating the Scenario Tool
 
-(scenario_tags)=
-#### Scenario tagging functionality
+It is recommended to first run an existing setup case in the Scenario Tool with no updates to the data to make sure the steps in the process of running RESOLVE is fully functional. Instructions are provided below.
 
-See {ref}`input_scenarios` for discussion about how to determine which scenario tagged data is used in a specific model run. 
+Here are some general tips to have in mind when updating the Scenario Tool or setting up new cases:
 
-On most of the component & linkage attributes tabs, you will find a `Scenario` column. In the Scenario Tool, a single instance of 
-a component can have **multiple** line entries in the corresponding data table as long as each line is tagged with a different scenario 
-tag, as shown in the below screenshot. 
+1.  Avoid using very long component names.
 
-```{image} ../_images/resource-scenario-tags.png
-:alt: Screenshot from Scenario Tool showing multiple scenario tags for the same resource.
-:align: center
-```
+2.  Row six in every worksheet includes the variable name used in the model backend associated with the variables. If a data column has no row six variable name, that means it will be saved in the data folder. Do not edit the name without checking the variable names in the backend.
 
-Scenario tags can be populated *sparsely*; in other words, every line entry for the same resource does not have to be fully populated 
-across all columns in the data tables. In the example screenshot above, this is demonstrated by the `base` scenario tag having 
-data for "Total (Planned + New) Resource Potential in Modeled Year (MW)" and no data for "All-In Fixed Cost by Vintage ($/kW-year)", 
-whereas the scenario tags `2021_PSP_22_23_TPP` and `2021_PSP_22_23_TPP_High` are the reverse. 
+3.  Row 10 is fully customizable and flexible for any user defined names and has no linkage to the data folder.
 
-The Scenario Tool will automatically create CSVs for all the data entered into the Scenario Tool. These CSVs have a 
-four-column, "long" orientation.
+4.  Row 11 is generally flexible, and user-defined except for annual and monthly data that must start with the year or month, respectively.
 
-| timestamp                            | attribute        | value   | scenario (optional) |
-|--------------------------------------|------------------|---------|---------------------|
-| [None or timestamp (hour beginning)] | [attribute name] | [value] | [scenario name]     |
-| ...                                  | ...              | ...     | ...                 |
+5.  Most worksheets have small tables that list all existing scenarios on the worksheet, as well as a list of table column names and a hyperlink for easier navigation in large data tables. The links are useful to click on and jump to the related section of interest.
 
+    ![Example of a RESOLVE Candidate Assets Worksheet ](f6ec5766658051e7c5b5c506d4e9618f.png)
 
-#### Timeseries Data
-
-Hourly timeseries data is now stored in separate CSV files under the `./data/profiles/` subfolder to keep the Scenario 
-Tool spreadsheet filesize manageable. These CSVs must have the following format:
-
-| timestamp                    | value             |
-|------------------------------|-------------------|
-| [timestamp (hour beginning)] | [attribute value] |
-| ...                          | ...               |
-
-On the Scenario Tool, you'll see certain data attributes have filepaths as their
-input, which point the code to the relevant CSV file.
-
-### 2. Configure a System
-
-The "System" tab defines the energy system being modeled, which is composed of a list of various modeling components
-(loads, resource, policies, etc.). This tab will have any pre-populated system configurations in the yellow table(s) 
-to the right of the tab, and different systems are linked to the active case on the "`Resolve` Settings" tab.
-
-```{image} ../_images/scenario-tool-system.png
-:alt: Screenshot example of list of components in System. 
-:width: 80%
-:align: center
-```
-
-If users add any new modeling components (e.g., load components with new names, resources with new names), they will 
-need to make sure that these new components are added to either an existing or new system configuration by updating 
-the system list.
-
-### 3. Define Case Settings
-
-This page will discuss the various settings that can be toggled in a `Resolve` run. 
-Most settings on the "Resolve Settings" tab are formula-linked to pre-populated settings on the "Case List" tab. 
-You can update these settings by adding columns to the "Case List" tab.
-
-:::{admonition} 2023 CPUC IRP {octicon}`zap`
-CPUC IRP stakeholders will find case settings for all the cases posted on the CPUC website pre-populated 
-on the "Case List" tab.
-:::
-
-#### Case Settings
-
-
-##### Input Scenarios
-
-See {ref}`scenario_tags` for discussion about how to input scenario tagged data for components & linkages. 
-
-As discussed in {py:func}`resolve.common.component.Component.from_csv`, input scenario tags are prioritized 
-based on the order of scenarios in the `Resolve` case. Scenarios listed toward the bottom of the scenario list are higher priority 
-and more likely to override other data if data is tagged with a "lower priority" scenario tag. In the screenshot below, for example, 
-data tagged with the `base` tag will the lowest priority, since it is the first tag in the scenario list. For any of the 
-subsequent scenario tags (e.g., `2021_PSP_22_23_TPP_ITC_ext`), to the extent that there is data that is tagged with the higher 
-priority scenario tag, that higher priority data will override any `base`-tagged data.
-
-```{image} ../_images/scenario-settings.png
-:alt: Screenshot of user dropdown inputs to specify scenarios to be read in `Resolve` case.
-:width: 60%
-:align: center
-```
-On the `Resolve` Settings tab, users will find an orange dropdown inputs menu to help ensure that input scenarios selected 
-are based on scenario tags that already are defined on the respective component & linkage attribute tabs. 
-In the first column, select the sheet on which to look up available scenario tags. Then, in the second column, the dropdown input 
-should only present scenario tags that are already defined on the respective sheet of the Scenario Too.
-
-##### Representative Period Settings
-
-Toggle between pre-defined sets of sampled days saved in the Scenario Tool. See {ref}`timeseries-clustering for instructions on how to create new sampled days.
-
-##### Financial & Temporal Settings
-
-The model will now endogenously calculate the annual discount factors to use for each modeled year based on four pieces 
-of information:
-1. **Cost dollar year:** The dollar year that costs are input in & should be reported out in. In general, `Resolve` is designed 
-to be in real dollars for a specific dollar year.
-2. **Modeled years:** Which modeled years to include in the `Resolve` case.
-3. **End effect years:** The number of years to extrapolate out the last modeled year. In other words, considering 20 years 
-of end effects after 2045 would mean that the last model year's annual discount factor would represent the discounted cost 
-of 2045-2064, assuming that the 2045 costs are representative of a steady-state future for all end effect years.
-4. **Annual discount rate:** Real discount rate in each year
-5. **Inter-period dynamics:** Include additional chronological information to allow `Resolve` to shift energy between days across the modeled weather years.
-
-##### Solver Settings
-
-For now, users must follow the pattern of `solver.[solver name].[solver option].[data type]` when setting the solver settings. 
-For example, users wanting to set Gurobi's [`Method` setting](https://www.gurobi.com/documentation/9.5/refman/method.html) 
-would need to enter `solver.gurobi.Method.int` and the corresponding value. 
-
-#### Custom Constraints
-
-Custom constraints allow users to customize the functionality of `Resolve` by adding additional constraints 
-without needing to change the code. These are defined on the "Custom Constraints" tab and saved to 
-`./data/settings/resolve/[case name]/custom_constraints/`
-
-:::{admonition} 2023 CPUC IRP {octicon}`zap`
-For the CPUC IRP, custom constraints are used for various custom functionality:
-- Resource deliverability (i.e., CAISO FCDS/EO designation) and accompanying CAISO transmission upgrades
-- Connecting disaggregated build variables to aggregate operational resources (which allows `Resolve` to make granular
-  investment decisions while reducing the model size needed to represent operations. 
-- Group-level constraints (e.g., "Resolve must build 15 GW of offshore wind by 2045" but can select amongst the 4 candidate OSW resources.)
-:::
-
-To create custom constraints:
-1. Create a "Custom Constraint Group" name of your choosing. These groups are toggled 
-   on/off in the active case settings together, so group custom constraints accordingly.
-2. Within each custom constraint group, define...
-3. To be able to include a set of constraints the user needs to add the name of the 
-custom constraint group to the case settings tab
-
-(timeseries-clustering)=
-#### Timeseries Clustering
-
-{bdg-warning-line}`Advanced Topic` 
-
-Users who want to create a new set of sampled days can do so using the included Jupyter notebook in `./notebooks/cluster.py`. 
-This is a [Jupytext file](https://jupytext.readthedocs.io). Note that to run the timeseries clustering, you first must save a case and all 
-relevant system & component data (as described in {ref}`saving-inputs`). 
-
-To open this notebook:
-1. Open a Command Prompt or Terminal and navigate to the `./notebooks` subfolder
-2. Activate the `resolve-env` environment using `conda activate resolve-env`
-3. Open the notebook using the following commands, which will launch a new tab in your web browser:
-  ```
-  jupytext-config set-default-viewer
-  jupyter lab cluster.py
-  ```
-  This will launch a window in your web browser that looks something like this: 
-  ```{image} ../_images/jupyter-lab-clustering.png
-  :alt: Three buttons on the `Resolve` Settings tab to create case inputs & settings.
-  :width: 80%
-  :align: center
-  ```
-4. In the second "cell", change the case name from "Core_25MMT" to the case you want to use. The notebook will then 
-   load the case and its corresponding system data to start the timeseries sampling process.
-5. Run the cells (using the {octicon}`play` button or by using `Shift + Enter` keyboard shortcut). 
-   (For Jupyter notebook basics, users can [start here](https://realpython.com/jupyter-notebook-introduction/#running-cells)).
-6. If the notebook runs successfully, a CSV file will be created in the `./notebooks` folder called `map_to_rep_periods.csv`. 
-   Paste the data in that CSV into the "Rep Periods" tab of the Scenario Tool (insert columns in the yellow input 
-   table areas as-needed).
-7. Toggle between different timeseries samples by updating your case settings on the "Case List" tab.
-
+Figure 03. Example of a RESOLVE Candidate Assets Worksheet
