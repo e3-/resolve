@@ -1,7 +1,7 @@
 # RESOLVE Results Viewing
 
 Once RESOLVE is done solving, it will save a series of CSVs that summarize the portfolio investment and operational decisions. These files are stored in the run’s report folder, which is found in  
-./reports/resolve/[case name]/[timestamp]/
+`./reports/resolve/[case name]/[timestamp]/`
 
 Once you have a RESOLVE case fully done, the output directory structure will look something similar to this:
 
@@ -47,6 +47,8 @@ After this the users can find the Results viewer in the folder specified.
 
 Note that this is a computationally intense process and depending on the size of the case can take about 30 minutes to load one case.
 
+## Option 2: Excel macros in the Results Viewer
+Coming Soon!
 
 ## Optional Hourly Results Processing Jupyter Notebook
 

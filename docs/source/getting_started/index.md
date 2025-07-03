@@ -1,8 +1,6 @@
 # Getting Started & Installation
 
 
-
-
 This version of `Resolve` requires Python 3 and either Office 365 Excel, Excel 2021, or later. 
 This page goes through instructions to set up Resolve on your local computer.
 

@@ -16,8 +16,8 @@
 
     A **resource** is a type of asset that can provide power and therefore has operational characteristics (e.g., heat rate, charging efficiency) as well as investment costs and other linkages such as zones, fuels and policies. Here are different types of resources and their critical operational data requirements:
 
-| Resource Type   | Specific Inputs for each type                                                                                                             |
-|-----------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| Resource Type   | Specific Inputs for each type  |
+|-----------------|--------------------------------------------------------------------------|
 | Thermal         | Fuel, heat rate slope and intercept, variable O&M. Example: biomass and biogas resources                                                  |
 | Unit Commitment | Fuel, heat rate slope and intercept, ramp rate, startup and shutdown costs, variable O&M Example: combined cycles and combustion turbines |
 | Generic         | Variable O&M, curtailable flag, production profile (optional) Example: Geothermal                                                         |

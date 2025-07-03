@@ -18,27 +18,24 @@ We recommend using the [Anaconda](https://www.continuum.io/downloads) Python dis
 During the installation process, we recommend selecting the "Add Anaconda3 to my `PATH` environment variable" option
 so that you have easy access to the `conda` command from the command line.
 
-```{tip}
-If you run into any `conda not recognized` or `command not found: conda` messages in the command line in the following steps,
+
+> If you run into any `conda not recognized` or `command not found: conda` messages in the command line in the following steps,
 this means that you **did not** add Anaconda to your PATH. You can add either rerun the installer (easiest) or manually
 add Anaconda to your PATH (see [these instructions](https://www.geeksforgeeks.org/how-to-setup-anaconda-path-to-environment-variable/) for some help).
-```
 
 ## Initial `conda` Set-up
 
 In order for `conda` to work properly, you will need to initialize your "shell" (command line, e.g., Command Prompt). 
+## Windows
 
-:::::{dropdown} Windows
-
-````{dropdown} Option 1: Using Command Prompt
+### Option 1: Using Command Prompt
 If you use Command Prompt, open a new Command Prompt window and enter:
 
 ```
 conda init cmd.exe
 ```
-````
 
-````{dropdown} Option 2: Using PowerShell
+### Option 2: Using PowerShell
 If you use PowerShell, open a new PowerShell window and enter:
 
 ```
@@ -53,11 +50,8 @@ Set-ExecutionPolicy Unrestricted
 ```
 
 Then, close the PowerShell window and open a new one. 
-````
 
-:::::
-
-````{dropdown} macOS Terminal
+## macOS Terminal
 Since macOS Catalina (10.15), the default "shell" program is `zsh`. These instructions assume you're on a recent version of macOS. 
 Open Terminal and use the following command:  
 
@@ -65,10 +59,6 @@ Open Terminal and use the following command:
 conda init zsh
 ```
 Earlier versions of macOS use `bash`, so replace `zsh` in the command above with `bash`.
-
-````
-
-----
 
 ## Creating Environments 
 Once you have `Anaconda` set-up and have the necessary `Resolve` files and folders you are ready
@@ -123,13 +113,9 @@ as follows:
 Activating the environment would mean that you now have the virtual computing capabilities to run the model.
 If you would like to learn more about virtual environments and dependencies, supplemental information can be found [here](https://www.geeksforgeeks.org/python-virtual-environment/#:~:text=A%20Python%20Virtual%20Environment%20is,a%20virtual%20environment%20in%20Python)
 
-```{tip}
-In order to maintain compatability between different versions, and updates of Resolve, it is best practice to use 
+> In order to maintain compatability between different versions, and updates of Resolve, it is best practice to use 
 new environments for each new release. Environments do not interact with one another and this would make sure that the user
 is able to switch back and forth between different resolve versions with ease.
-```
-
-
 
 
 ## Solvers
