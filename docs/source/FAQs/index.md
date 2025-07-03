@@ -107,7 +107,7 @@
 
     Each case in RESOLVE is defined by its list of scenario tags that are flagged as True to be included in the modeling. Each Scenario Tag has an associated priority number (high number means higher priority) which allows you to define and include more than one scenario for each component type with the higher priority scenario carrying the ultimate information to be used in the case run. For example, if you have one Scenario Tag that covers the default candidate resource assumptions, but you wish to model a high-cost scenario only for wind resources, you should include the high-cost wind Scenario Tag in the list and make sure it has higher priority number compared to the default scenario. Additional inputs include specifying solver options (optional), results reporting settings (e.g., if you wish to include hourly results reporting or not), temporal and financial settings, as well as selected modeling years with the years to include for inter-period sharing.
 
-    ![Illustration of RESOLVE Case Settings and Important Parameters](6907b2193c4ffeadae4fbe2c78ac26e2.emf)
+    ![Illustration of RESOLVE Case Settings and Important Parameters](_images/6907b2193c4ffeadae4fbe2c78ac26e2.emf)
 
 Figure 01 Illustration of RESOLVE Case Settings and Important Parameters
 
