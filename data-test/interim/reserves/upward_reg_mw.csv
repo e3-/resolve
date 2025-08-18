@@ -1,4 +1,0 @@
-timestamp,attribute,value,scenario
-None,direction,up,
-None,exclusive,True,
-None,requirement,.\data-test\profiles\upward_reg_mw.csv,

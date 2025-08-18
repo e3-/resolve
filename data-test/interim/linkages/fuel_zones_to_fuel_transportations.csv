@@ -1,3 +1,0 @@
-component_from,component_to,timestamp,attribute,value,scenario
-CA_South,Hydrogen_Pipeline,None,from_zone,TRUE,base
-CA_North,Hydrogen_Pipeline,None,to_zone,TRUE,base

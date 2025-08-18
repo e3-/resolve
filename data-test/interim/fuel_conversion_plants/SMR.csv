@@ -1,9 +1,0 @@
-timestamp,attribute,value,scenario
-None,conversion_efficiency,0.8,base
-None,can_build_new,TRUE,base
-None,can_retire,FALSE,base
-None,consumed_candidate_fuel_name,Natural_Gas,base
-None,produced_candidate_fuel_name,Hydrogen,base
-1/1/2020,potential,2000,base
-1/1/2020,new_capacity_annualized_all_in_fixed_cost_by_vintage,112.6345855,base
-1/1/2020,variable_cost,10,base

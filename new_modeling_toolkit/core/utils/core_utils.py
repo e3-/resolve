@@ -8,9 +8,7 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 
-from line_profiler import LineProfiler
 from loguru import logger
-from memory_profiler import profile
 
 
 def map_dict(func: Callable, dict_: Dict[Any, Any]) -> Dict[Any, Any]:
@@ -66,7 +64,7 @@ def sum_not_none(values: Iterable) -> Any:
         values: values to sum
 
     Returns:
-        sum_: sum of values, without those that are None
+        sum of values, without those that are None
     """
     non_none_values = filter_not_none(values)
     if len(non_none_values) == 0:
@@ -84,12 +82,7 @@ def timer(func):
         start = time.time()
         value = func(*args, **kwargs)
         end = time.time()
-        try:
-            logger.success(
-                f"{args[0].__class__.__name__}: {args[0].name}: {func.__name__!r} took {(end - start):.2f} seconds"
-            )
-        except:
-            logger.info(f"{func.__name__!r} took {(end - start):.2f} seconds")
+        logger.debug(f"{func.__name__!r} took {(end - start):.2f} seconds")
 
         return value
 
@@ -108,6 +101,8 @@ def cantor_pairing_function(a: int, b: int) -> int:
 
 
 def profile_time(function, *args, **kwargs):
+    from line_profiler import LineProfiler
+
     def wrapper(*args, **kwargs):
         # profile the construct operation block function and save results to log file
         lp = LineProfiler()
@@ -123,11 +118,25 @@ def profile_time(function, *args, **kwargs):
 
 
 def profile_memory(function, *args, **kwargs):
-    @profile
+    from memory_profiler import profile
+
     def wrapper(*args, **kwargs):
-        return_value = function(*args, **kwargs)
         profiler_output = StringIO()
+        return_value = profile(function)(*args, **kwargs)
         logger.info("Memory Profiler Results:\n%s", profiler_output.getvalue())
         return return_value
 
     return wrapper
+
+
+def convert_to_bool(v):
+    if type(v) == bool:
+        bool_value = v
+    elif type(v) == str:
+        bool_value = v.lower() in ("yes", "true", "t", "1")
+    elif type(v) == int or type(v) == float:
+        bool_value = bool(v)
+    else:
+        raise ValueError(f"Unsupported type `{type(v)}` for input value `{v}`")
+
+    return bool_value

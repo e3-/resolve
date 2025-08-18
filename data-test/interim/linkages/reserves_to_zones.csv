@@ -1,3 +1,0 @@
-component_from,component_to,timestamp,attribute,value,scenario
-downward_reg,zone_1,1/1/2020,requirement_fraction_of_gross_load,0.015,test
-regulating_up,ISONE,1/1/2020,requirement_fraction_of_gross_load,0.03,integration

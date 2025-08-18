@@ -1,0 +1,3 @@
+attribute,timestamp,value,scenario
+direction,,down,Reserves
+requirement,,profiles/reserves/reg_down_req.csv,Reserves

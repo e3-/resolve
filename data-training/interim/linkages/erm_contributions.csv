@@ -1,0 +1,6 @@
+component_from,component_to,attribute,timestamp,value,scenario
+erm_firm,ERM,multiplier,,0.95,ERM_Reliability
+erm_solar,ERM,multiplier,,profiles/policies/erm_solar_multiplier.csv,ERM_Reliability
+erm_wind,ERM,multiplier,,profiles/policies/erm_wind_multiplier.csv,ERM_Reliability
+erm_storage,ERM,multiplier,,1.0,ERM_Reliability
+erm_shed,ERM,multiplier,,1.0,ERM_Reliability

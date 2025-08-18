@@ -1,0 +1,10 @@
+attribute,timestamp,value,scenario
+resource_type,,Shed DR,ERM_Reliability
+aggregate_operations,,False,ERM_Reliability
+curtailable,,False,ERM_Reliability
+unit_commitment_mode,,linear,ERM_Reliability
+unit_size,,10.0,ERM_Reliability
+max_annual_calls,,24.0,ERM_Reliability
+max_daily_calls,,1.0,ERM_Reliability
+max_call_duration,,4.0,ERM_Reliability
+allow_inter_period_sharing,,False,ERM_Reliability

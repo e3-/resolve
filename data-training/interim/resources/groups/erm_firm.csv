@@ -1,0 +1,5 @@
+attribute,timestamp,value,scenario
+resource_type,,Generic,ERM_Reliability
+aggregate_operations,,False,ERM_Reliability
+curtailable,,False,ERM_Reliability
+allow_inter_period_sharing,,False,ERM_Reliability

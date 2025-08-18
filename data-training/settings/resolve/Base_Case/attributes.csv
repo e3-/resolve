@@ -1,0 +1,9 @@
+timestamp,attribute,value
+,system,System
+,create_operational_groups,False
+,report_hourly_results,True
+,report_chrono_results,False
+,report_raw_results,False
+,disagg_group_results,False
+,save_system_to_json,False
+,production_simulation_mode,False

@@ -1,102 +1,20 @@
 import contextlib
 import importlib
 import pathlib
+import shutil
 import sys
 import traceback
 from typing import Optional
 
 import pandas as pd
-import pyomo.environ as pyo
 import typer
 from loguru import logger
 from pyomo.common.tempfiles import TempfileManager
-from pyomo.opt import SolverFactory
-from pyomo.opt import TerminationCondition
 
 from new_modeling_toolkit import __version__
 from new_modeling_toolkit.core import stream
-from new_modeling_toolkit.core.utils.core_utils import timer
 from new_modeling_toolkit.core.utils.util import DirStructure
-from new_modeling_toolkit.resolve import export_results
-from new_modeling_toolkit.resolve import model_formulation
-from new_modeling_toolkit.resolve.export_results_summary import export_all_results_summary
-from new_modeling_toolkit.resolve.model_formulation import ResolveCase
-
-
-@timer
-def solve(
-    resolve_model: model_formulation.ResolveCase,
-    dir_str: DirStructure,
-    solver_name: str,
-    log_level: str,
-    symbolic_solver_labels: bool,
-):
-    """Initialize specified solver, associated solver options & solve model."""
-
-    if solver_name == "gurobi":
-        solver = SolverFactory(solver_name, solver_io="lp")
-        solver.options["ResultFile"] = str(dir_str.output_resolve_dir / "infeasibility.ilp")
-        # TODO: Move solver name to attributes.csv file?
-    else:
-        solver = SolverFactory(solver_name)
-        if solver_name == "amplxpress":
-            solver.options["IIS"] = ""
-            # Create an 'iis' (Irreducible Infeasible Set) suffix component on the instance.
-            # If the solver supports suffixes, Pyomo will receive the stored information.
-            # This should work for any AMPL-interfaced solver, but the only one we use that way
-            # currently is XPRESS.
-            resolve_model.model.iis = pyo.Suffix(direction=pyo.Suffix.IMPORT)
-
-    # Read solver settings from ResolveCase instance
-    for s, options in resolve_model.solver_options.items():
-        if s == solver_name:
-            for option, value in options.items():
-                solver.options[option] = value
-
-    # Start solver (which will write out LP file, then call solver executable)
-    logger.info("Writing problem file & starting solver...")
-
-    debug = log_level == "DEBUG"
-    solution = solver.solve(
-        resolve_model.model, keepfiles=debug, tee=True, symbolic_solver_labels=symbolic_solver_labels
-    )
-
-    # If no integer variables, this will be an instance of `pyomo.opt.results.container.UndefinedData`
-    if isinstance(solution.Problem._list[0]["Number of integer variables"], int):
-        if solution.Problem._list[0]["Number of integer variables"] > 0:
-            logger.info("Fixing integer variables and re-solving...")
-            # I'm lazy, but this could be more robust
-            for idx in resolve_model.model.Integer_Build:
-                resolve_model.model.Integer_Build[idx].fix()
-
-            solution = solver.solve(
-                resolve_model.model, keepfiles=debug, tee=True, symbolic_solver_labels=symbolic_solver_labels
-            )
-
-    # escape if model is infeasible
-    if solution.solver.termination_condition == TerminationCondition.infeasible:
-        if solver_name in {"gurobi", "cplex"} and not symbolic_solver_labels:
-            if not debug:
-                logger.warning(
-                    "Model was infeasible; re-solving model with `symbolic_solver_labels=True` to provide better Irreducible Infeasible Set (IIS) information."
-                )
-                solver.solve(resolve_model.model, keepfiles=True, tee=True, symbolic_solver_labels=True)
-
-            raise RuntimeError(
-                f"Model was infeasible; check ILP file for infeasible constraints {(dir_str.output_resolve_dir / 'infeasibility.ilp').absolute()}"
-            )
-
-        elif solver_name == "amplxpress":
-            raise RuntimeError(
-                "Solver identified the following constraints to be infeasible: \n"
-                + "\n  ".join(sorted(c.name for c in resolve_model.model.iis))
-            )
-        else:
-            raise RuntimeError(
-                "Model was infeasible. Use CPLEX, Gurobi, or XPRESS (AMPL) to get better Irreducible Infeasible Set (IIS) information."
-            )
-
-    return solution
+from new_modeling_toolkit.resolve.model_formulation import ResolveModel
 
 
 def get_objective_function_value(instance, output_dir: pathlib.Path):
@@ -113,43 +31,50 @@ def get_objective_function_value(instance, output_dir: pathlib.Path):
 
 def _run_case(
     dir_str: DirStructure,
-    resolve_settings_name: str,
     extras: Optional[str],
     solver_name: str,
     log_level: str,
     symbolic_solver_labels: bool,
-    raw_results: bool,
 ):
     # Create ConcreteModel and link to system
-    _, resolve_model = model_formulation.ResolveCase.from_csv(
-        filename=dir_str.resolve_settings_dir / "attributes.csv",
-        data={"dir_structure": dir_str},
-        return_type=tuple,
-        name=resolve_settings_name,
-    )
-    resolve_model.system.write_json_file(output_dir=dir_str.output_resolve_dir)
+    resolve_model = ResolveModel.from_case_dir(dir_structure=dir_str)
 
+    # TODO (2022-02-22): This should be restricted to only "approved" extras
     if extras is not None and extras.strip():
         plugin_modules = importlib.import_module(f"new_modeling_toolkit.resolve.extras.{extras.strip()}")
-        resolve_model = plugin_modules.main(resolve_model)
+        resolve_model = plugin_modules.main(resolve_model, dir_str)
 
-    # Solve the ConcreteModel
+    # Solve the model
+    # Wrap `solve()` in this redirect so that it gets saved to logging file
     with contextlib.redirect_stdout(stream):
-        # Wrap `solve()` in this redirect so that it gets saved to logging file
-        solve(resolve_model, dir_str, solver_name, log_level, symbolic_solver_labels=symbolic_solver_labels)
-
-    # Write results to system objects
-    resolve_model.update_system_with_solver_results()
-
-    # Write results
-    export_all_results_summary(resolve_case=resolve_model, output_dir=dir_str.outputs_results_summary_dir)
-    export_results.export_results(resolve_model, raw_results=raw_results)
+        resolve_model.solve(
+            output_dir=dir_str.output_resolve_dir,
+            solver_name=solver_name,
+            keep_model_files=log_level == "DEBUG",
+            symbolic_solver_labels=symbolic_solver_labels,
+            solver_options=None,
+        )
 
     for policy in resolve_model.system.hourly_energy_policies.values():
-        policy.check_constraint_violations(resolve_model.model)
+        policy.check_constraint_violations(resolve_model)
+
+    # Write results
+    logger.info("Processing results...")
+    resolve_model.export_results_summary(
+        output_dir=dir_str.outputs_results_summary_dir, results_reporting=resolve_model.results_reporting_settings
+    )
+    if resolve_model.results_reporting_settings["report_raw"]:
+        resolve_model.export_raw_results(dir_structure=dir_str)
 
     # Output objective function
-    get_objective_function_value(resolve_model.model, dir_str.output_resolve_dir)
+    get_objective_function_value(resolve_model, dir_str.output_resolve_dir)
+
+    # Save system and components to json files
+    if resolve_model.save_system_to_json:
+        resolve_model.system.custom_model_dump_json(
+            dir_str.output_resolve_dir,
+            exclude_from_all_components=set(),
+        )
 
     return resolve_model
 
@@ -167,30 +92,33 @@ def main(
         help="Name of the solver to use. See Pyomo documentation for solver names.",
     ),
     symbolic_solver_labels: bool = typer.Option(False, help="use symbolic solver labels"),
-    log_json: bool = typer.Option(False, help="Serialize logging infromation as JSON"),
+    log_json: bool = typer.Option(False, help="Serialize logging information as JSON"),
     log_level: str = typer.Option(
         "INFO",
         help="Any Python logging level: [DEBUG, INFO, WARNING, ERROR, CRITICAL]. "
         "Choosing DEBUG will also enable Pyomo `tee=True` and `symbolic_solver_labels` options.",
     ),
     extras: Optional[str] = typer.Option(
-        "cpuc_irp", help="Enables a RESOLVE 'extras' module, which contains project-specific add-on constraints."
-    ),
-    raw_results: bool = typer.Option(
-        False,
-        help="If this option is passed, the model will report all Pyomo model components directly.",
+        None, help="Enables a RESOLVE 'extras' module, which contains project-specific add-on constraints."
     ),
     return_cases: bool = typer.Option(
         False, help="Whether or not to return a list of the completed cases when finished."
     ),
     raise_on_error: bool = typer.Option(
-        False,
+        True,
         help="Whether or not to raise an exception if one occurs during running of cases. Note that if you are running "
         "multiple cases, any cases subsequent to the raised exception will not run.",
     ),
-    # TODO (2022-02-22): This should be restricted to only "approved" extras
-) -> Optional[list[ResolveCase]]:
+) -> Optional[list[ResolveModel]]:
     logger.info(f"Resolve version: {__version__}")
+
+    # Write input arguments to log
+    logger.info(f"Logging input arguments...")
+    logger.info(f"log_level = {log_level}")
+    logger.info(f"solver_name = {solver_name}")
+    logger.info(f"log_json = {log_json}")
+    logger.info(f"symbolic_solver_labels = {symbolic_solver_labels}")
+
     # Create folder for the specific resolve run
     dir_str = DirStructure(data_folder=data_folder)
     if resolve_settings_name:
@@ -207,18 +135,17 @@ def main(
         logger.add(sys.__stdout__, level=log_level, serialize=log_json)
 
         # Make folders
-        dir_str.make_resolve_dir(resolve_settings_name=resolve_settings_name, log_level=log_level)
+        dir_str.make_resolve_dir(resolve_settings_name=resolve_settings_name)
+        logger.add(dir_str.output_resolve_dir / "resolve.log", level=log_level)
         TempfileManager.tempdir = dir_str.output_resolve_dir
 
         if raise_on_error:
             resolve_model = _run_case(
                 dir_str=dir_str,
-                resolve_settings_name=resolve_settings_name,
                 extras=extras,
                 solver_name=solver_name,
                 log_level=log_level,
                 symbolic_solver_labels=symbolic_solver_labels,
-                raw_results=raw_results,
             )
             if return_cases:
                 resolve_cases.append(resolve_model)
@@ -227,12 +154,10 @@ def main(
             try:
                 resolve_model = _run_case(
                     dir_str=dir_str,
-                    resolve_settings_name=resolve_settings_name,
                     extras=extras,
                     solver_name=solver_name,
                     log_level=log_level,
                     symbolic_solver_labels=symbolic_solver_labels,
-                    raw_results=raw_results,
                 )
 
                 if return_cases:
@@ -241,6 +166,51 @@ def main(
             except Exception as e:
                 logger.error(f"Case {resolve_settings_name} failed. See error traceback below:")
                 logger.error(traceback.format_exc())
+
+        settings_passthrough_dir = dir_str.resolve_settings_dir / "passthrough"
+        if not (settings_passthrough_dir).exists():
+            settings_passthrough_dir.mkdir(exist_ok=True, parents=True)
+
+        # case settings
+        temporal_settings_from = dir_str.resolve_settings_dir / "temporal_settings" / "attributes.csv"
+        if temporal_settings_from.exists():
+            temporal_settings_to_dir = settings_passthrough_dir / "temporal_settings"
+            temporal_settings_to_dir.mkdir(exist_ok=True, parents=True)
+            temporal_settings_to = temporal_settings_to_dir / "attributes.csv"
+            logger.debug(f"About to copy from {temporal_settings_from} to {temporal_settings_to}")
+            shutil.copy2(temporal_settings_from, temporal_settings_to)
+        else:
+            logger.info(f"Can not copy {temporal_settings_from} to passthrough directory, as it doesn't exist.")
+
+        # linkages (from system directory)
+        linkages_from = dir_str.data_interim_dir / "systems" / resolve_model.system.name / "linkages.csv"
+        if linkages_from.exists():
+            linkages_to = settings_passthrough_dir / "linkages.csv"
+            logger.debug(f"About to copy from {linkages_from} to {linkages_to}")
+            shutil.copy2(linkages_from, linkages_to)
+        else:
+            logger.info(f"Can not copy {linkages_from} to passthrough directory, as it doesn't exist.")
+
+        # scenarios.csv
+        scenarios_from = dir_str.resolve_settings_dir / "scenarios.csv"
+        if scenarios_from.exists():
+            scenarios_to = settings_passthrough_dir / "scenarios.csv"
+            logger.debug(f"About to copy from {scenarios_from} to {scenarios_to}")
+            shutil.copy2(scenarios_from, scenarios_to)
+        else:
+            logger.info(f"Can not copy {scenarios_from} to passthrough directory, as it doesn't exist.")
+
+        logger.debug(f"Passthrough dir for this run: {dir_str.output_resolve_dir / 'passthrough'}")
+        shutil.copytree(
+            settings_passthrough_dir,
+            dir_str.output_resolve_dir / "passthrough",
+            dirs_exist_ok=True,
+        )
+
+        # Copy the latest output to the 'latest' directory:
+        if dir_str.latest_output_resolve_dir.exists():
+            shutil.rmtree(dir_str.latest_output_resolve_dir, ignore_errors=True)
+        shutil.copytree(dir_str.output_resolve_dir, dir_str.latest_output_resolve_dir)
 
         logger.info("Done.")
 

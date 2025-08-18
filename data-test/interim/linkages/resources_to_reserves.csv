@@ -1,4 +1,0 @@
-component_from,component_to,timestamp,attribute,value
-Solar,downward_reg,None,max_fraction_of_capacity,0
-Solar,downward_reg,None,incremental_requirement,./data-test/profiles/solar-reserve.csv
-Solar,downward_reg,None,incremental_requirement__type,season-hour

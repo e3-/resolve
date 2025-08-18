@@ -1,3 +1,6 @@
+from functools import reduce
+from typing import Iterable
+from typing import List
 from typing import Sequence
 from typing import Union
 
@@ -34,3 +37,66 @@ def convert_index_levels_to_datetime(
     )
 
     return converted_object
+
+
+def reindex_by_intersection(
+    pandas_objects: Iterable[Union[pd.Series, pd.DataFrame]]
+) -> List[Union[pd.Series, pd.DataFrame]]:
+    """Reindexes a list of frames using the set intersection of the row indices of all frames.
+
+    Args:
+        pandas_objects: list of series or data frames
+
+    Returns:
+        reindexed_frames: list of reindexed data frames
+    """
+    new_index = reduce(pd.Index.intersection, [frame_.index for frame_ in pandas_objects])
+    reindexed_frames = [frame.reindex(new_index) for frame in pandas_objects]
+
+    return reindexed_frames
+
+
+def reindex_by_union(pandas_objects: Iterable[Union[pd.Series, pd.DataFrame]]) -> List[Union[pd.Series, pd.DataFrame]]:
+    """Reindexes a list of frames using the set union of the row indices of all frames.
+
+    Args:
+        pandas_objects: list of series or data frames
+
+    Returns:
+        reindexed_frames: list of reindexed data frames
+    """
+    new_index = reduce(pd.Index.union, [frame_.index for frame_ in pandas_objects])
+    reindexed_frames = [frame.reindex(new_index) for frame in pandas_objects]
+
+    return reindexed_frames
+
+
+def _round_floats(row, decimals):
+    try:
+        return row.astype(float, errors="ignore").round(decimals).astype(str)
+    except (ValueError, TypeError):
+        return row.astype(str)
+
+
+def compare_dataframes(*, previous: pd.DataFrame, new: pd.DataFrame, indices: list[str], column_to_compare: str):
+    """A more flexible comparison method for two dataframes.
+
+    The existing .compare() and .equal() methods from pandas don't quite fit our needs. This method allows you to compare
+    any two dataframes by:
+     - Concatenating the two DataFrames
+     - Doing a string comparison of the "previous" and "new" column
+     - Returning a DataFrame with any deltas
+    """
+    comparison = pd.concat(
+        [
+            previous.set_index(indices)[column_to_compare],
+            new.set_index(indices)[column_to_compare],
+        ],
+        axis=1,
+    )
+
+    comparison.columns = ["previous", "new"]
+    comparison[["previous", "new"]] = comparison[["previous", "new"]].apply(lambda row: _round_floats(row, 4), axis=1)
+    comparison = comparison.loc[comparison["previous"] != comparison["new"], :]
+
+    return comparison

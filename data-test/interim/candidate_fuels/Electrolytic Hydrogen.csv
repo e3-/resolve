@@ -1,9 +1,0 @@
-timestamp,attribute,value,scenario
-None,apply_electrofuel_SOC,True,
-None,electrofuel_parasitic_loss,0.02
-None,fuel_is_commodity_bool,0,
-2020-01-01,electrofuel_storage_limit_mmbtu,250000,hydrogen
-2020-01-01,production_limit_mmbtu,1000000,hydrogen
-2020-01-01,electrofuel_storage_limit_mmbtu,0,
-2020-01-01,production_limit_mmbtu,0,
-None,allow_inter_period_sharing,True,hydrogen
