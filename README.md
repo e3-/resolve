@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./docs/source/_static/resolve-dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="./docs/source/_static/resolve-light.svg">
-  <img alt="Hashnode logo" src="./docs/source/_static/resolve-light.svg" height="120">
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/source/_static/logos/resolve-dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./docs/source/_static/logos/resolve-light.svg">
+  <img alt="Hashnode logo" src="./docs/source/_static/logos/resolve-light.svg" height="120">
 </picture>
 
 
