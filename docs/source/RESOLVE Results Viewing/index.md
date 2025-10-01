@@ -16,7 +16,7 @@ The output file size will also be dependent on the case settings and components.
 Users can find a script called “RESOLVE_Annual_RV_Creation.py” within the `notebooks` directory of the repository. To use the script, activate your RESOLVE environment, then open the script from Jupyter Notebook or Jupyterhub. Note that the script is designed to work independently.
 
 ```{tip}
-To open Jupyter Notebook, simply activate the environmnet from Pycharm terminal, then run `Jupyter Notebook` command and navigate to the `notebooks` folder to find the script.
+To open Jupyter Notebook, simply activate the environment from Pycharm terminal, then run `Jupyter Notebook` command and navigate to the `notebooks` folder to find the script.
 ```
 
 As you run the first couple blocks of code, you will be asked to enter the file path of results folder and the Results Viewer Workbook itself, which will be a part of the package as well. Please note that any new case that you run, you should make sure the results are saved in the `reports` folder. This is what that selection process should look like:
