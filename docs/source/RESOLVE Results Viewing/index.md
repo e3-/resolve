@@ -9,17 +9,17 @@ Once you have a RESOLVE case run optimization completed, the output directory st
 
 ![Example of a RESOLVE case results](_images/b0ea53918fd18611287549e2c85b9431.png)
 
-The output file size will also be dependent on the case settings and components. For example, including hourly results will increase the file size and number of outputs. As there is a large amount of information, it is not convenient to open each file and explore; thus, having a centralized result viewer becomes very important. The RESOLVE package comes with a readily results viewer template to help modelers retrieve and summarize detailed case results. The results viewer is an excel based workbook that has inbuilt formulas and methods that digests the individual CSVs and provides comprehensive information on the entire system. Users can load specific case results into Results Viewer using an interactive Jupyter notebook script to aggregate annual results. An additional script is made available to aggregate hourly results which is totally optional and recommended if hourly data review is needed. Additionally, all publicly shared cases have pre-loaded case results that can be found in the `Saved Case Results Viewer` folder.
+The output file size will also be dependent on the case settings and components. For example, including hourly results will increase the file size and number of outputs. As there is a large amount of information, it is not convenient to open each file and explore; thus, having a centralized result viewer becomes very important. The RESOLVE package comes with a readily available results viewer template to help modelers retrieve and summarize detailed case results. The results viewer is an Excel-based workbook that has inbuilt formulas and methods that digests the individual CSVs and provides comprehensive information on the entire system. Users can load specific case results into Results Viewer using an interactive Jupyter notebook script to aggregate annual results. An additional script is made available to aggregate hourly results which is totally optional and recommended if hourly data review is needed. Additionally, all publicly shared cases have pre-loaded case results that can be found in the `Saved Case Results Viewer` folder.
 
 ## Using the interactive Jupyter Notebook to Load Annual Case Results
 
-Users can find a script called “RESOLVE_Annual_RV_Creation.py” within the "Notebooks" directory of the repository. It is recommended that users use a Python version greater than v3.7.0 to use this. To use the script, activate your RESOLVE environment, then open the script from Jupyter Notebook or Jupyterhub. Note that the script is designed to work independently.
+Users can find a script called “RESOLVE_Annual_RV_Creation.py” within the `notebooks` directory of the repository. To use the script, activate your RESOLVE environment, then open the script from Jupyter Notebook or Jupyterhub. Note that the script is designed to work independently.
 
 ```{tip}
-To open Jupyter Notebook, simply activate the environmnet from Pycharm terminal, then run "Jupyter Notebook" command and navigate to the `notebooks` folder to find the script.
+To open Jupyter Notebook, simply activate the environmnet from Pycharm terminal, then run `Jupyter Notebook` command and navigate to the `notebooks` folder to find the script.
 ```
 
-As you run the first couple blocks of code, you will be asked to enter the file path of results folder and the Results Viewer Workbook itself, which will be a part of the package as well. Please note that any new case that you run, you should make sure the results are saved in the `results` folder. This is what that selection process should look like:
+As you run the first couple blocks of code, you will be asked to enter the file path of results folder and the Results Viewer Workbook itself, which will be a part of the package as well. Please note that any new case that you run, you should make sure the results are saved in the `reports` folder. This is what that selection process should look like:
 
 ![Path selection for RESOLVE Results Viewer template and Case results folder](_images/2c6f3edd7cda9192962652f8a214a64f.png)
 
@@ -39,7 +39,7 @@ After this block completes the run, the users can find the Results Viewer saved 
 
 ## Optional Hourly Results Processing Jupyter Notebook
 
-In addition to viewing annual results, one may be interested in viewing and analyzing hourly model results. This is only possible if the “report_hourly_results” argument in the attributes.csv file for the case is set to TRUE at the time of setting up the case, which tells RESOLVE whether to save hourly results to the case reports folder. If hourly results are included in the case reports folder, you can analyze them with the “RESOLVE Hourly Results Viewer.py” Jupyter notebook within the “notebooks” directory of the kit repository. In this case, make sure to open Jupyter Notebook after activating your environment.
+In addition to viewing annual results, one may be interested in viewing and analyzing hourly model results. This is only possible if the “report_hourly_results” argument in the attributes.csv file for the case is set to TRUE at the time of setting up the case, which tells RESOLVE whether to save hourly results to the case reports folder. If hourly results are included in the case reports folder, you can analyze them with the “RESOLVE Hourly Results Viewer.py” Jupyter notebook within the `notebooks` directory of the kit repository. In this case, make sure to open Jupyter Notebook after activating your environment.
 
 ![RESOLVE dialog box where user can choose case and hourly results.](_images/8e741d826c6d418510f0afe91d88354f.png)
 
@@ -53,3 +53,6 @@ For hourly dispatch charts, the resource aggregation and color coding is defined
 
 The resource grouping that is used for hourly results aggregation is also defined in the Excel Results Viewer workbook, as a name range. An example of that is provided below:
 ![Hourly Results Grouping](_images/Houlry_Res_Grouping.png)
+
+In addition to hourly dispatch chart, and in the last section of the script, it allows for plotting state of charge used to track storage resources with inter-day sharing feature. An example is provided below.
+![State of charge for inter-day sharing storage resources](_images/SOC-Example.png)
