@@ -54,5 +54,5 @@ For hourly dispatch charts, the resource aggregation and color coding is defined
 The resource grouping that is used for hourly results aggregation is also defined in the Excel Results Viewer workbook, as a name range. An example of that is provided below:
 ![Hourly Results Grouping](_images/Houlry_Res_Grouping.png)
 
-In addition to hourly dispatch chart, and in the last section of the script, it allows for plotting state of charge used to track storage resources with inter-day sharing feature. An example is provided below.
+In addition to hourly dispatch chart, and in the last section of the script, there is a template to plot state of charge figures which are used to track storage resources with inter-day sharing feature. An example is provided below.
 ![State of charge for inter-day sharing storage resources](_images/SOC-Example.png)
