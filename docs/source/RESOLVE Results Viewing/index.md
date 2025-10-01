@@ -21,7 +21,7 @@ To open Jupyter Notebook, simply activate the environmnet from Pycharm terminal,
 
 As you run the first couple blocks of code, you will be asked to enter the file path of results folder and the Results Viewer Workbook itself, which will be a part of the package as well. Please note that any new case that you run, you should make sure the results are saved in the `reports` folder. This is what that selection process should look like:
 
-![Path selection for RESOLVE Results Viewer template and Case results folder](_images/2c6f3edd7cda9192962652f8a214a64f.png)
+![Path selection for RESOLVE Results Viewer template and Case results folder](_images/FilePath_Annual_RV.png)
 
 The next block automatically identifies the components that are specific to the selected case, and shows the list of those components that are getting mapped to in the Results Viewer template you linked in the beginning. Additionally, standard sheet mapping is shown for user to optionally edit them if desires.
 
