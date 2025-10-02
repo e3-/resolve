@@ -2,10 +2,11 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../new_modeling_toolkit"))
+
+print(pathlib.Path(__file__).parents[2] / "tests")
+sys.path.insert(0, str(pathlib.Path(__file__).parents[2]))
 
 # -- Project information -----------------------------------------------------
 
