@@ -29,7 +29,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
-    "sphix_copybutton",
+    "sphinx_copybutton",
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_design",
     "sphinx_last_updated_by_git",
