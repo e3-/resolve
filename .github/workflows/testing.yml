@@ -1,4 +1,5 @@
 name: Run RESOLVE test case
+# Runs pytest on the top-level test case
 
 on:
   workflow_call:
