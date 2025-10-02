@@ -124,6 +124,6 @@ is able to switch back and forth between different resolve versions with ease.
 
 The `RESOLVE` environment comes with the open-source [HiGHS](https://highs.dev/) solver, which enables out-of-the-box solving of RESOLVE cases on any platform. Commercial solvers like Gurobi, IBM CPLEX, and FICO XPRESS offer additional solver features & typically substantially faster solve times. If you have licenses for any of these solvers, RESOLVE will work with them; follow the vendor installation & licensing instructions.
 
-Please note that CPUC RESOLVE cases are typically large and often take 4-8 hours to run (including saving inputs to creating the optimization problem, to solving the optimization and saving the results). Although other solver options are available, E3 only has used Gurobi solver and does not have experience with running RESOLVE with other solvers.
+Please note that CPUC RESOLVE cases are typically large and often take 4-8 hours to run (including saving inputs to creating the optimization problem, to solving the optimization and saving the results). Although other solver options are available, E3 uses Gurobi and has not qualified running RESOLVE on other solvers.
 
 
