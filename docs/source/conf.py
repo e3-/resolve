@@ -2,8 +2,8 @@
 #
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
+import pathlib
 import sys
-
 
 print(pathlib.Path(__file__).parents[2] / "tests")
 sys.path.insert(0, str(pathlib.Path(__file__).parents[2]))
