@@ -1,0 +1,12 @@
+name: nmt
+
+channels:
+  - conda-forge
+  - gurobi
+
+dependencies:
+  - python>=3.11,<3.12
+  - gurobi>=11.0,<12.0
+
+  - pip:
+      - -e .

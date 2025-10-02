@@ -13,9 +13,10 @@ import numpy as np
 import pandas as pd
 import pytz
 from loguru import logger
+from pydantic import field_serializer
+from pydantic import field_validator
+from pydantic import model_validator
 from pydantic import PrivateAttr
-from pydantic import root_validator
-from pydantic import validator
 
 from new_modeling_toolkit.core import custom_model
 from new_modeling_toolkit.core import dir_str
@@ -31,20 +32,31 @@ STEPS_MAX = 100
 
 @enum.unique
 class TimeseriesType(enum.Enum):
-    MODELED_YEAR = "modeled year"
-    WEATHER_YEAR = "weather year"
+    MODELED_YEAR = "modeled year", "Modeled Year"
+    WEATHER_YEAR = "weather year", "Weather Year"
     # Month-hour & season-hour profiles are converted to modeled-year hourly profiles
-    MONTH_HOUR = "month-hour"
-    SEASON_HOUR = "season-hour"
-    MONTHLY = "monthly"
+    MONTH_HOUR = "month-hour", "Month-Hour"
+    SEASON_HOUR = "season-hour", "Season-Hour"
+    MONTHLY = "monthly", "Monthly"
 
+    def __new__(cls, _, *values):
+        obj = object.__new__(cls)
+        # first value is canonical value
+        obj._value_ = values[0]
+        for other_value in values[1:]:
+            cls._value2member_map_[other_value] = obj
+        obj._all_values = values
+        return obj
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}.{self._name_}: {', '.join([repr(v) for v in self._all_values])}>"
 
 class NoDateTimeseries(custom_model.CustomModel):
     #################
     # HIDDEN FIELDS #
     #################
     _date_created: datetime.datetime = PrivateAttr(datetime.datetime.now())
-    _as_dict: Optional[dict]
+    _as_dict: Optional[dict] = None
 
     ###################
     # REQUIRED FIELDS #
@@ -79,7 +91,25 @@ class Timeseries(custom_model.CustomModel):
     weather_year: bool = False
     type: Optional[TimeseriesType] = None
     data_dir: Optional[pathlib.Path] = None
-    _freq: Optional[str] = None
+    freq_: Optional[str] = None
+
+    def __eq__(self, other):
+        if not isinstance(other, Timeseries):
+            equals = False
+        else:
+            equals = (
+                self.weather_year == other.weather_year
+                and self.timezone == other.timezone
+                and self.DST == other.DST
+                and self.type == other.type
+            )
+            if equals:
+                try:
+                    pd.testing.assert_series_equal(left=self.data, right=other.data, check_names=True, check_freq=True)
+                except AssertionError:
+                    equals = False
+
+        return equals
 
     def dict(self, **kwargs):
         """Need to exclude `_data_dict` attributes to avoid recursion error when saving to JSON."""
@@ -93,9 +123,24 @@ class Timeseries(custom_model.CustomModel):
         }
         return super(Timeseries, self).dict(exclude=attrs_to_exclude, exclude_defaults=True, exclude_none=True)
 
+    @field_serializer("data", when_used="json")
+    def serialize_pd_series(data: pd.Series):
+        """
+        This is needed for loading system from json. Without this, the default is to shrink timeseries with repeated values to a single timestamp,
+        which does not translate correctly when resampling the timeseries attributes again because depending on the `up_method' it might try
+         to interpolate for example instead of forward fill
+        """
+        return {str(key): value for key, value in data.items()}
+
     ###################################################################################################################
     # CLASS METHODS
     ###################################################################################################################
+
+    @classmethod
+    def default_factory(cls, value: float = 0):
+        """Migrate all the other defaults to this one."""
+        return cls(name="default", data=pd.Series({pd.to_datetime("1/1/1900"): value}))
+
     @classmethod
     def zero(cls):
         return cls(name="zeroes", data=pd.Series({pd.to_datetime("1/1/1900"): 0}))
@@ -103,10 +148,6 @@ class Timeseries(custom_model.CustomModel):
     @classmethod
     def one(cls):
         return cls(name="ones", data=pd.Series({pd.to_datetime("1/1/1900"): 1}))
-
-    @classmethod
-    def default_penalty(cls):
-        return cls(name="ones", data=pd.Series({pd.to_datetime("1/1/1900"): 10_000}))
 
     @classmethod
     def infinity(cls):
@@ -128,7 +169,8 @@ class Timeseries(custom_model.CustomModel):
         logger.debug(f"Read CSV '{name}': {filepath}")
         return cls(name=name, data=data)
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def validate_or_convert_to_series(cls, values):
         """Validate that data passed to Timeseries constructor is a pd.Series.
 
@@ -136,14 +178,18 @@ class Timeseries(custom_model.CustomModel):
         - Convert a dictionary to a pd.Series (assumes that the keys are already datetimes, as done in `Component.from_csv`)
         - Parse a string as a file path referencing another CSV file that can be read in as a pd.Series
         """
+        # Very hacky :(
+        if values is None:
+            return values
+        # Transform it into the right kind of subclass
+        elif isinstance(values, Timeseries) or issubclass(values.__class__, Timeseries):
+            return cls(**values.model_dump())
+
         if len(values["data"]) == 0:
             values["data"] = 0
-        elif isinstance(values["data"], pd.Series):
-            pass
         elif isinstance(values["data"], str):
             try:  # See if the data is a float
-                values["data"] = float(values["data"])
-                return pd.Series({pd.Timestamp("1/1/2000"): values["data"]})
+                values["data"] = pd.Series({pd.Timestamp("1/1/1900"): float(values["data"])})
             except ValueError:  # If it seems like a string, then try to parse as a filepath
                 # Deal with users using "\" instead of "/" as filepath separator
                 if "\\" in values["data"]:
@@ -157,11 +203,11 @@ class Timeseries(custom_model.CustomModel):
                     path = dir_str.proj_dir / regularized_filepath
                 else:
                     raise FileNotFoundError(f"Cannot find filepath to {values['data']}. Try using an absolute path.")
-            values["data"] = (
-                pd.read_csv(path, index_col=0, parse_dates=True, infer_datetime_format=True)
-                .dropna(axis=1)
-                .squeeze(axis=1)
-            )
+                values["data"] = (
+                    pd.read_csv(path, index_col=0, parse_dates=True, infer_datetime_format=True)
+                    .dropna(axis=1)
+                    .squeeze(axis=1)
+                )
         else:  # Assume it's a dict that can be turned into a Series
             values["data"] = pd.Series(values["data"])
 
@@ -246,6 +292,14 @@ class Timeseries(custom_model.CustomModel):
         # Check if index is valid datetime index, etc.
         return True
 
+    @field_validator("data")
+    def validate_and_convert_series(cls, value: any) -> pd.Series:
+        """Validate that timeseries data index is a DatetimeIndex"""
+        if isinstance(value, pd.Series):
+            value.index = pd.to_datetime(value.index)
+
+        return value
+
     ###################################################################################################################
     # PROPERTIES
     ###################################################################################################################
@@ -256,9 +310,12 @@ class Timeseries(custom_model.CustomModel):
 
     @property
     def freq(self):
-        if self._freq is None:
-            self._freq = pd.infer_freq(self.data.index)
-        return self._freq
+        if self.freq_ is None:
+            if self.data.index.freq:
+                self.freq_ = self.data.index.freq
+            else:
+                self.freq_ = pd.infer_freq(self.data.index)
+        return self.freq_
 
     @property
     def data_dict(self):
@@ -273,6 +330,13 @@ class Timeseries(custom_model.CustomModel):
             self._data_dict = self.data.to_dict()
 
         return self._data_dict
+
+    @property
+    def days_in_year(self) -> pd.Series:
+        """Returns the number of days in each year of a timeseries"""
+        is_leap_year = [calendar.isleap(year) for year in self.data.index.year]
+        days_in_year = pd.Series(data=[366 if leap_year else 365 for leap_year in is_leap_year], index=self.data.index)
+        return days_in_year
 
     ###################################################################################################################
     # METHODS
@@ -394,7 +458,7 @@ class Timeseries(custom_model.CustomModel):
         self.data.index.name = "date (tz = " + str(self.timezone) + ")"
 
     @staticmethod
-    def resample_up(df, frequency, method):
+    def resample_up(df, method):
         """Resample timeseries by increasing the timestamps.
 
         Args:
@@ -405,11 +469,15 @@ class Timeseries(custom_model.CustomModel):
                 - 'bfill' to back fill value until previous timestamp
         """
         if method == "interpolate":
-            df = df.resample(rule=frequency).interpolate()
+            df = df.interpolate()
         elif method == "ffill":
-            df = df.resample(rule=frequency).ffill()
+            df = df.ffill()
         elif method == "bfill":
-            df = df.resample(rule=frequency).bfill()
+            df = df.bfill()
+        elif method is None:
+            df = df
+        else:
+            raise ValueError(f"Unsupported argument for resample_up(): method=`{method}`")
 
         return df
 
@@ -426,13 +494,12 @@ class Timeseries(custom_model.CustomModel):
         """
         if method == "sum":
             df = df.resample(rule=frequency).sum()
-        elif method == "mean":
+        elif method == "mean" or method == "average" or method == "annual":
             # Try to do time-weighted mean
             if frequency == "YS":
                 complete_freq = "1D"
             else:
-                # Seems like we're dividing by an arbitrary number to do the time-weighted averaging
-                complete_freq = pd.Timedelta(frequency) / 50
+                complete_freq = "H"
             df = df.resample(rule=complete_freq).ffill()
             df = df.resample(rule=frequency).mean()
         elif method == "max":
@@ -440,19 +507,55 @@ class Timeseries(custom_model.CustomModel):
         elif method == "first":
             new_index = df.resample(rule=frequency).sum().index
             df = df.reindex(index=new_index)
+        elif method is None:
+            df = df
         else:
             raise ValueError(f"Unsupported argument for resample_down(): method=`{method}`")
 
         return df
 
-    def resample_month_hour_to_hourly(self, modeled_years):
-        # Create index
+    def resample_month_or_season_hour_to_hourly(self, correct_index: pd.DatetimeIndex):
+        """This is a method called by resample_ts_attributes in the Component Class which resamples monthly, month-hour,
+        or season-hour data to the correct frequency and start and end date for a specific attribute."""
 
-        # Repeat month-hour for every modeled year
-        pass
+        if self.type == TimeseriesType.MONTH_HOUR:
+            return self.resample_month_hour_to_hourly(correct_index=correct_index)
+        elif self.type == TimeseriesType.SEASON_HOUR:
+            return self.resample_season_hour_to_hourly(correct_index=correct_index)
+        else:
+            # Data with MONTHLY TimeseriesType are expected to have 12 values
+            assert (
+                len(self.data) == 12
+            ), f"Month-hour data for {self.name} is the wrong size. Should be exactly 12 values."
 
-    def resample_season_hour_to_hourly(self, modeled_years):
-        pass
+            # Upsample monthly data to every index value with that month (this assumes forward fill up_method)
+            new_profile = pd.Series(name=self.data.name, index=correct_index, data=np.nan)
+            for month_index, value in self.data.items():
+                month = month_index.month
+                new_profile.loc[new_profile.index.month == month] = value
+            self.data = new_profile
+
+            return self
+
+    def resample_month_hour_to_hourly(self, correct_index: pd.DatetimeIndex):
+
+        raise NotImplementedError("Month-hour resampling is not yet implemented.")
+
+        # Data with MONTH_HOUR TimeseriesType are expected to have 288 values
+        # if getattr(self, attr).type == TimeseriesType.MONTH_HOUR:
+        #     assert (
+        #             len(getattr(self, attr).data) == 12 * 24
+        #     ), f"Month-hour data for {self.name} is the wrong size. Should be exactly 288 values."
+
+    def resample_season_hour_to_hourly(self, correct_index: pd.DatetimeIndex):
+
+        raise NotImplementedError("Season-hour resampling is not yet implemented.")
+
+        # Data with SEASON_HOUR TimeseriesType are expected to have 96 values
+        # if getattr(self, attr).type == TimeseriesType.SEASON_HOUR:
+        #     assert (
+        #             len(getattr(self, attr).data) == 4 * 24
+        #     ), f"Season-hour data for {self.name} is the wrong size. Should be exactly 96 values."
 
     def resample_simple_extend_years(self, weather_years: tuple[int, int]):
         """
@@ -471,35 +574,42 @@ class Timeseries(custom_model.CustomModel):
         drange = pd.date_range(
             f"01/01/{first_weather_year} 00:00", f"12/31/{last_weather_year} 23:00", freq=pd.infer_freq(self.data.index)
         )
+        # Because we have `validate_assignment` as True, every time we do ts.data = something,
+        # it will get re-validated, including if we're mid-operation (in this case, we've extended the indices
+        # but have yet to fill in the NaNs)
 
         raw = self.data.copy()
-        self.data = self.data.reindex(drange)
+        new = self.data.copy()
+        new = new.reindex(drange)
         for year in range(first_weather_year, last_weather_year + 1):
-            year_index = self.data.loc[self.data.index.year == year].index
+            year_index = new.loc[new.index.year == year].index
 
             if len(year_index) == len(raw):  # if both normal years
-                self.data.loc[year_index] = raw.values
+                new.loc[year_index] = raw.values
             elif len(year_index) > len(raw):  # if weather year is a leap year and model year isn't
-                self.data.loc[year_index[: len(raw)]] = raw.values  # put the values in for first 8760
-                self.data.loc[year_index[len(raw) :]] = raw.values[
-                    : len(year_index) - len(raw)
-                ]  # fill in from beginning
+                new.loc[year_index[: len(raw)]] = raw.values  # put the values in for first 8760
+                new.loc[year_index[len(raw) :]] = raw.values[: len(year_index) - len(raw)]  # fill in from beginning
             else:  # if model year is a leap year and weather is no
-                self.data.loc[year_index] = raw.values[: len(year_index)]
+                new.loc[year_index] = raw.values[: len(year_index)]
 
+        self.data = new
         self.weather_year = True
 
     def repeat_ts(self, repeat_year_dict):
-        """
-        Replicate the timeseries for certain times.
+        """Replicate the timeseries for certain times.
+
         Args:
             repeat_year_dict: a dictionary between weather/load year and data year.
-                        E.g., for DR profiles, the dictionary can be {extended load year : one year of raw DR data};
-                        E.g., for Hydro profiles, the dictionary can be {extended load year : shuffled hydro year}
+            e.g., for DR profiles, the dictionary can be {extended load year : one year of raw DR data};
+            e.g., for Hydro profiles, the dictionary can be {extended load year : shuffled hydro year}
+
         """
         years = list(repeat_year_dict.keys())
         new_index = pd.date_range(
-            start=pd.Timestamp(min(years), 1, 1, 0), end=pd.Timestamp(max(years), 12, 31, 23), freq=self.freq
+            start=pd.Timestamp(min(years), 1, 1, 0),
+            end=pd.Timestamp(max(years), 12, 31, 23),
+            freq=self.freq,
+            name=self.data.index.name,
         )
         data_by_year = self.data.groupby(self.data.index.year)
         data_repeated = pd.Series()
@@ -533,34 +643,38 @@ class Timeseries(custom_model.CustomModel):
 
 
 class BooleanTimeseries(Timeseries):
-    @validator("data")
+    @field_validator("data")
     def validate_data_is_boolean(cls, data, values):
         if data.dtype != bool:
             # Try to convert to Boolean
             data = data.replace([1, 1.0, "1", "1.0", True, "TRUE", "True", "true", "T", "t"], True)
             data = data.replace([0, 0.0, "0", "0.0", False, "FALSE", "False", "false", "F", "f"], False)
+            # Fillna as necessary
+            data = data.fillna(method="ffill")
         # If after replacing values, the Series is still not Boolean, raise error
-        if data.dtype != bool:
-            raise ValueError(f"Boolean value for timeseries '{values['name']}' not recognized.")
+        assert data.dtype == bool, f"Timeseries data for {values.data['name']} should be boolean (True/False)"
         return data
 
 
 class NumericTimeseries(Timeseries):
-    @validator("data")
-    def validate_data_is_numeric(cls, data, values):
+    @field_validator("data")
+    def validate_data_is_numeric(cls, data):
         """Try to coerce data to be numeric."""
         return pd.to_numeric(data)
 
+    @model_validator(mode="after")
+    def validate_data_is_not_nan(self):
+        if self.name != "default" and any(self.data.isna()):
+            raise ValueError(f"Values for {self.name} are non-numeric: \n{self.data}")
+        return self
 
 class FractionalTimeseries(Timeseries):
-    @validator("data")
+    @field_validator("data")
+    @classmethod
     def validate_data_is_fractional(cls, data, values):
         data = pd.to_numeric(data)
         if (data < 0 - 1e-5).any() or (data > 1 + 1e-5).any():
             df_slice = data[(data < 0) | (data > 1)]
+            # TODO: Reference to values['name'] does not work.
             raise ValueError(f"Values for timeseries '{values['name']}' not all fractional, see values: \n{df_slice}")
         return data
-
-
-if __name__ == "__main__":
-    Main()

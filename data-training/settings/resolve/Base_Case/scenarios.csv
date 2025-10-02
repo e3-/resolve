@@ -1,0 +1,6 @@
+scenarios,include,priority
+Base,True,1
+Reserves,False,2
+RPS,False,3
+GHG,False,4
+ERM_Reliability,False,5

@@ -1,3 +1,0 @@
-component_from,component_to,timestamp,attribute,value,scenario
-Electrolytic Hydrogen,Hydrogen Demand,1/1/20,blend_limit_fraction,1,
-Hydrogen,Hydrogen_Demand,1/1/20,blend_limit_fraction,1,base
