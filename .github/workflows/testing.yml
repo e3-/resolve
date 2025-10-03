@@ -33,4 +33,4 @@ jobs:
 
       - name: Run pytest
         run: |
-          conda run -n resolve-dev --no-capture-output --cwd tests/resolve/ pytest test_run_opt.py
+          conda run -n resolve-dev --no-capture-output --cwd tests/ pytest .
