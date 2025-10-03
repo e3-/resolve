@@ -1,4 +1,4 @@
-name: kit
+name: resolve
 
 channels:
   - conda-forge

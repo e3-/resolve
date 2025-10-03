@@ -1,4 +1,4 @@
-name: kit-ci
+name: resolve-ci
 
 channels:
   - conda-forge

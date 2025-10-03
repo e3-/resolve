@@ -1,4 +1,4 @@
-name: nmt
+name: resolve
 
 channels:
   - conda-forge

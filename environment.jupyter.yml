@@ -1,4 +1,4 @@
-name: kit
+name: resolve-jupyter
 
 channels:
   - conda-forge

@@ -29,8 +29,8 @@ jobs:
 
       - name: Create RESOLVE environment (Miniconda)
         run: |
-          conda env create -q -f environment-rtd.yml
+          conda env create -q -f environment-dev.yml
 
       - name: Run pytest
         run: |
-          conda run -n resolve-rtd --no-capture-output --cwd tests/resolve/ pytest test_run_opt.py
+          conda run -n resolve-dev --no-capture-output --cwd tests/resolve/ pytest test_run_opt.py

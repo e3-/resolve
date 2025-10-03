@@ -1,4 +1,4 @@
-name: kit-dev
+name: resolve-dev
 
 channels:
   - conda-forge
