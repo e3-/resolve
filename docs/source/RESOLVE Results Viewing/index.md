@@ -39,7 +39,7 @@ After this block completes the run, the users can find the Results Viewer saved 
 
 ## Optional Hourly Results Processing Jupyter Notebook
 
-In addition to viewing annual results, one may be interested in viewing and analyzing hourly model results. This is only possible if the “report_hourly_results” argument in the attributes.csv file for the case is set to TRUE at the time of setting up the case, which tells RESOLVE whether to save hourly results to the case reports folder. If hourly results are included in the case reports folder, you can analyze them with the “RESOLVE Hourly Results Viewer.py” Jupyter notebook within the `notebooks` directory of the kit repository. In this case, make sure to open Jupyter Notebook after activating your environment.
+In addition to viewing annual results, one may be interested in viewing and analyzing hourly model results. This is only possible if the “report_hourly_results” argument in the attributes.csv file for the case is set to TRUE at the time of setting up the case, which tells RESOLVE whether to save hourly results to the case reports folder. If hourly results are included in the case reports folder, you can analyze them with the “RESOLVE Hourly Results Viewer.py” Jupyter notebook within the `notebooks` directory of the resolve repository. In this case, make sure to open Jupyter Notebook after activating your environment.
 
 ![RESOLVE dialog box where user can choose case and hourly results.](_images/8e741d826c6d418510f0afe91d88354f.png)
 
