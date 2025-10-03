@@ -110,5 +110,3 @@ still go into pycharm - go into the Menubar -> Files -> Open -> Select the folde
 and click OK. This enables you to work with existing files and/or circumvent the cloning process.
 ```
 
-----
-

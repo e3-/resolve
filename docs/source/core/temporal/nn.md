@@ -1,3 +1,0 @@
-# Timeseries Extrapolation
-
-## Neural Network

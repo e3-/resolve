@@ -1,12 +1,19 @@
+# type: ignore
 # Configuration file for the Sphinx documentation builder.
 #
-# For the full list of built-in configuration values, see the documentation:
+# This file only contains a selection of the most common options. For a full
+# list see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
-import pathlib
+# -- Path setup --------------------------------------------------------------
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here. If the directory is relative to the
+# documentation root, use os.path.abspath to make it absolute, like shown here.
+#
+import os
 import sys
 
-print(pathlib.Path(__file__).parents[2] / "tests")
-sys.path.insert(0, str(pathlib.Path(__file__).parents[2]))
+sys.path.insert(0, os.path.abspath("../../new_modeling_toolkit"))
+
 
 # -- Project information -----------------------------------------------------
 
@@ -22,16 +29,14 @@ author = "Energy & Environmental Economics, Inc."
 # ones.
 extensions = [
     "myst_parser",
-    "sphinxcontrib.mermaid",
     "sphinx.ext.autodoc",
     "sphinx.ext.graphviz",
-    "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
     "sphinx.ext.todo",
+    "sphinx_copybutton",
     "sphinxcontrib.autodoc_pydantic",
     "sphinx_design",
-    "sphinx_last_updated_by_git",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -42,9 +47,12 @@ templates_path = ["../_templates"]
 # This pattern also affects html_static_path and html_extra_path.
 # exclude_patterns = []
 
-add_module_names = False
-toc_object_entries_show_parents = "hide"
+# autodoc_member_order = "bysource"
+# autodoc_pydantic_model_member_order = "bysource"
 
+# autodoc_pydantic_model_show_json = False
+# autodoc_pydantic_model_show_config_summary = False
+# autodoc_pydantic_model_show_config_member = False
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -54,7 +62,6 @@ toc_object_entries_show_parents = "hide"
 html_theme = "furo"
 html_favicon = "_images/e3-logo.ico"
 
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
@@ -63,6 +70,9 @@ html_css_files = ["css/furo-e3.css"]
 
 html_title = "RESOLVE"
 
+
+# Dark mode colors need to be declared as theme "variables" here, which then can be called in furo-e3.css
+# https://github.com/pradyunsg/furo/discussions/485#discussioncomment-3209866
 html_theme_options = {
     "light_css_variables": {
         "color-brand-primary": "#034E6E",  # The standard E3 dark blue
@@ -80,29 +90,22 @@ html_theme_options = {
     "top_of_page_button": "edit",
 }
 
-
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ["_static"]
+
 add_module_names = False
 
-suppress_warnings = ["myst.header", "git.too_shallow"]
+suppress_warnings = ["myst.header"]
 
 
 myst_enable_extensions = [
     "amsmath",
-    "attrs_inline",
-    "colon_fence",
+    # "attrs_inline",
     "dollarmath",
-    "substitution",
+    "colon_fence",
 ]
-
-latex_elements = {"extrapackages": "\\usepackage{amsmath}"}
-
-# ------------ Mermaid configuration --------------------------------
-mermaid_d3_zoom = True
-
 
 # -- Instructions for how to update ------------------------------------------
 """
