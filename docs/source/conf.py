@@ -22,7 +22,6 @@ author = "Energy & Environmental Economics, Inc."
 # ones.
 extensions = [
     "myst_parser",
-    "sphinxawesome_theme.highlighting",
     "sphinxcontrib.mermaid",
     "sphinx.ext.autodoc",
     "sphinx.ext.graphviz",
