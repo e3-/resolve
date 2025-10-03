@@ -67,7 +67,7 @@ to create environments.
 We will use the `conda` command to create an isolated environment for the RESOLVE to run within, without 
 disturbing any other Python packages you may have already installed (see the [`conda` documentation](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) for more details on conda environments).
 
-To create the `conda` environment, we will use the [`environment.yml`](https://github.com/e3-/kit/blob/main/environment.yml) 
+To create the `conda` environment, we will use the [`environment.yml`](https://github.com/e3-/resolve/blob/main/environment.yml) 
 file at the top level of the repository. Open your shell of choice and navigate into your cloned copy of the repository.
 Then, run the following command:
 
