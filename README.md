@@ -8,4 +8,7 @@
 # RESOLVE
 Long-term energy system planning & capacity expansion model.
 
+The public documentation for this can be found at the [RESOLVE documentation on readthedocs](https://docs.ethree.com/projects/resolve/en/latest/).
+
+
 ![under_construction](https://badgen.net/static/under/construction/red)
