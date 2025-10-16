@@ -15,5 +15,3 @@ The public documentation contains instructions for how to install RESOLVE (see e
 ```bash
 python new_modeling_toolkit/resolve/run_opt.py "Full_Training_Case" --data-folder="data-training”
 ```
-
-![under_construction](https://badgen.net/static/under/construction/red)
