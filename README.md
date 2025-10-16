@@ -8,9 +8,7 @@
 # RESOLVE
 RESOLVE  is an electricity resource planning model that identifies optimal long-term electric generation and 
 transmission investments subject to reliability, policy, and technical constraints. It is developed and maintained by
-Energy and Environmental Economics, Inc. (E3). 
-
-Example use cases of RESOLVE can be found on [E3's website.](https://www.ethree.com/tools/resolve/)
+[Energy and Environmental Economics, Inc. (E3)](https://www.ethree.com/tools/resolve/).
 
 The public documentation for RESOLVE can be found at the [RESOLVE documentation on Read the Docs](https://docs.ethree.com/projects/resolve/en/latest/).
 
