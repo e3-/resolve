@@ -76,4 +76,5 @@ FAQs/index
 :hidden:
 
 E3 Homepage <https://www.ethree.com/>
+2025 CEC Hydrogen Study <https://www.ethree.com/cec-hydrogen/>
 :::
