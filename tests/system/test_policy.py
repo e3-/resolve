@@ -99,7 +99,7 @@ class TestAnnualEnergyStandard(ComponentTestTemplate):
         rps_block.policy_slack_up[modeled_year].fix(0)
         rps_block.policy_slack_down[modeled_year].fix(1000)
 
-        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 1_000_000 * 1000
+        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 100_000_000 * 1000
 
     def test_policy_slack_cost(self, make_component_with_block_copy, first_index):
         policy = make_component_with_block_copy()
@@ -109,7 +109,7 @@ class TestAnnualEnergyStandard(ComponentTestTemplate):
         rps_block.policy_slack_up[modeled_year].fix(10)
         rps_block.policy_slack_down[modeled_year].fix(20)
 
-        assert rps_block.policy_slack_cost[modeled_year].expr() == 30 * 1_000_000
+        assert rps_block.policy_slack_cost[modeled_year].expr() == 30 * 100_000_000
 
     def test_annual_total_operational_cost_no_penalty_defined(self, make_component_with_block_copy, first_index):
         policy = make_component_with_block_copy()
@@ -119,7 +119,7 @@ class TestAnnualEnergyStandard(ComponentTestTemplate):
         rps_block.policy_slack_up[modeled_year].fix(0)
         rps_block.policy_slack_down[modeled_year].fix(1000)
 
-        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 1_000_000 * 1000
+        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 100_000_000 * 1000
 
     def test_annual_total_operational_cost_penalty_defined(self, make_component_with_block_copy, first_index):
         policy = make_component_with_block_copy()
@@ -129,7 +129,7 @@ class TestAnnualEnergyStandard(ComponentTestTemplate):
         rps_block.policy_slack_up[modeled_year].fix(0)
         rps_block.policy_slack_down[modeled_year].fix(1000)
 
-        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 1000 * 1_000_000
+        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 1000 * 100_000_000
 
     def test_annual_total_operational_cost_price(self, make_custom_component_with_block, first_index):
         policy = make_custom_component_with_block(
@@ -162,7 +162,7 @@ class TestAnnualEnergyStandard(ComponentTestTemplate):
         rps_block.policy_slack_down.fix(45)
         rps_block.policy_lhs[modeled_year] = 50
 
-        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 150 + 55 * 1_000_000
+        assert rps_block.annual_total_operational_cost[modeled_year].expr() == 150 + 55 * 100_000_000
 
 
 class TestAnnualEmissionsPolicy(ComponentTestTemplate):
@@ -479,7 +479,7 @@ class TestAnnualEmissionsPolicy(ComponentTestTemplate):
         block.policy_slack_up[first_year].fix(100)
         block.policy_slack_down[first_year].fix(60)
 
-        assert block.policy_slack_cost[first_year].expr() == pytest.approx(160 * 1_000_000)
+        assert block.policy_slack_cost[first_year].expr() == pytest.approx(160 * 100_000_000)
 
     def test_annual_total_operational_cost(
         self,
@@ -770,20 +770,22 @@ class TestEnergyReserveMargin(ComponentTestTemplate):
         block.policy_slack[first_modeled_year, :, :] = 1.5
         block.policy_slack[second_modeled_year, :, :] = 2.5
         num_days_per_year = block.model().num_days_per_modeled_year[first_modeled_year]
-        assert block.policy_slack_cost[first_modeled_year].expr() == 1_000_000 * 24 * num_days_per_year * 1.5
+        assert block.policy_slack_cost[first_modeled_year].expr() == 100_000_000 * 24 * num_days_per_year * 1.5
         assert (
             block.annual_total_slack_investment_cost[first_modeled_year].expr()
-            == 1_000_000 * 24 * num_days_per_year * 1.5
+            == 100_000_000 * 24 * num_days_per_year * 1.5
         )
-        assert block.annual_total_investment_cost[first_modeled_year].expr() == 1_000_000 * 24 * num_days_per_year * 1.5
+        assert (
+            block.annual_total_investment_cost[first_modeled_year].expr() == 100_000_000 * 24 * num_days_per_year * 1.5
+        )
 
-        assert block.policy_slack_cost[second_modeled_year].expr() == 1_000_000 * 24 * num_days_per_year * 2.5
+        assert block.policy_slack_cost[second_modeled_year].expr() == 100_000_000 * 24 * num_days_per_year * 2.5
         assert (
             block.annual_total_slack_investment_cost[second_modeled_year].expr()
-            == 1_000_000 * 24 * num_days_per_year * 2.5
+            == 100_000_000 * 24 * num_days_per_year * 2.5
         )
         assert (
-            block.annual_total_investment_cost[second_modeled_year].expr() == 1_000_000 * 24 * num_days_per_year * 2.5
+            block.annual_total_investment_cost[second_modeled_year].expr() == 100_000_000 * 24 * num_days_per_year * 2.5
         )
 
 
@@ -842,7 +844,7 @@ class TestPlanningReserveMargin(ComponentTestTemplate):
         policy_block.policy_slack_up[modeled_year].fix(10)
         policy_block.policy_slack_down[modeled_year].fix(0)
 
-        assert policy_block.policy_slack_cost[modeled_year].expr() == 10 * 1_000_000
+        assert policy_block.policy_slack_cost[modeled_year].expr() == 10 * 100_000_000
 
     def test_total_policy_cost_in_modeled_year(self, make_component_with_block_copy, first_index):
         policy = make_component_with_block_copy()

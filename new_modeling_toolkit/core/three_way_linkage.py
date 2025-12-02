@@ -445,11 +445,13 @@ class CustomConstraintLinkage(ThreeWayLinkage):
             return new_index
 
     def validate_custom_constraint_linkage(self):
-        assert self.linked_component is not None
+        assert (
+            self.linked_component is not None
+        ), f"Linked component is None for {self.name}. Check your custom constraint setup."
         assert (
             self.linked_component.formulation_block is not None
         ), f"Formulation block has not been constructed for {self.linked_component.name}"
         assert (
             getattr(self.linked_component.formulation_block, self.lhs_instance.pyomo_component_name, None) is not None
         ), f"{self.lhs_instance.pyomo_component_name} is not a valid variable name for {self.linked_component.name}"
-        assert self.is_annual or self.is_hourly, f"Error constructing {self.name}"
+        assert self.is_annual or self.is_hourly, f"Error constructing {self.name}. Check your custom constraint setup."

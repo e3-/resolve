@@ -2,10 +2,12 @@ import enum
 from abc import ABC
 from typing import ClassVar
 
+import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
 from pydantic import Field
 from pydantic import field_validator
+from pydantic import model_validator
 from pydantic import NonNegativeFloat
 from pydantic import PositiveFloat
 from pydantic import PositiveInt
@@ -17,6 +19,7 @@ from new_modeling_toolkit.core.component import LastUpdatedOrderedDict
 from new_modeling_toolkit.core.custom_model import FieldCategory
 from new_modeling_toolkit.core.custom_model import Metadata
 from new_modeling_toolkit.core.model import ModelType
+from new_modeling_toolkit.core.temporal import timeseries as ts
 from new_modeling_toolkit.core.temporal.settings import DispatchWindowEdgeEffects
 from new_modeling_toolkit.system.electric.resources.generic import GenericResource
 from new_modeling_toolkit.system.electric.resources.generic import GenericResourceGroup
@@ -24,8 +27,59 @@ from new_modeling_toolkit.system.electric.resources.generic import GenericResour
 
 @enum.unique
 class UnitCommitmentMethod(enum.Enum):
+    """
+    Formulation options for unit commitment tracking.
+
+    This enum defines how unit commitment is represented in the optimization model,
+    controlling whether units can be partially committed, must be integer counts,
+    or represented as a single aggregate binary unit.
+
+    Methods
+    -------
+    INTEGER
+        Integer (discrete) unit commitment formulation.
+        - Committed_units is an integer count of how many units are online.
+        - Allows values greater than 1 when multiple units exist.
+        - Provides accurate representation of unit on/off status.
+        - Solved as a Mixed-Integer Linear Program (MILP), which is
+          computationally more expensive but physically realistic.
+        - Best for short-term operations and reliability studies.
+
+    LINEAR
+        Linear (continuous) unit commitment formulation.
+        - Committed_units is a continuous variable (>=0) representing
+          the fraction or number of units online.
+        - Can take fractional values (e.g., 0.5 units), which improves tractability
+          but may be less realistic.
+        - Allows values greater than 1 if multiple units exist.
+        - Simplifies the model into a Linear Program (LP), improving scalability
+          for capacity expansion or long-term planning.
+
+    SINGLE_UNIT
+        Single-unit capacity commitment formulation.
+        - Represents the resource as a single binary on/off variable.
+        - Commitment is 0 (off) or 1 (on), with unit_size defining the installed capacity.
+        - Used when unit_size is itself an optimization decision or when
+          aggregating a fleet into one equivalent resource.
+        - Captures aggregate behavior but cannot differentiate individual units.
+
+    Attributes
+    ----------
+    value : str
+        The string identifier for the unit commitment method.
+
+    Returns
+    -------
+    var_type : pyomo.Set
+        The appropriate Pyomo domain for the commitment variable:
+        - INTEGER → `pyo.NonNegativeIntegers`
+        - LINEAR → `pyo.NonNegativeReals`
+        - SINGLE_UNIT → `pyo.Binary`
+    """
+
     INTEGER = "integer"
     LINEAR = "linear"
+    SINGLE_UNIT = "single_unit"
 
     @property
     def var_type(self):
@@ -33,6 +87,8 @@ class UnitCommitmentMethod(enum.Enum):
             return pyo.NonNegativeIntegers
         elif self.value == "linear":
             return pyo.NonNegativeReals
+        elif self.value == "single_unit":
+            return pyo.Binary
 
 
 class UnitCommitmentResource(GenericResource, ABC):
@@ -44,14 +100,14 @@ class UnitCommitmentResource(GenericResource, ABC):
 
     # todo: this messes up the outages in recap
     unit_size: Annotated[PositiveFloat, Metadata(category=FieldCategory.OPERATIONS)] = Field(
-        0.0,
+        1.0,
         description="Size of each unit that can be independently committed, in MW.",
         alias="unit_size_mw",
         title=f"Unit Size",
     )
     unit_commitment_mode: Annotated[UnitCommitmentMethod, Metadata(category=FieldCategory.OPERATIONS)] = Field(
         UnitCommitmentMethod.LINEAR,
-        description="To strictly the number of shift events, set to integer. Otherwise, the default is ‘linear’ and does not fully limit the number of events. Linear is the default, because this is a much simpler optimization problem and you will see minimal increase in run time. This is an acceptable assumption for many projects if you are modeling a large area which could have several Demand Response programs in different locations, each with their own call limits. When modeling smaller geographic areas, or if the project needs strict call limits set the unit_commitment attribute to ‘integer’. Note that this will increase the run time. How much will vary depending on the model complexity, but a good rule of thumb is to assume 1.5x the run time if the variables were linear.",
+        description="To strictly the number of shift events, set to 'integer' or 'single_unit'. Otherwise, the default is ‘linear’ and does not fully limit the number of events. Linear is the default, because this is a much simpler optimization problem and you will see minimal increase in run time. This is an acceptable assumption for many projects if you are modeling a large area which could have several Demand Response programs in different locations, each with their own call limits. When modeling smaller geographic areas, or if the project needs strict call limits set the unit_commitment attribute to ‘integer’. Note that this will increase the run time. How much will vary depending on the model complexity, but a good rule of thumb is to assume 1.5x the run time if the variables were linear.",
         title=f"Unit Commitment Method",
     )
     min_down_time: Annotated[PositiveInt | None, Metadata(category=FieldCategory.OPERATIONS)] = Field(
@@ -91,13 +147,24 @@ class UnitCommitmentResource(GenericResource, ABC):
         None, description="For fixed initial condition, how many units are already committed/on"
     )
 
+    @model_validator(mode="after")
+    def check_potential_required(self):
+        if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT and (
+            self.potential is None or self.potential == float("inf")
+        ):
+            raise ValueError(
+                f"Potential required for unit commitment resource while in 'single_unit' "
+                f"unit commitment mode: {self.name}"
+            )
+        return self
+
     @field_validator("min_up_time", "min_down_time", mode="before")
     @classmethod
     def convert_min_up_down_time_to_int(cls, v):
         if v is None:
             return v
         elif isinstance(v, str):
-            v = int(round(float(v)))
+            return int(round(float(v)))
         else:
             return int(round(v))
 
@@ -109,6 +176,43 @@ class UnitCommitmentResource(GenericResource, ABC):
                 f"Multi hour ramp rates are not implemented for UnitCommitment resources. {info.field_name} must be None for {info.data['name']}"
             )
         return v
+
+    @model_validator(mode="after")
+    def warn_if_default_unit_size(self):
+        """Log a warning if `unit_size` is not explicitly provided and default value is used.
+
+        This helps users notice when unit commitment constraints rely on the implicit 1.0 MW unit size.
+        """
+        try:
+            fields_set = getattr(self, "model_fields_set", set())
+        except Exception:
+            fields_set = set()
+        if "unit_size" not in fields_set and self.unit_size == 1.0:
+            from loguru import logger
+
+            logger.warning(
+                f"UnitCommitmentResource {self.name}: using default unit_size=1.0 MW. "
+                f"Consider setting `unit_size` explicitly if this is unintended."
+            )
+        return self
+
+    def _construct_investment_rules(
+        self, model: "ModelTemplate", construct_costs: bool
+    ) -> LastUpdatedOrderedDict[str, pyo.Component]:
+        pyomo_components = super()._construct_investment_rules(model=model, construct_costs=construct_costs)
+        if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT:
+            pyomo_components.update(
+                unit_size=pyo.Expression(model.MODELED_YEARS, rule=self._dynamic_unit_size, doc="Unit Size (MW)"),
+                max_potential=pyo.Param(
+                    model.MODELED_YEARS,
+                    initialize=self.potential,
+                ),
+            )
+        else:
+            pyomo_components.update(
+                unit_size=pyo.Param(model.MODELED_YEARS, initialize=self.unit_size, doc="Unit Size (MW)")
+            )
+        return pyomo_components
 
     def _construct_operational_rules(
         self, model: "ModelTemplate", construct_costs: bool
@@ -140,10 +244,16 @@ class UnitCommitmentResource(GenericResource, ABC):
         if construct_costs:
             pyomo_components.update(
                 start_cost_in_timepoint=pyo.Expression(
-                    model.MODELED_YEARS, model.DISPATCH_WINDOWS_AND_TIMESTAMPS, rule=self._start_cost_in_timepoint
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    rule=self._start_cost_in_timepoint,
+                    doc="Start Cost ($)",
                 ),
                 shutdown_cost_in_timepoint=pyo.Expression(
-                    model.MODELED_YEARS, model.DISPATCH_WINDOWS_AND_TIMESTAMPS, rule=self._shutdown_cost_in_timepoint
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    rule=self._shutdown_cost_in_timepoint,
+                    doc="Shutdown Cost ($)",
                 ),
                 annual_start_cost=pyo.Expression(
                     model.MODELED_YEARS, rule=self._annual_start_cost, doc="Annual Start Cost ($)"
@@ -155,7 +265,9 @@ class UnitCommitmentResource(GenericResource, ABC):
                     model.MODELED_YEARS, rule=self._annual_start_and_shutdown_cost
                 ),
                 annual_total_operational_cost=pyo.Expression(
-                    model.MODELED_YEARS, rule=self._annual_total_operational_cost
+                    model.MODELED_YEARS,
+                    rule=self._annual_total_operational_cost,
+                    doc="Annual Total Operational Cost ($)",
                 ),
             )
 
@@ -172,18 +284,46 @@ class UnitCommitmentResource(GenericResource, ABC):
                 rule=self._operational_units_in_timepoint,
                 doc="Number of available units",
             ),
-            committed_capacity=pyo.Expression(
-                model.MODELED_YEARS,
-                model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                rule=self._committed_capacity,
-            ),
         )
+
+        if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT:
+            pyomo_components.update(
+                committed_capacity=pyo.Var(
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    within=pyo.NonNegativeReals,
+                ),
+                committed_capacity_ub=pyo.Constraint(
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    rule=self._committed_capacity_ub,
+                ),
+                committed_capacity_unit_size_max=pyo.Constraint(
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    rule=self._committed_capacity_unit_size_max,
+                ),
+                committed_capacity_unit_size_min=pyo.Constraint(
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    rule=self._committed_capacity_unit_size_min,
+                ),
+            )
+        else:
+            pyomo_components.update(
+                committed_capacity=pyo.Expression(
+                    model.MODELED_YEARS,
+                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                    rule=self._committed_capacity,
+                )
+            )
 
         # Note: call super after commitment variable expressions so inheritance works correctly
         pyomo_components.update(super()._construct_operational_rules(model=model, construct_costs=construct_costs))
 
         # Ensure that the min power output constraint is constructed if a min stable level is defined
         # Note: GenericResource will skip writing this constraint if power_output_min profile is all 0's
+        # todo: I actually think this might be wrong? We also want it to call if power_output_min profile is non-zero
         if self.min_stable_level > 0:
             pyomo_components.update(
                 power_output_min_constraint=pyo.Constraint(
@@ -299,6 +439,72 @@ class UnitCommitmentResource(GenericResource, ABC):
         """
         return block.model().sum_timepoint_component_slice_to_annual(block.shutdown_units[modeled_year, :, :])
 
+    def _ramp_up_ub(
+        self, rr: float, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
+    ):
+        """
+        Ramp up constraint, right hand side. In these relations, the first term includes the core units that run in both time periods,
+        the second corrects for startup/shutdowns to prevent artificial inflation of the ramping limits for the core units,
+        and the third captures the allowable extra change in cluster production due to shut- down/startup.
+        """
+        return (
+            rr
+            * self.formulation_block.unit_size[modeled_year]
+            * (
+                self.formulation_block.committed_units[(modeled_year, dispatch_window, timestamp)]
+                - self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
+            )
+            - (
+                self.min_stable_level
+                * self.formulation_block.unit_size[modeled_year]
+                * self.formulation_block.shutdown_units[(modeled_year, dispatch_window, timestamp)]
+            )
+            + (
+                max(self.min_stable_level, rr)
+                * self.formulation_block.unit_size[modeled_year]
+                * self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
+            )
+        )
+
+    def _ramp_down_ub(
+        self, rr: float, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
+    ):
+        """
+        Ramp down constraint, right hand side. In these relations, the first term includes the core units that run in both time periods,
+        the second corrects for startup/shutdowns to prevent artificial inflation of the ramping limits for the core units,
+        and the third captures the allowable extra change in cluster production due to shut- down/startup.
+        """
+        return (
+            rr
+            * self.formulation_block.unit_size[modeled_year]
+            * (
+                self.formulation_block.committed_units[(modeled_year, dispatch_window, timestamp)]
+                - self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
+            )
+            - (
+                self.min_stable_level
+                * self.formulation_block.unit_size[modeled_year]
+                * self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
+            )
+            + (
+                max(self.min_stable_level, rr)
+                * self.formulation_block.unit_size[modeled_year]
+                * self.formulation_block.shutdown_units[(modeled_year, dispatch_window, timestamp)]
+            )
+        )
+
+    def _annual_num_units(self, modeled_year):
+        """
+        Operational capacity in mw divided by size of units in mw = number of units available
+        """
+        if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT:
+            return 1
+        else:
+            return (
+                self.formulation_block.operational_capacity[modeled_year]
+                / self.formulation_block.unit_size[modeled_year]
+            )
+
     def _operational_units_in_timepoint(
         self, block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
     ):
@@ -313,7 +519,10 @@ class UnitCommitmentResource(GenericResource, ABC):
         """
         Committed units * size of units in MW available for power output
         """
-        return self.formulation_block.committed_units[modeled_year, dispatch_window, timestamp] * self.unit_size
+        return (
+            self.formulation_block.committed_units[modeled_year, dispatch_window, timestamp]
+            * block.unit_size[modeled_year]
+        )
 
     def _power_input_max(
         self, block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
@@ -651,12 +860,6 @@ class UnitCommitmentResource(GenericResource, ABC):
             )
         )
 
-    def _annual_num_units(self, modeled_year):
-        """
-        Operational capacity in mw divided by size of units in mw = number of units available
-        """
-        return self.formulation_block.operational_capacity[modeled_year] / self.unit_size
-
     def _start_cost_in_timepoint(
         self, block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
     ):
@@ -717,66 +920,119 @@ class UnitCommitmentResource(GenericResource, ABC):
 
         return total_operational_cost
 
-    def _ramp_up_ub(
-        self, rr: float, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
+    def _dynamic_unit_size(self, block, modeled_year: pd.Timestamp):
+        return block.operational_capacity[modeled_year]
+
+    def _committed_capacity_ub(
+        self, block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
     ):
         """
-        Ramp up constraint, right hand side. In these relations, the first term includes the core units that run in both time periods,
-        the second corrects for startup/shutdowns to prevent artificial inflation of the ramping limits for the core units,
-        and the third captures the allowable extra change in cluster production due to shut- down/startup.
+        Upper-bound constraint: committed capacity cannot exceed the product of
+        maximum potential and the unit commitment indicator.
+
+        - This constraint enforces that if the unit is not committed (committed_units = 0), then committed capacity is zero.
+        - When committed, the capacity is limited by the resource's maximum potential.
+
+        Returns: pyo.Constraint: committed_capacity <= max_potential * committed_units
+
         """
         return (
-            rr
-            * self.unit_size
-            * (
-                self.formulation_block.committed_units[(modeled_year, dispatch_window, timestamp)]
-                - self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
-            )
-            - (
-                self.min_stable_level
-                * self.unit_size
-                * self.formulation_block.shutdown_units[(modeled_year, dispatch_window, timestamp)]
-            )
-            + (
-                max(self.min_stable_level, rr)
-                * self.unit_size
-                * self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
-            )
+            block.committed_capacity[modeled_year, dispatch_window, timestamp]
+            <= block.max_potential[modeled_year] * block.committed_units[modeled_year, dispatch_window, timestamp]
         )
 
-    def _ramp_down_ub(
-        self, rr: float, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
+    def _committed_capacity_unit_size_max(
+        self, block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
     ):
         """
-        Ramp down constraint, right hand side. In these relations, the first term includes the core units that run in both time periods,
-        the second corrects for startup/shutdowns to prevent artificial inflation of the ramping limits for the core units,
-        and the third captures the allowable extra change in cluster production due to shut- down/startup.
-        """
-        return (
-            rr
-            * self.unit_size
-            * (
-                self.formulation_block.committed_units[(modeled_year, dispatch_window, timestamp)]
-                - self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
-            )
-            - (
-                self.min_stable_level
-                * self.unit_size
-                * self.formulation_block.start_units[(modeled_year, dispatch_window, timestamp)]
-            )
-            + (
-                max(self.min_stable_level, rr)
-                * self.unit_size
-                * self.formulation_block.shutdown_units[(modeled_year, dispatch_window, timestamp)]
-            )
-        )
+        Upper-bound constraint: committed capacity cannot exceed the unit size.
 
-    # TODO (skramer): Figure out how to determine operational equality for unit commitment resources when selected
-    #  builds can result in differing number of units
-    def check_if_operationally_equal(self, other):
-        raise NotImplementedError(f"Operational equality is not defined yet for UnitCommitmentResource: {self.name}")
+        This constraint enforces a physical limit: the committed capacity
+        of a resource in any period cannot exceed the installed unit size
+        available in that modeled year.
+
+        Returns: pyomo.Constraint: committed_capacity <= unit_size
+        """
+        return block.committed_capacity[modeled_year, dispatch_window, timestamp] <= block.unit_size[modeled_year]
+
+    def _committed_capacity_unit_size_min(
+        self, block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
+    ):
+        """
+        Lower-bound constraint: committed capacity must be at least the unit size
+        when the resource is committed, and can relax to zero when not committed.
+
+        - If committed_units = 1, the inequality reduces to:
+            committed_capacity >= unit_size
+          enforcing that the full unit size is available.
+        - If committed_units = 0, the RHS relaxes to a large negative value,
+          effectively removing the lower bound and allowing committed_capacity = 0.
+
+        Returns: pyomo.Constraint: committed_capacity >= unit_size - max_potential * (1 - committed_units)
+        """
+        return block.committed_capacity[modeled_year, dispatch_window, timestamp] >= block.unit_size[
+            modeled_year
+        ] - block.max_potential[modeled_year] * (1 - block.committed_units[modeled_year, dispatch_window, timestamp])
 
 
 class UnitCommitmentResourceGroup(GenericResourceGroup, UnitCommitmentResource):
     _NAME_PREFIX: ClassVar[str] = "unit_commitment_resource_group"
     _GROUPING_CLASS = UnitCommitmentResource
+
+    @model_validator(mode="after")
+    def check_potential_required(self):
+        """
+        Validate that a resource group using the 'single_unit' unit commitment mode
+        specifies a valid cumulative potential.
+
+        Validation logic
+        ----------------
+        - If `unit_commitment_mode` is `SINGLE_UNIT` and `cumulative_potential` is
+          missing (`None`), raise a `ValueError`.
+        - If `cumulative_potential` is provided as a `NumericTimeseries` but contains
+          any infinite (`np.inf`) values, raise a `ValueError`.
+
+        Returns
+        -------
+        self : UnitCommitmentResourceGroup
+            The validated model instance if all checks pass.
+
+        Raises
+        ------
+        ValueError
+            If `unit_commitment_mode` is `SINGLE_UNIT` and `cumulative_potential` is
+            either missing or contains invalid (infinite) values.
+
+        Purpose
+        -------
+        Ensures that when modeling resource groups under the 'single_unit' commitment
+        formulation, the `cumulative_potential` is always present and finite. This
+        prevents infeasible or undefined model behavior during capacity commitment.
+        """
+        if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT and self.cumulative_potential == None:
+            raise ValueError(
+                f"Cumulative potential required for unit commitment resource group while in 'single_unit' unit commitment mode: {self.name}"
+            )
+        elif isinstance(self.cumulative_potential, ts.NumericTimeseries):
+            if any(np.isinf(self.cumulative_potential.data.values)):
+                raise ValueError(
+                    f"Cumulative potential required for unit commitment resource group while in 'single_unit' unit commitment mode: {self.name}"
+                )
+        return self
+
+    def _construct_investment_rules(
+        self, model: "ModelTemplate", construct_costs: bool
+    ) -> LastUpdatedOrderedDict[str, pyo.Component]:
+        pyomo_components = super()._construct_investment_rules(model=model, construct_costs=construct_costs)
+        if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT:
+            pyomo_components.update(
+                unit_size=pyo.Expression(model.MODELED_YEARS, rule=self._dynamic_unit_size, doc="Unit Size (MW)"),
+                max_potential=pyo.Param(
+                    model.MODELED_YEARS, initialize=self.cumulative_potential.data.loc[list(model.MODELED_YEARS)]
+                ),
+            )
+        else:
+            pyomo_components.update(
+                unit_size=pyo.Param(model.MODELED_YEARS, initialize=self.unit_size, doc="Unit Size (MW)")
+            )
+        return pyomo_components

@@ -675,6 +675,7 @@ class FractionalTimeseries(Timeseries):
         data = pd.to_numeric(data)
         if (data < 0 - 1e-5).any() or (data > 1 + 1e-5).any():
             df_slice = data[(data < 0) | (data > 1)]
-            # TODO: Reference to values['name'] does not work.
-            raise ValueError(f"Values for timeseries '{values['name']}' not all fractional, see values: \n{df_slice}")
+            raise ValueError(
+                f"Values for timeseries '{values.data['name']}' not all fractional, see values: \n{df_slice}"
+            )
         return data

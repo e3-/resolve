@@ -14,6 +14,7 @@ from new_modeling_toolkit.core.linkage import CandidateFuelToResource
 from new_modeling_toolkit.system.electric.resources.generic import GenericResource
 from new_modeling_toolkit.system.electric.resources.generic import GenericResourceGroup
 from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentResource
+from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentResourceGroup
 
 
 class ThermalResource(GenericResource):
@@ -347,8 +348,8 @@ class ThermalUnitCommitmentResource(ThermalResource, UnitCommitmentResource):
     addition_to_load: float = Field(
         0,
         ge=0,
-        warning_bounds=(0, 1),
-        description="Synchronous condenser addition to load. Multiplier to commited capacity. Default 0.",
+        le=1,
+        description="Synchronous condenser addition to load. Fractional multiplier to committed capacity. Default 0.",
     )
 
     def revalidate(self):
@@ -364,7 +365,19 @@ class ThermalUnitCommitmentResource(ThermalResource, UnitCommitmentResource):
     def _construct_operational_rules(
         self, model: "ModelTemplate", construct_costs: bool
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
-        pyomo_components = super()._construct_operational_rules(model=model, construct_costs=construct_costs)
+
+        pyomo_components = LastUpdatedOrderedDict(
+            # Must create this variable first for inheritance to work properly
+            sync_cond_power_input=pyo.Var(
+                model.MODELED_YEARS,
+                model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
+                within=pyo.NonNegativeReals,
+                doc="Synchronous Condenser Power Input (MW)",
+                initialize=0,
+            ),
+        )
+
+        pyomo_components.update(super()._construct_operational_rules(model, construct_costs))
         candidate_fuels = pyo.Set(initialize=list(self.candidate_fuels.keys()))
 
         pyomo_components.update(
@@ -384,11 +397,15 @@ class ThermalUnitCommitmentResource(ThermalResource, UnitCommitmentResource):
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 rule=self._total_power_output_by_fuel_constraint,
             ),
-            synchronous_condenser_addition_to_load=pyo.Expression(
+            synchronous_condenser_constraint=pyo.Constraint(
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                rule=self._synchronous_condenser_addition_to_load,
-                doc="Synchronous Condenser Additional Load (MW)",
+                rule=self._synchronous_condenser_constraint,
+            ),
+            annual_sync_cond_power_input=pyo.Expression(
+                model.MODELED_YEARS,
+                rule=self._annual_sync_cond_power_input,
+                doc="Annual Sync Cond Power Input (MWh)",
             ),
         )
 
@@ -477,7 +494,7 @@ class ThermalUnitCommitmentResource(ThermalResource, UnitCommitmentResource):
             for candidate_fuel in self.candidate_fuels.keys()
         )
 
-    def _synchronous_condenser_addition_to_load(
+    def _synchronous_condenser_constraint(
         self,
         block,
         modeled_year: pd.Timestamp,
@@ -485,7 +502,16 @@ class ThermalUnitCommitmentResource(ThermalResource, UnitCommitmentResource):
         timestamp: pd.Timestamp,
     ):
         return (
-            self.addition_to_load * self.formulation_block.committed_capacity[modeled_year, dispatch_window, timestamp]
+            self.addition_to_load * block.committed_capacity[modeled_year, dispatch_window, timestamp]
+        ) == block.sync_cond_power_input[modeled_year, dispatch_window, timestamp]
+
+    def _annual_sync_cond_power_input(self, block, modeled_year: pd.Timestamp):
+        return block.model().sum_timepoint_component_slice_to_annual(block.sync_cond_power_input[modeled_year, :, :])
+
+    def _net_power_output(self, block, modeled_year: pd.Timestamp, dispatch_window, timestamp: pd.Timestamp):
+        return (
+            self.formulation_block.power_output[modeled_year, dispatch_window, timestamp]
+            - self.formulation_block.sync_cond_power_input[modeled_year, dispatch_window, timestamp]
         )
 
     def _annual_total_operational_cost(self, block, modeled_year: pd.Timestamp):
@@ -519,7 +545,7 @@ class ThermalResourceGroup(GenericResourceGroup, ThermalResource):
             raise ValueError(f"{self.name} Thermal Resource Group operational group needs a fuel burn slope defined.")
 
 
-class ThermalUnitCommitmentResourceGroup(GenericResourceGroup, ThermalUnitCommitmentResource):
+class ThermalUnitCommitmentResourceGroup(UnitCommitmentResourceGroup, ThermalUnitCommitmentResource):
     SAVE_PATH: ClassVar[str] = "resources/thermal/groups"
     _NAME_PREFIX: ClassVar[str] = "thermal_unit_commitment_resource_group"
     _GROUPING_CLASS = ThermalUnitCommitmentResource

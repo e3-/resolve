@@ -1,0 +1,5 @@
+attribute,timestamp,value,scenario
+resource_type,,Storage,Base
+aggregate_operations,,False,Base
+curtailable,,False,Base
+allow_inter_period_sharing,,False,Base

@@ -52,7 +52,6 @@ def _run_case(
             solver_name=solver_name,
             keep_model_files=log_level == "DEBUG",
             symbolic_solver_labels=symbolic_solver_labels,
-            solver_options=None,
         )
 
     for policy in resolve_model.system.hourly_energy_policies.values():

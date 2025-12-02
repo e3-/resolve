@@ -119,7 +119,8 @@ class TxPath(Asset):
             "from_zone",
             "to_zone",
             # Investment data
-            # "vintage_parent_group",  # Can add this after TxPathGroup is created
+            "vintage_parent_group",
+            "operational_group_name",
             "max_forward_capacity",
             "max_reverse_capacity",
             "selected_capacity",
@@ -514,6 +515,42 @@ class TxPathGroup(AssetGroup, TxPath):
 
     # Override Asset-defined zones dictionary
     zones: Annotated[dict[str, linkage.ZoneToTransmissionPath], Metadata(linkage_order="from")] = {}
+
+    @property
+    def annual_results_column_order(self):
+        """This property defines the ordering of columns in the component's annual results summary out of Resolve.
+        The name of the model field or formulation_block pyomo component can be used.
+        """
+        return [
+            # Topology
+            "zone_names_string",
+            "from_zone",
+            "to_zone",
+            "aggregate_operations",
+            # Investment data
+            "max_forward_capacity",
+            "max_reverse_capacity",
+            "cumulative_selected_capacity",
+            "operational_capacity",
+            "cumulative_retired_capacity",
+            "cumulative_potential",
+            "planned_capacity",
+            "potential",
+            # Operational data
+            "annual_gross_forward_flow",
+            "annual_gross_reverse_flow",
+            "annual_net_forward_flow",
+            # Operational costs
+            "hurdle_rate_forward_direction",
+            "hurdle_rate_reverse_direction",
+            "annual_forward_hurdle_cost",
+            "annual_reverse_hurdle_cost",
+            "annual_forward_flow_value_to_zone",
+            "annual_reverse_flow_value_to_zone",
+            "annual_forward_flow_value_from_zone",
+            "annual_reverse_flow_value_from_zone",
+            "annual_total_operational_cost",
+        ]
 
     def revalidate(self):
         super().revalidate()

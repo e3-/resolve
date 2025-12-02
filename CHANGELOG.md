@@ -1,3 +1,91 @@
+## 3.13.0 (2025-12-02)
+
+### Feat
+
+- Replicate PR34 -- Various results reporting changes (#39)
+
+### Fix
+
+- make elcc_axis_multiplier a timeseries (#29)
+
+## 3.12.3 (2025-10-30)
+
+### Fix
+
+- two bug fixes in system/__init__.py (#21)
+
+## 3.12.2 (2025-10-02)
+
+### Fix
+
+- Custom Constraint Dual Reporting (#1328)
+
+## 3.12.1 (2025-09-29)
+
+### Fix
+
+- Add storage imax and imin to UI (#1323)
+
+## 3.12.0 (2025-09-29)
+
+### Feat
+
+- RESOLVE results to Annual RV notebook script (#1317)
+
+## 3.11.0 (2025-09-12)
+
+### Feat
+
+- single weather-year via earth mover distance (#1247)
+
+## 3.10.0 (2025-09-12)
+
+### Feat
+
+- SOC Tracking Chart (#1316)
+
+## 3.9.0 (2025-09-10)
+
+### Feat
+
+- flex load resource and single unit dispatch for UC (#1081)
+
+## 3.8.1 (2025-09-10)
+
+### Fix
+
+- Resolve deprecated warning when indexing pyomo Sets (#1315)
+
+## 3.8.0 (2025-09-09)
+
+### Feat
+
+- increase Policy penalty to 100 million (#1314)
+
+## 3.7.0 (2025-09-08)
+
+### Feat
+
+- enable max build limits on resource groups (#1313)
+
+## 3.6.0 (2025-09-03)
+
+### Feat
+
+- report names of non-temporal attributes in every modeled year (#1312)
+
+## 3.5.4 (2025-09-02)
+
+### Fix
+
+- Add missing named ranges to UI (#1311)
+
+## 3.5.3 (2025-08-28)
+
+### Fix
+
+- Excel Table name for Custom Constraint RHS Component (#1309)
+
 ## 3.5.2 (2025-08-15)
 
 ### Fix

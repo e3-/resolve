@@ -1,13 +1,17 @@
 import copy
 
+import numpy as np
 import pandas as pd
 import pytest
 from pydantic import ValidationError
 
 from new_modeling_toolkit.core.model import ModelTemplate
+from new_modeling_toolkit.core.temporal import timeseries as ts
 from new_modeling_toolkit.core.temporal.settings import DispatchWindowEdgeEffects
 from new_modeling_toolkit.system.electric.resources import UnitCommitmentResource
+from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentResourceGroup
 from tests.system.electric.resources import test_generic
+from tests.system.electric.resources.test_generic import TestGenericResourceGroup
 
 
 class TestUnitCommitmentResource(test_generic.TestGenericResource):
@@ -32,15 +36,6 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         )
 
         return test_model
-
-    @pytest.fixture(scope="class")
-    def resource_with_inter_period_constraints(self, test_model_inter_period_sharing):
-        def _make_copy_with_block():
-            return copy.deepcopy(
-                getattr(test_model_inter_period_sharing.system, self._SYSTEM_COMPONENT_DICT_NAME)[self._COMPONENT_NAME]
-            )
-
-        return _make_copy_with_block
 
     @pytest.fixture(scope="class")
     def resource_with_fixed_initial_constraints(self, test_model_initial_condition):
@@ -68,6 +63,30 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         timestamp = test_model_inter_period_sharing.last_timepoint_in_dispatch_window[dispatch_window]
 
         return modeled_year, dispatch_window, timestamp
+
+    def test_check_potential_required_validator(self, test_thermal_unit_commitment_resource):
+        """
+        Test that the `check_potential_required` validator enforces correct behavior
+        when `unit_commitment_mode` is set to 'single_unit'.
+
+        This test covers two cases:
+        1. When `unit_commitment_mode='single_unit'` and `potential` is defined
+           (valid input) → the model should build successfully.
+        2. When `unit_commitment_mode='single_unit'` and `potential=None`
+           (invalid input) → the model should raise a `ValueError` with the expected message.
+
+        The validator ensures that resources using the 'single_unit' commitment
+        formulation always have a valid `potential` value specified.
+        """
+        init_kwargs = test_thermal_unit_commitment_resource.model_dump()
+        init_kwargs.update(
+            unit_commitment_mode="single_unit",
+        )
+        UnitCommitmentResource(**init_kwargs)  # check that it passes build
+
+        init_kwargs.update(potential=None)
+        with pytest.raises(ValueError, match="Potential required for unit commitment"):
+            UnitCommitmentResource(**init_kwargs)  # check that it fails build
 
     def test_operational_attributes(self, make_component_copy):
         assert make_component_copy().operational_attributes == [
@@ -189,6 +208,53 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         resource_block.committed_units[last_index].fix(1)
         assert not resource_block.zero_committed_units_in_last_timepoint[(modeled_year, dispatch_window)].expr()
 
+    @pytest.mark.parametrize(
+        "power_output, expected_body, expected_expr",
+        [
+            # Case 1: committed capacity = 160 → minimum requirement = 16
+            # body = 0.5 * 160 - 100 = -84 → inequality violated → expr() is True
+            pytest.param(160.0, 160 * 0.5 - 100, True, id="output_above_min"),
+            # Case 2: committed capacity = 3000 → minimum requirement = 300
+            # body = 0.5 * 3000 - 100 = 200 → inequality satisfied → expr() is False
+            pytest.param(3000.0, 0.5 * 3000 - 100, False, id="output_below_min"),
+            # Case 3: committed capacity = 1000 → minimum requirement = 100
+            # body = 0.5 * 200 - 100 = 0 → binding case → expr() is True
+            pytest.param(200.0, 0.5 * 200 - 100, True, id="output_exact_min"),
+        ],
+    )
+    def test_power_output_min_constraint(
+        self, make_component_with_block_copy, first_index, power_output, expected_body, expected_expr
+    ):
+        """
+        Verify that power_output_min_constraint enforces the minimum operating
+        requirement correctly across different committed_capacity_mw_power_output values.
+        """
+
+        # Build resource and get its formulation block
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+
+        # Unpack test index (modeled_year, dispatch_window_id, timestamp)
+        modeled_year, dispatch_window_id, timestamp = first_index
+
+        # Planned capacity should equal 100 (fixture setup assumption)
+        assert resource.planned_capacity.data.at[modeled_year] == 100
+
+        # Set committed capacity (Var or Expression) and fix power output at 100
+        block.committed_capacity[modeled_year, dispatch_window_id, timestamp] = power_output
+        block.power_output[modeled_year, dispatch_window_id, timestamp] = 100
+
+        # Constraint is always enforced as ≤ 0
+        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
+
+        # Body should equal 0.1 * committed_capacity - power_output
+        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].body() == expected_body
+
+        # expr() evaluates whether the inequality is violated (True) or satisfied (False)
+        assert (
+            bool(block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].expr()) == expected_expr
+        )
+
     def test_power_output_max_constraint(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy()
         block = resource.formulation_block
@@ -212,32 +278,6 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         assert block.power_output_max_constraint[modeled_year, dispatch_window_id, timestamp].body() == -200
         assert block.power_output_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
         assert block.power_output_max_constraint[modeled_year, dispatch_window_id, timestamp].expr()
-
-    def test_power_output_min_constraint(self, make_component_with_block_copy, first_index):
-        resource = make_component_with_block_copy()
-        block = resource.formulation_block
-
-        block.committed_units.fix(4)
-        modeled_year, dispatch_window_id, timestamp = first_index
-
-        assert resource.planned_capacity.data.at[first_index[0]] == 100
-        block.selected_capacity.fix(100)
-        block.retired_capacity.fix(0)
-
-        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(160.0)
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].body() == 0.5 * 200 - 160
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].expr()
-
-        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(30.0)
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].body() == 0.5 * 200 - 30
-        assert not block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].expr()
-
-        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(0.0)
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
-        assert block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].body() == 0.5 * 200 - 0
-        assert not block.power_output_min_constraint[modeled_year, dispatch_window_id, timestamp].expr()
 
     def test_total_up_reserves_max_constraint(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy()
@@ -464,7 +504,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     )
     def test_min_uptime_constraint_inter(
         self,
-        resource_with_inter_period_constraints,
+        make_component_with_block_copy_inter_period_sharing,
         first_index,
         committed_units,
         start_unit_0,
@@ -476,7 +516,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         min_up_body,
         expr,
     ):
-        resource = resource_with_inter_period_constraints()
+        resource = make_component_with_block_copy_inter_period_sharing()
         resource_block = resource.formulation_block
         modeled_year = pd.Timestamp("2025-01-01")
         chrono_period = pd.Timestamp("2012-01-03")
@@ -572,7 +612,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     )
     def test_min_downtime_constraint_inter(
         self,
-        resource_with_inter_period_constraints,
+        make_component_with_block_copy_inter_period_sharing,
         first_index,
         committed_units,
         shutdown_unit_3,
@@ -585,7 +625,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         expr,
     ):
 
-        resource = resource_with_inter_period_constraints()
+        resource = make_component_with_block_copy_inter_period_sharing()
         resource_block = resource.formulation_block
         modeled_year = pd.Timestamp("2025-01-01")
         chrono_period = pd.Timestamp("2012-01-03")
@@ -684,7 +724,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     )
     def test_commitment_tracking_inter_period(
         self,
-        resource_with_inter_period_constraints,
+        make_component_with_block_copy_inter_period_sharing,
         committed_units_first,
         committed_units_next,
         start_units_next,
@@ -694,7 +734,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         commitment_tracking_body,
         expr,
     ):
-        resource = resource_with_inter_period_constraints()
+        resource = make_component_with_block_copy_inter_period_sharing()
         resource_block = resource.formulation_block
         modeled_year = pd.Timestamp("2025-01-01")
 
@@ -809,7 +849,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     )
     def test_ramp_rate_inter_period_up_constraint(
         self,
-        resource_with_inter_period_constraints,
+        make_component_with_block_copy_inter_period_sharing,
         first_index,
         last_index,
         ramp_rate_hour,
@@ -821,7 +861,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         upper,
         body,
     ):
-        resource = resource_with_inter_period_constraints()
+        resource = make_component_with_block_copy_inter_period_sharing()
         resource_block = resource.formulation_block
         modeled_year = pd.Timestamp("2025-01-01")
         chrono_period = pd.Timestamp("2012-01-03")
@@ -866,7 +906,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     )
     def test_ramp_rate_inter_period_down_constraint(
         self,
-        resource_with_inter_period_constraints,
+        make_component_with_block_copy_inter_period_sharing,
         first_index,
         ramp_rate_hour,
         power_output,
@@ -877,7 +917,7 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         upper,
         body,
     ):
-        resource = resource_with_inter_period_constraints()
+        resource = make_component_with_block_copy_inter_period_sharing()
         resource_block = resource.formulation_block
         modeled_year = pd.Timestamp("2025-01-01")
         chrono_period = pd.Timestamp("2012-01-03")
@@ -976,3 +1016,47 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         assert resource.formulation_block.operational_units_in_timepoint.doc == "Number of available units"
 
         assert resource.model_fields["unit_size"].title == "Unit Size"
+
+
+class TestUnitCommitmentResourceGroup(TestGenericResourceGroup):
+
+    def test_check_potential_required_validator(self, test_generic_resource_group):
+        """
+        Test that the `check_potential_required` validator enforces correct behavior
+        for `UnitCommitmentResourceGroup` when using the 'single_unit' commitment mode.
+
+        This test covers three cases:
+
+        1. **Valid case** — `unit_commitment_mode='single_unit'` with `cumulative_potential`
+           defined and finite (while other optional fields such as ramp rates and
+           individual `potential` are absent). The model should build successfully.
+
+        2. **Missing cumulative potential** — when `cumulative_potential` is omitted,
+           the model should raise a `ValidationError` with the expected message
+           ("Cumulative potential required for unit commitment resource group").
+
+        3. **Invalid cumulative potential** — when `cumulative_potential` is defined
+           but takes the value `inf`, the model should raise a `ValueError` with the
+           same expected message.
+
+        Together these checks ensure that resource groups committed under the
+        'single_unit' formulation always specify a valid, finite `cumulative_potential`.
+        """
+        init_kwargs = test_generic_resource_group.model_dump()
+        init_kwargs.pop("ramp_rate_2_hour")
+        init_kwargs.pop("ramp_rate_4_hour")
+        init_kwargs.pop("potential")
+        init_kwargs.update(
+            unit_commitment_mode="single_unit",
+        )
+        UnitCommitmentResourceGroup(**init_kwargs)  # check that it passes build
+
+        init_kwargs.pop("cumulative_potential")
+        with pytest.raises(ValidationError, match="Cumulative potential required for unit commitment resource group"):
+            UnitCommitmentResourceGroup(**init_kwargs)  # check that it fails build
+
+        init_kwargs.update(
+            cumulative_potential=ts.NumericTimeseries(name="cumulative_potential", data=pd.Series(np.inf))
+        )
+        with pytest.raises(ValueError, match="Cumulative potential required for unit commitment resource group"):
+            UnitCommitmentResourceGroup(**init_kwargs)  # check that it fails build

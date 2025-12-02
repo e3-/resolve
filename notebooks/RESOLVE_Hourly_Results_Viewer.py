@@ -1,27 +1,16 @@
-# ---
-# jupyter:
-#   jupytext:
-#     text_representation:
-#       extension: .py
-#       format_name: percent
-#       format_version: '1.3'
-#       jupytext_version: 1.16.2
-#   kernelspec:
-#     display_name: Python 3 (ipykernel)
-#     language: python
-#     name: python3
-# ---
+#!/usr/bin/env python
+# coding: utf-8
 # %% [markdown]
 # # RESOLVE Hourly Dispatch and SOC Viewer
 #
 # ## Interactive Analysis and Plotting for Hourly- and Chrono-indexed Results
 # %%
 # Import packages
-import datetime
 import pathlib
 
 import ipywidgets as widgets
 import pandas as pd
+import plotly.express as px
 from ipyfilechooser import FileChooser
 from IPython.display import display
 from ipywidgets import Layout
@@ -53,6 +42,7 @@ HOURLY_AGG_SETTINGS_NAMED_RANGE = "hourly_aggregation_settings"
 COLOR_SETTINGS_NAMED_RANGE = "build_group_colors"
 
 # %% [markdown]
+#
 # ### Step 1. Load Case Results from specified local directory and choose destination directory
 # #### The case folder is usually named with a timestamp and it should include a "summary" folder. It must be stored on your local directory.
 # #### The destination folder can be any folder in your local directory.
@@ -78,6 +68,7 @@ dest = FileChooser(
 dest._show_dialog()
 display(dest)
 
+
 # %%
 # Define selected case path and dest path
 case_path = fc.selected
@@ -89,9 +80,7 @@ chrono_periods = [pd.Timestamp(chrono) for chrono in sorted(chrono_periods_map["
 dispatch_window_weights = pd.read_csv(pathlib.Path(case_path) / "temporal_settings/dispatch_window_weights.csv")
 dispatch_window_weights["dispatch_window"] = pd.to_datetime(dispatch_window_weights["dispatch_window"])
 weight_map = dispatch_window_weights.set_index("dispatch_window")["weight"]
-all_dispatch_windows = sorted(
-    [datetime.datetime.strptime(dw, "%Y-%m-%d").date() for dw in chrono_periods_map["dispatch_window"].unique()]
-)
+all_dispatch_windows = sorted(pd.to_datetime(chrono_periods_map["dispatch_window"].unique()).date)
 all_years = pd.read_csv(pathlib.Path(case_path) / "temporal_settings/modeled_years.csv")
 modeled_years = [pd.Timestamp(year_str) for year_str in sorted(all_years.loc[all_years["value"] == True, "timestamp"])]
 modeled_years_int = [year.year for year in modeled_years]
@@ -112,6 +101,7 @@ rv = FileChooser(
 )
 rv._show_dialog()
 display(rv)
+
 
 # %%
 rv_path = rv.selected
@@ -143,8 +133,9 @@ aggregation_config_df.set_index("Component").to_csv(f"{dest_path}/aggregation_co
 print(f"The following table summarizes the aggregation settings defined in the Excel Results Viewer:")
 display(aggregation_config_df)
 
+
 # %% [markdown]
-# ### Step 3. Create ResolveResultsViewer instance
+# ### Step 3. Create Hourly ResolveResultsViewer instance
 
 # %%
 # The default is to grab hourly results for all modeled years, but if you'd like to select only some, you can create a list of integers here.
@@ -182,6 +173,7 @@ zones_selected = [widgets.Checkbox(value=True, description=zone) for zone in all
 # Display year checkboxes
 for checkbox in zones_selected:
     display(checkbox)
+
 
 # %%
 # The default is to export hourly results for all modeled years, but if you'd like to select only some, you can create a list of integers here.
@@ -242,6 +234,7 @@ day_dropdown = widgets.Dropdown(
 )
 display(day_dropdown)
 
+
 # %%
 # TODO: Add aggregation of RESOLVE zones (e.g., all CAISO zones)
 if "rv_groupings" not in locals():
@@ -284,3 +277,194 @@ dispatch_plots_path = pathlib.Path(f"{dest_path}/Dispatch Plots")
 if not dispatch_plots_path.exists():
     dispatch_plots_path.mkdir(exist_ok=True)
 dispatch_fig.write_html(f"{dispatch_plots_path}/{plotting_zone}_{day_dropdown.value}.html")
+
+# %% [markdown]
+# ### Step 6. State-of-Charge Analysis for Inter-Period Sharing
+# #### Use the following code blocks to analyze State of Charge over time for storage resources using inter-period sharing.
+
+# %%
+# Confirm that inter-period sharing was used in this case
+temporal_attributes = pd.read_csv(pathlib.Path(case_path) / "temporal_settings/attributes.csv")
+if (
+    temporal_attributes.loc[temporal_attributes["attribute"] == "dispatch_window_edge_effects", "value"].values[0]
+    != "inter-period sharing"
+):
+    raise ValueError(
+        f"Inter-period sharing was not enabled in this RESOLVE case, so creating inter-period sharing "
+        f"SOC plots is not possible."
+    )
+
+
+# Choose a resource, a model year, and a weather year date range for plotting SOC over time
+storage_resources_path = pathlib.Path(case_path) / "summary" / "Resource" / "StorageResource"
+storage_resource_groups_path = pathlib.Path(case_path) / "summary" / "ResourceGroup" / "StorageResourceGroup"
+if storage_resources_path.exists():
+    all_dispatched_storage_resources = [
+        d.name for d in storage_resources_path.iterdir() if d.is_dir() and (d / f"{d.name}_hourly_results.csv").exists()
+    ]
+    all_interperiod_sharing_storage_resources = [
+        d.name for d in storage_resources_path.iterdir() if d.is_dir() and (d / f"{d.name}_chrono_results.csv").exists()
+    ]
+else:
+    all_dispatched_storage_resources = []
+    all_interperiod_sharing_storage_resources = []
+if storage_resource_groups_path.exists():
+    all_dispatched_storage_resource_groups = [
+        d.name
+        for d in storage_resource_groups_path.iterdir()
+        if d.is_dir() and (d / f"{d.name}_hourly_results.csv").exists()
+    ]
+    all_interperiod_sharing_storage_resource_groups = [
+        d.name
+        for d in storage_resource_groups_path.iterdir()
+        if d.is_dir() and (d / f"{d.name}_chrono_results.csv").exists()
+    ]
+else:
+    all_dispatched_storage_resource_groups = []
+    all_interperiod_sharing_storage_resource_groups = []
+dispatched_storage = all_dispatched_storage_resources + all_dispatched_storage_resource_groups
+interperiod_sharing_storage = (
+    all_interperiod_sharing_storage_resources + all_interperiod_sharing_storage_resource_groups
+)
+storage_resource_options = sorted(list(set(dispatched_storage) | set(interperiod_sharing_storage)))
+if len(interperiod_sharing_storage) == 0:
+    raise ValueError(
+        f"There are no storage resources modeled with inter-period sharing, "
+        f"so creating inter-period sharing SOC plots is not possible."
+    )
+
+
+# %%
+# Select which resource you'd like to analyze
+resource_q = widgets.Label(value="Which inter-period sharing storage resource do you want to analyze?")
+# Create dropdown of all storage resources
+resource_dropdown = widgets.Dropdown(
+    options=interperiod_sharing_storage,
+    value=interperiod_sharing_storage[0],  # Default selected value
+    description="Resource:",
+    disabled=False,
+)
+display(resource_q)
+display(resource_dropdown)
+
+# Choose weather year for which you'd like to visualize SOC Charts
+for resource in interperiod_sharing_storage:
+    if resource in all_interperiod_sharing_storage_resource_groups:
+        chrono_results = pd.read_csv(
+            pathlib.Path(case_path)
+            / f"summary/ResourceGroup/StorageResourceGroup/{resource}/{resource}_chrono_results.csv"
+        )
+    else:
+        chrono_results = pd.read_csv(
+            pathlib.Path(case_path) / f"summary/Resource/StorageResource/{resource}/{resource}_chrono_results.csv"
+        )
+    if len(chrono_results) > 0:
+        break
+weather_years = pd.to_datetime(chrono_results["CHRONO_PERIODS"]).dt.year.unique()
+wy_q = widgets.Label(value="Select Weather Year (WY) for visualizing SOC Dispatch Charts.")
+display(wy_q)
+weather_year_dropdown = widgets.Dropdown(
+    options=weather_years,
+    value=weather_years[0],  # Default selected value
+    description="Select WY:",
+    disabled=False,
+)
+display(weather_year_dropdown)
+
+# Choose modeled year for which you'd like to visualize SOC Charts
+my_q = widgets.Label(value="Select Modeled Year (MY) for visualizing SOC Dispatch Charts.")
+# Create dropdown for modeled year from a pre-defined list
+modeled_year_dropdown = widgets.Dropdown(
+    options=modeled_years_int,
+    value=modeled_years_int[0],  # Default selected value
+    description="Select MY:",
+    disabled=False,
+)
+display(my_q)
+display(modeled_year_dropdown)
+
+
+# %%
+# Get selected chrono results and define modeled year timestamp
+resource = resource_dropdown.value
+if resource in all_interperiod_sharing_storage_resource_groups:
+    chrono_results = pd.read_csv(
+        pathlib.Path(case_path) / f"summary/ResourceGroup/StorageResourceGroup/{resource}/{resource}_chrono_results.csv"
+    )
+else:
+    chrono_results = pd.read_csv(
+        pathlib.Path(case_path) / f"summary/Resource/StorageResource/{resource}/{resource}_chrono_results.csv"
+    )
+
+# Filter chrono results on selected modeled year and weather year
+chrono_results["CHRONO_PERIODS"] = pd.to_datetime(chrono_results["CHRONO_PERIODS"])
+chrono_results["TIMESTAMPS"] = pd.to_datetime(chrono_results["TIMESTAMPS"])
+chrono_results["MODELED_YEARS"] = pd.to_datetime(chrono_results["MODELED_YEARS"])
+chrono_results_selected = chrono_results.loc[
+    (chrono_results["MODELED_YEARS"].dt.year == modeled_year_dropdown.value)
+    & (chrono_results["CHRONO_PERIODS"].dt.year == weather_year_dropdown.value)
+].copy()
+if len(chrono_results_selected) == 0:
+    raise ValueError(
+        f"The selected resource does not have any SOC results for the selected modeled year and weather year combination."
+    )
+chrono_results_selected["MODELED_YEAR_TIMESTAMPS"] = chrono_results.apply(
+    lambda row: row["TIMESTAMPS"].replace(
+        year=row["MODELED_YEARS"].year, month=row["CHRONO_PERIODS"].month, day=row["CHRONO_PERIODS"].day
+    ),
+    axis=1,
+)
+chrono_results_selected = chrono_results_selected.set_index("MODELED_YEAR_TIMESTAMPS")
+# Display dataframe
+print(f"This is the SOC dataframe for inter-period sharing resource `{resource}`")
+chrono_results_selected
+
+# %%
+# Define earliest and latest possible dates based on selected weather years
+earliest_date = min(chrono_results_selected.index)
+latest_date = max(chrono_results_selected.index)
+
+# Create a label for the chrono question
+question = widgets.Label(value=f"Select a date range to plot. If none are selected, the full year will be chosen.")
+
+# Create date pickers
+start_date_picker = widgets.DatePicker(description="Start Date", value=earliest_date.date())
+end_date_picker = widgets.DatePicker(description="End Date", value=latest_date.date())
+
+# Display the date widgets
+display(question)
+display(start_date_picker, end_date_picker)
+
+
+# %%
+### Plot the SOC over the specified start and end dates
+
+# Filter on the selected dates
+start_date = pd.Timestamp(start_date_picker.value)
+end_date = pd.Timestamp(end_date_picker.value)
+chrono_results_filtered = chrono_results_selected.loc[
+    (chrono_results_selected.index >= start_date) & (chrono_results_selected.index <= end_date)
+]
+
+
+fig = px.line(
+    chrono_results_filtered,
+    x=chrono_results_filtered.index,
+    y="SOC Inter-Intra Joint (MWh)",
+    title=f"{modeled_year_dropdown.value} State of Charge for {resource} (MWh)",
+)
+
+# Update layout
+fig.update_layout(
+    plot_bgcolor="white",
+    paper_bgcolor="white",
+    xaxis=dict(showgrid=False, title=None),
+    yaxis=dict(
+        showgrid=False, title="State of Charge (MWh)", tickformat=","  # forces commas (e.g., 100,000 instead of 100k)
+    ),
+)
+fig.update_traces(line=dict(color="#7030A0"))  # change line color to E3 color for battery storage
+
+fig.show()
+
+# %%

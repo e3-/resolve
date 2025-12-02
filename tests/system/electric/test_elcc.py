@@ -50,7 +50,7 @@ class TestELCCSurface(ComponentTestTemplate):
             axis_1_value = 0
             for _resource, link in elcc_surface.assets.items():
                 resource = link.instance_from
-                axis_multiplier = link.elcc_axis_multiplier
+                axis_multiplier = link.elcc_axis_multiplier.data.at[year]
                 resource.formulation_block.reliability_capacity["TestPRM", year].fix(100.0)
                 axis_1_value += axis_multiplier * 100.0
 

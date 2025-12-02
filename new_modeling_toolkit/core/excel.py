@@ -696,7 +696,7 @@ class ScenarioTool(ExcelTemplate):
 def _timestamp_column_maker(cell):
     """Convert table headers that have a month (in %b format) or modeled year (in %YS format) to timestamp."""
     months = tuple(pd.date_range(start="1/1/2000", periods=12, freq="MS").strftime("%b").values)
-    years = tuple(f"{year}" for year in range(2000, 2051))
+    years = tuple(f"{year}" for year in range(2000, 2101))
 
     if cell.startswith(months):
         return pd.to_datetime(cell.split(" ")[0], format="%b", errors="coerce").replace(year=1900)

@@ -86,6 +86,23 @@ class TestCommodityCandidateFuel(TestCommodityEnergyCarrier):
             :,
         ] = 300
 
+        cfuel.resources[
+            "ThermalUnitCommitmentResourceSingleUnit"
+        ].instance_to.formulation_block.resource_fuel_consumption_in_timepoint_mmbtu[
+            cfuel.name,
+            first_year,
+            :,
+            :,
+        ] = 0
+        cfuel.resources[
+            "ThermalUnitCommitmentResourceSingleUnit"
+        ].instance_to.formulation_block.resource_fuel_consumption_in_timepoint_mmbtu[
+            cfuel.name,
+            second_year,
+            :,
+            :,
+        ] = 0
+
         return cfuel
 
     def update_non_resource_consumption(self, cfuel: CandidateFuel):

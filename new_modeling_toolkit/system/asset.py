@@ -423,6 +423,9 @@ class Asset(Component):
                 rule=self._operational_capacity,
                 doc="Operational Capacity (MW)",
             ),
+            planned_new_capacity=pyo.Expression(
+                model.MODELED_YEARS, rule=self._planned_new_capacity, doc="Incremental Planned Capacity (MW)"
+            ),
             # Force the selected new-build capacity variable to be 0 if the Asset cannot be built new
             # Note: doing `self.formulation_block.selected_capacity.fix(0)` does not work because the value on the decision
             #  variable cannot be fixed before the block is fully constructed, which does not happen until after this
@@ -545,6 +548,26 @@ class Asset(Component):
             operational_capacity = 0.0
 
         return operational_capacity
+
+    def _planned_new_capacity(self, block: pyo.Block, modeled_year: pd.Timestamp):
+        """The amount of planned new build capacity in a resource group by year (diff of `planned_capacity`). This
+        current definition also takes into account planned net retirements."""
+        model = block.model()
+        if modeled_year < self.build_year:
+            planned_new_capacity = 0
+        elif modeled_year == model.MODELED_YEARS.at(1):
+            planned_new_capacity = self.planned_capacity.data.at[modeled_year]
+        else:
+            current_index = [
+                i for i in range(1, len(model.MODELED_YEARS) + 1) if model.MODELED_YEARS.at(i) == modeled_year
+            ][0]
+            prev_modeled_year = model.MODELED_YEARS.at(current_index - 1)
+            # Planned new capacity is relative to previous model year to be consistent with selected new capacity in a
+            # particular model year.
+            planned_new_capacity = (
+                self.planned_capacity.data.at[modeled_year] - self.planned_capacity.data.at[prev_modeled_year]
+            )
+        return planned_new_capacity
 
     def _can_build_new_constraint(self, block: pyo.Block):
         if block.model().TYPE == ModelType.RESOLVE and block.model().production_simulation_mode:
@@ -1075,7 +1098,6 @@ class AssetGroup(Asset):
             "cumulative_retired_capacity",
             "cumulative_potential",
             "planned_capacity",
-            "aggregate_operations",
             "annual_total_operational_cost",
         ]
 
@@ -1315,6 +1337,16 @@ class AssetGroup(Asset):
                 f"`{self.zones.keys()}`. Linkage to more than 1 Zone is prohibited."
             )
 
+        if self.potential is not None:
+            for year in self.potential.data.index:
+                if self.potential.data.at[year] < sum(
+                    asset.planned_capacity.data.at[year] for asset in self.build_assets.values()
+                ):
+                    raise ValueError(
+                        f"`{self.__class__.__name__}` instance `{self.name}` in year `{year}` must have a higher "
+                        f"potential than its constituents' aggregate planned capacities."
+                    )
+
     def _construct_investment_rules(
         self, model: "ModelTemplate", construct_costs: bool
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
@@ -1354,10 +1386,13 @@ class AssetGroup(Asset):
             ),
         )
 
-        # TODO: single-year "potential" on AssetGroup currently does not do anything. Only cumulative potential constrains.
         if self.cumulative_potential is not None:
             pyomo_components.update(
                 potential_constraint=pyo.Constraint(model.MODELED_YEARS, rule=self._potential_constraint)
+            )
+        if self.potential is not None:
+            pyomo_components.update(
+                max_build_rate_constraint=pyo.Constraint(model.MODELED_YEARS, rule=self._max_build_rate_constraint)
             )
         if self.min_cumulative_new_build is not None:
             pyomo_components.update(
@@ -1473,6 +1508,34 @@ class AssetGroup(Asset):
             )
             <= self.cumulative_potential.data.at[modeled_year]
         )
+
+    def _max_build_rate_constraint(self, block: pyo.Block, modeled_year: pd.Timestamp):
+        """The total amount of selected capacity in each year is constrained by group's potential attribute"""
+        if (
+            len([asset for asset in self.build_assets.values() if asset.build_year == modeled_year]) == 0
+            and all(asset._planned_new_capacity(block, modeled_year) == 0 for asset in self.build_assets.values())
+        ) or (self.potential.data.at[modeled_year] == np.inf):
+            # If (1) there are no build assets with build year equal to modeled year and there are no new planned
+            # builds across build assets in the modeled year OR (2) if the potential is unconstrained, then skip this
+            # constraint.
+            return pyo.Constraint.Skip
+        else:
+            # Otherwise, constrain capacity built only in the modeled year to be less than or equal to the asset
+            # group's total potential.
+            # Note: the asset potential slack is in the second pyo.quicksum expression as this will ensure that a
+            # given asset's potential slack will be engaged when the constraint is broken by both too much planned
+            # capacity and too much selected capacity.
+            return (
+                pyo.quicksum(
+                    asset.formulation_block.selected_capacity - asset.formulation_block.asset_potential_slack
+                    for asset in self.build_assets.values()
+                    if asset.build_year == modeled_year
+                )
+                + pyo.quicksum(
+                    asset.formulation_block.planned_new_capacity[modeled_year] for asset in self.build_assets.values()
+                )
+                <= self.potential.data.at[modeled_year]
+            )
 
     def _min_cumulative_new_build_constraint(self, block: pyo.Block, modeled_year: pd.Timestamp):
         """The total amount of selected capacity must exceed the minimum cumulative new build required"""

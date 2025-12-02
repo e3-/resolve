@@ -197,6 +197,15 @@ class ModelTemplate(pyo.ConcreteModel, ABC):
                 initialize=self.temporal_settings.timestamps.to_period("Y").to_timestamp().unique(),
             )
         select_weather_years = {timestamp.year for timestamp in self.SELECT_WEATHER_YEARS}
+        if len(select_weather_years) == 0 and (
+            self.dispatch_window_edge_effects == DispatchWindowEdgeEffects.INTER_PERIOD_SHARING
+            or len(self.system.erm_policies) > 0
+        ):
+            raise ValueError(
+                f"No weather years were selected for ERM or inter-period sharing optimization. You must "
+                f"set at least one value to TRUE for the `weather_years_to_use` attribute in your temporal "
+                f"settings."
+            )
         if self.dispatch_window_edge_effects == DispatchWindowEdgeEffects.INTER_PERIOD_SHARING:
             assert (
                 self.temporal_settings.chrono_periods_map is not None
@@ -218,6 +227,14 @@ class ModelTemplate(pyo.ConcreteModel, ABC):
                 ordered=True,
                 initialize=[
                     (chrono_period, timestamp)
+                    for chrono_period in self.CHRONO_PERIODS
+                    for timestamp in self.TIMESTAMPS_IN_DISPATCH_WINDOWS[self.chrono_periods_map[chrono_period]]
+                ],
+            )
+            self.CHRONO_PERIODS_DISPATCH_WINDOWS_AND_TIMESTAMPS = pyo.Set(
+                ordered=True,
+                initialize=[
+                    (chrono_period, timestamp.floor("D"), timestamp)  # chrono period, dispatch_window, timestamp
                     for chrono_period in self.CHRONO_PERIODS
                     for timestamp in self.TIMESTAMPS_IN_DISPATCH_WINDOWS[self.chrono_periods_map[chrono_period]]
                 ],
@@ -440,6 +457,26 @@ class ModelTemplate(pyo.ConcreteModel, ABC):
         chrono_period_1_index = (modeled_year, dispatch_window, last_timestamp_chrono_period)
         chrono_period_2_index = (modeled_year, next_dispatch_window, first_timestamp_next_chrono_period)
         return chrono_period_1_index, chrono_period_2_index
+
+    def find_previous_chronological_dispatch_window_and_timepoint(
+        self, chrono_period: pd.Timestamp, prior_offset: int
+    ) -> Tuple[pd.Timestamp, pd.Timestamp]:
+        chrono_period_dispatch_window = self.chrono_periods_map[chrono_period]
+        first_tp_chrono_period = self.first_timepoint_in_dispatch_window[self.chrono_periods_map[chrono_period]]
+        _, dispatch_window, timestamp = self.CHRONO_PERIODS_DISPATCH_WINDOWS_AND_TIMESTAMPS.prevw(
+            (chrono_period, chrono_period_dispatch_window, first_tp_chrono_period), prior_offset
+        )
+        return dispatch_window, timestamp
+
+    def find_next_chronological_dispatch_window_and_timepoint(
+        self, chrono_period: pd.Timestamp, prior_offset: int
+    ) -> Tuple[pd.Timestamp, pd.Timestamp]:
+        chrono_period_dispatch_window = self.chrono_periods_map[chrono_period]
+        first_tp_chrono_period = self.first_timepoint_in_dispatch_window[self.chrono_periods_map[chrono_period]]
+        _, dispatch_window, timestamp = self.CHRONO_PERIODS_DISPATCH_WINDOWS_AND_TIMESTAMPS.nextw(
+            (chrono_period, chrono_period_dispatch_window, first_tp_chrono_period), prior_offset
+        )
+        return dispatch_window, timestamp
 
     def export_temporal_settings(self, output_dir: pathlib.Path):
         self.temporal_settings.modeled_years.data.to_csv(output_dir.joinpath("modeled_years.csv"))

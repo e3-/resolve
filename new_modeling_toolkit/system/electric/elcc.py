@@ -172,7 +172,7 @@ class ELCCSurface(component.Component):
             sum(
                 getattr(facet, f"axis_{axis_num}").data.at[modeled_year]
                 * sum(
-                    asset_linkage.elcc_axis_multiplier
+                    asset_linkage.elcc_axis_multiplier.data.at[modeled_year]
                     * (
                         asset_linkage.instance_from.formulation_block.reliability_capacity[_policy, modeled_year]
                     )

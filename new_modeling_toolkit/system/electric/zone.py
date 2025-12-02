@@ -266,6 +266,7 @@ class Zone(component.Component):
             "annual_total_investment_cost",
             "annual_total_operational_cost",
             "annual_total_slack_operational_cost",
+            "annual_net_power_output",
         ]
 
     def get_aggregated_load(self, modeled_year: int, weather_year_timestamp: pd.Timestamp) -> float:
@@ -624,11 +625,15 @@ class Zone(component.Component):
             )
 
             self.formulation_block.annual_provide_power = pyo.Expression(
-                self.formulation_block.model().MODELED_YEARS, rule=self._annual_provide_power, doc="Provide Power (MWh)"
+                self.formulation_block.model().MODELED_YEARS,
+                rule=self._annual_provide_power,
+                doc="Annual Zonal Power Output (MWh)",
             )
 
             self.formulation_block.annual_input_load = pyo.Expression(
-                self.formulation_block.model().MODELED_YEARS, rule=self._annual_input_load, doc="Input Load (MWh)"
+                self.formulation_block.model().MODELED_YEARS,
+                rule=self._annual_input_load,
+                doc="Annual Zonal Input Load (MWh)",
             )
 
             self.formulation_block.annual_resource_increase_load = pyo.Expression(
@@ -649,8 +654,22 @@ class Zone(component.Component):
                 doc="Annual Demand Increase Load (MWh)",
             )
 
+            self.formulation_block.annual_sync_cond_increase_load = pyo.Expression(
+                self.formulation_block.model().MODELED_YEARS,
+                rule=self._annual_sync_cond_increase_load,
+                doc="Annual Sync Cond Increase Load (MWh)",
+            )
+
             self.formulation_block.annual_increase_load = pyo.Expression(
-                self.formulation_block.model().MODELED_YEARS, rule=self._annual_increase_load, doc="Increase Load (MWh)"
+                self.formulation_block.model().MODELED_YEARS,
+                rule=self._annual_increase_load,
+                doc="Annual Zonal Power Input (MWh)",
+            )
+
+            self.formulation_block.annual_net_power_output = pyo.Expression(
+                self.formulation_block.model().MODELED_YEARS,
+                rule=self._annual_net_power_output,
+                doc="Annual Zonal Net Power Output (MWh)",
             )
 
             self.formulation_block.annual_gross_imports = pyo.Expression(
@@ -842,10 +861,8 @@ class Zone(component.Component):
         """Increase in load from synchronous condensers."""
         return sum(
             (
-                thermal_uc_resource.formulation_block.synchronous_condenser_addition_to_load[
-                    modeled_year, dispatch_window, timestamp
-                ]
-                if hasattr(thermal_uc_resource.formulation_block, "synchronous_condenser_addition_to_load")
+                thermal_uc_resource.formulation_block.sync_cond_power_input[modeled_year, dispatch_window, timestamp]
+                if hasattr(thermal_uc_resource.formulation_block, "sync_cond_power_input")
                 else 0
             )
             for thermal_uc_resource in self.resource_instances.values()
@@ -1105,8 +1122,18 @@ class Zone(component.Component):
             block.zonal_demand_increase_load[modeled_year, :, :]
         )
 
+    def _annual_sync_cond_increase_load(self, block: pyo.Block, modeled_year: pd.Timestamp):
+        return block.model().sum_timepoint_component_slice_to_annual(
+            block.zonal_synchronous_condenser_increase_load[modeled_year, :, :]
+        )
+
     def _annual_increase_load(self, block: pyo.Block, modeled_year: pd.Timestamp):
         return block.model().sum_timepoint_component_slice_to_annual(block.zonal_increase_load[modeled_year, :, :])
+
+    def _annual_net_power_output(self, block: pyo.Block, modeled_year: pd.Timestamp):
+        """Annual net power provided in this zone, net of load increases from storage, plants, demands, and
+        sync condensers."""
+        return block.annual_provide_power[modeled_year] - block.annual_increase_load[modeled_year]
 
     # TODO: Add unit tests for annual gross exports and annual gross imports
     def _annual_gross_imports(self, block: pyo.Block, modeled_year: pd.Timestamp):

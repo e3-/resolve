@@ -13,11 +13,10 @@ from new_modeling_toolkit.core.custom_model import Metadata
 from new_modeling_toolkit.core.custom_model import ModelType
 from new_modeling_toolkit.core.temporal import timeseries as ts
 from new_modeling_toolkit.core.temporal.settings import DispatchWindowEdgeEffects
-from new_modeling_toolkit.system.asset import AnyOperationalGroup
 from new_modeling_toolkit.system.electric.resources.generic import _PYOMO_BUDGET_TOLERANCE
-from new_modeling_toolkit.system.electric.resources.generic import GenericResourceGroup
 from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentMethod
 from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentResource
+from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentResourceGroup
 
 
 class ShedDrResource(UnitCommitmentResource):
@@ -79,12 +78,38 @@ class ShedDrResource(UnitCommitmentResource):
                     doc="ERM Committed Units",
                     initialize=0,
                 ),
-                erm_committed_capacity=pyo.Expression(
-                    model.MODELED_YEARS,
-                    model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
-                    rule=self._erm_committed_capacity,
-                    doc="ERM Committed Capacity (MW)",
-                ),
+            )
+            if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT:
+                pyomo_components.update(
+                    erm_committed_capacity=pyo.Var(
+                        model.MODELED_YEARS, model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS, within=pyo.NonNegativeReals
+                    ),
+                    erm_committed_capacity_ub=pyo.Constraint(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity_ub,
+                    ),
+                    erm_committed_capacity_unit_size_max=pyo.Constraint(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity_unit_size_max,
+                    ),
+                    erm_committed_capacity_unit_size_min=pyo.Constraint(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity_unit_size_min,
+                    ),
+                )
+            else:
+                pyomo_components.update(
+                    erm_committed_capacity=pyo.Expression(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity,
+                        doc="ERM Committed Capacity (MW)",
+                    )
+                )
+            pyomo_components.update(
                 erm_power_output_max_constraint=pyo.Constraint(
                     model.MODELED_YEARS,
                     model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
@@ -278,8 +303,21 @@ class ShedDrResource(UnitCommitmentResource):
         self, block: pyo.Block, modeled_year: pd.Timestamp, dispatch_window: pd.Timestamp, timestamp: pd.Timestamp
     ):
         """
-        Constrain maximum up time (power output) for unit commitment resources.
-        I.e., length of one DR call in terms of hours (all on same day).
+        Constrain the maximum duration of a single demand response (DR) call within a dispatch window.
+
+        This constraint ensures that the number of consecutive hours a unit can be committed (i.e., called)
+        does not exceed the specified `max_call_duration` for intra-period (within a single dispatch window) operation.
+        If inter-period sharing is enabled and the call would extend beyond the current dispatch window,
+        the constraint is skipped.
+
+        Parameters:
+            block (pyo.Block): The Pyomo block containing model variables and parameters.
+            modeled_year (pd.Timestamp): The year being modeled.
+            dispatch_window (pd.Timestamp): The current dispatch window.
+            timestamp (pd.Timestamp): The current timestamp within the dispatch window.
+
+        Returns:
+            A Pyomo constraint expression or `pyo.Constraint.Skip` if the constraint does not apply.
         """
 
         if (
@@ -491,7 +529,7 @@ class ShedDrResource(UnitCommitmentResource):
         weather_timestamp: pd.Timestamp,
     ):
         erm_committed_capacity = (
-            block.erm_committed_units[modeled_year, weather_period, weather_timestamp] * self.unit_size
+            block.erm_committed_units[modeled_year, weather_period, weather_timestamp] * block.unit_size[modeled_year]
         )
         return erm_committed_capacity
 
@@ -521,16 +559,68 @@ class ShedDrResource(UnitCommitmentResource):
             modeled_year
         )
 
+    def _erm_committed_capacity_ub(
+        self, block, modeled_year: pd.Timestamp, weather_period: pd.Timestamp, weather_timestamp: pd.Timestamp
+    ):
+        """
+        Upper-bound constraint: erm committed capacity cannot exceed the product of
+        maximum potential and the unit commitment indicator.
 
-class ShedDrResourceGroup(GenericResourceGroup, ShedDrResource):
+        - This constraint enforces that if the unit is not committed (committed_units = 0), then committed capacity is zero.
+        - When committed, the capacity is limited by the resource's maximum potential.
+
+        Returns: pyo.Constraint: erm_committed_capacity <= max_potential * erm_committed_units
+
+        """
+        return (
+            block.erm_committed_capacity[modeled_year, weather_period, weather_timestamp]
+            <= block.max_potential[modeled_year]
+            * block.erm_committed_units[modeled_year, weather_period, weather_timestamp]
+        )
+
+    def _erm_committed_capacity_unit_size_max(
+        self, block, modeled_year: pd.Timestamp, weather_period: pd.Timestamp, weather_timestamp: pd.Timestamp
+    ):
+        """
+        Upper-bound constraint: erm committed capacity cannot exceed the unit size.
+
+        This constraint enforces a physical limit: the committed capacity
+        of a resource in any period cannot exceed the installed unit size
+        available in that modeled year.
+
+        Returns: pyomo.Constraint: erm_committed_capacity <= unit_size
+        """
+        return (
+            block.erm_committed_capacity[modeled_year, weather_period, weather_timestamp]
+            <= block.unit_size[modeled_year]
+        )
+
+    def _erm_committed_capacity_unit_size_min(
+        self, block, modeled_year: pd.Timestamp, weather_period: pd.Timestamp, weather_timestamp: pd.Timestamp
+    ):
+        """
+        Lower-bound constraint: committed capacity must be at least the unit size
+        when the resource is committed, and can relax to zero when not committed.
+
+        - If erm_committed_units = 1, the inequality reduces to:
+            erm_committed_capacity >= unit_size
+          enforcing that the full unit size is available.
+        - If erm_committed_units = 0, the RHS relaxes to a large negative value,
+          effectively removing the lower bound and allowing committed_capacity = 0.
+
+        Returns: pyomo.Constraint: erm_committed_capacity >= unit_size - max_potential * (1 - erm_committed_units)
+        """
+        return block.erm_committed_capacity[modeled_year, weather_period, weather_timestamp] >= block.unit_size[
+            modeled_year
+        ] - block.max_potential[modeled_year] * (
+            1 - block.erm_committed_units[modeled_year, weather_period, weather_timestamp]
+        )
+
+
+class ShedDrResourceGroup(UnitCommitmentResourceGroup, ShedDrResource):
     SAVE_PATH: ClassVar[str] = "resources/shed/groups"
     _NAME_PREFIX: ClassVar[str] = "shed_dr_resource_group"
     _GROUPING_CLASS = ShedDrResource
-
-    # TODO (skramer): Figure out how to determine operational equality for unit commitment resources when selected
-    #  builds can result in differing number of units
-    def construct_operational_groups(cls, assets: list[ShedDrResource] = False) -> dict[str, AnyOperationalGroup]:
-        raise NotImplementedError("Operational grouping not defined for unit commitment resources")
 
     def _construct_investment_rules(
         self, model: "ModelTemplate", construct_costs: bool
@@ -560,12 +650,39 @@ class ShedDrResourceGroup(GenericResourceGroup, ShedDrResource):
                     doc="ERM Committed Units",
                     initialize=0,
                 ),
-                erm_committed_capacity=pyo.Expression(
-                    model.MODELED_YEARS,
-                    model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
-                    rule=self._erm_committed_capacity,
-                    doc="ERM Committed Capacity (MW)",
-                ),
+            )
+
+            if self.unit_commitment_mode == UnitCommitmentMethod.SINGLE_UNIT:
+                pyomo_components.update(
+                    erm_committed_capacity=pyo.Var(
+                        model.MODELED_YEARS, model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS, within=pyo.NonNegativeReals
+                    ),
+                    erm_committed_capacity_ub=pyo.Constraint(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity_ub,
+                    ),
+                    erm_committed_capacity_unit_size_max=pyo.Constraint(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity_unit_size_max,
+                    ),
+                    erm_committed_capacity_unit_size_min=pyo.Constraint(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity_unit_size_min,
+                    ),
+                )
+            else:
+                pyomo_components.update(
+                    erm_committed_capacity=pyo.Expression(
+                        model.MODELED_YEARS,
+                        model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                        rule=self._erm_committed_capacity,
+                        doc="ERM Committed Capacity (MW)",
+                    )
+                )
+            pyomo_components.update(
                 erm_power_output_max_constraint=pyo.Constraint(
                     model.MODELED_YEARS,
                     model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,

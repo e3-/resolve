@@ -1027,18 +1027,11 @@ class ResolveHourlyResultsViewer:
     ##########################################
     ### AGGREGATED RESOURCE DISPATCH PLOTS ###
     ##########################################
-    def _plot_line_agg_grp(self, agg_time: str, load_df: pd.DataFrame, y_col: str, name: str = None) -> Figure:
+    def _plot_line_agg_grp(self, agg_time: str, df: pd.DataFrame, y_col: str, name: str = None) -> Figure:
         """ "Include variable name in legend entries"""
-        fig = px.line(load_df, x=agg_time, y=y_col, line_dash=self.AGN_COL)
+        fig = px.line(df, x=agg_time, y=y_col, line_dash=self.AGN_COL)
         if name is not None:
             fig.update_traces(name=name)
-        # rename_dict = {k: f"{y_col}, {k}" for k in set(load_df[self.AGN_COL])}
-        # new_fig.for_each_trace(
-        #     lambda t: t.update(
-        #         name=rename_dict[t.name],
-        #         legendgroup=rename_dict[t.name],
-        #     )
-        # )
         return fig
 
     def create_chrono_dispatch_plot(
@@ -1310,6 +1303,7 @@ class ResolveHourlyResultsViewer:
         Returns:
             pd.DataFrame: chrono_timestamp indexed dataframe with resource or resource group SOC
         """
+        # TODO: Finish the implementation of SOC by resource using this Aggregation Class.
         raise NotImplementedError(f"SOC by resource functionality not yet implemented.")
 
         # If no modeled years are specified, SOC df is generated for all years
@@ -1317,24 +1311,58 @@ class ResolveHourlyResultsViewer:
             model_years = self.modeled_years
 
         # Get dispatch of all resources
-        # TODO: replace df with only chrono data joined with whatever else is needed
-        # df = self.system_dispatch_by_resource.reset_index()
+        df_hourly = self.get_hourly_results_for_all_years(modeled_years=model_years)
+        hourly_index = df_hourly.index
+        df_hourly = df_hourly.reset_index()
+        annual_fields = [MODELEDYEAR, ZONES, FUELS, OPERATIONAL_CAPACITY, OPERATIONAL_STORAGE_CAPACITY]
+        df_annual = self.component_summary_chronoextract_by_modelyear[self.ANNUAL].set_index([COMPONENT])[annual_fields]
 
         # Keep only rows of df that correspond to requested dates
+        df_annual = df_annual.loc[df_annual[MODELEDYEAR].isin(model_years)]
         if date_list is not None:
-            df = df.loc[df[CHRONO_TIMESTAMP].apply(lambda x: x.date()).isin(date_list)]
+            df_hourly = df_hourly.loc[df_hourly[CHRONO_TIMESTAMP].apply(lambda x: x.date()).isin(date_list)]
+
+        # Get chrono results of all resources
+        system_dispatch_by_resource = self.component_summary_chronoextract_by_modelyear
+        chrono_op_cols = CHRONO_OP_COLS
+        chrono_fields = hourly_index.names + chrono_op_cols
+        has_chrono = (
+            self.CHRONO in system_dispatch_by_resource.keys() and len(system_dispatch_by_resource[self.CHRONO]) > 0
+        )
+        if has_chrono:
+            df_c = pd.concat([system_dispatch_by_resource[self.CHRONO][year] for year in model_years]).set_index(
+                hourly_index
+            )
+            df_chrono = df_c.reset_index()[chrono_fields].set_index(hourly_index).sort_index()
+        else:
+            df_chrono = pd.DataFrame()
 
         # Get aggregation plan
         resolve_aggregation_df = self.resolve_aggregation_df.copy()
 
-        # Keep only rows of resolve_aggregation_df that correspond to selected resource
-        resource_df = resolve_aggregation_df.merge(df[[COMPONENT, ZONES]].drop_duplicates(), on=COMPONENT)
-        if (resource_df[self.AGN_COL].eq(resource_name)).any():  # resource_name is an aggregation
-            resource_df = resource_df.loc[resource_df[self.AGN_COL] == resource_name]
-        elif (resource_df[COMPONENT].eq(resource_name)).any():  # resource_name is a particular component
-            resource_df = resource_df.loc[resource_df[COMPONENT] == resource_name]
+        # Filter df_chrono and df_hourly by the requested resource, join them
+        if (resolve_aggregation_df[self.AGN_COL].eq(resource_name)).any():  # resource_name is an aggregation
+            resolve_aggregation_df = resolve_aggregation_df.loc[resolve_aggregation_df[self.AGN_COL] == resource_name]
+            resources_belonging_to_aggregated_storage = resolve_aggregation_df[COMPONENT].tolist()
+            df_hourly = df_hourly.loc[df_hourly[COMPONENT].isin(resources_belonging_to_aggregated_storage)]
+            if not df_chrono.empty:
+                df_chrono = df_chrono.loc[df_chrono[COMPONENT].isin(resources_belonging_to_aggregated_storage)]
+                df = pd.concat([df_hourly, df_chrono])
+            else:
+                df = df_hourly
+        elif (resolve_aggregation_df[COMPONENT].eq(resource_name)).any():  # resource_name is a particular component
+            resolve_aggregation_df = resolve_aggregation_df.loc[resolve_aggregation_df[COMPONENT] == resource_name]
+            df_hourly = df_hourly.loc[df_hourly[COMPONENT] == resource_name]
+            if not df_chrono.empty:
+                df_chrono = df_chrono.loc[df_chrono[COMPONENT] == resource_name]
+                df = pd.concat([df_hourly, df_chrono])
+            else:
+                df = df_hourly
         else:
             raise KeyError(f"Resource {resource_name} does not exist as either a component or a resource aggregation.")
+
+        # join the aggregation df and the joined chrono and hourly df
+        resource_df = resolve_aggregation_df.merge(df[[COMPONENT]].drop_duplicates(), on=COMPONENT)
 
         # Define fields on which to aggregate (typically ComponentType and Component)
         agg_fields = list(resolve_aggregation_df.columns.drop(self.AGN_COL).intersection(df.columns))
@@ -1347,11 +1375,14 @@ class ResolveHourlyResultsViewer:
 
         # Get correct SOC column
         soc_col = self.determine_soc_source(df)
+        if soc_col is None:
+            raise ValueError(f"This resource doesn't have any SOC results for the selected timeframe.")
 
         # Create SOC df
+        op_cols = [soc_col, POWER_OUT_MW, POWER_IN_MW]
         cmp_type_list = [cls.__name__ for cls in GenericResource.get_subclasses()] + [GenericResource.__name__]
         resource_soc_df = self._aggregate_component_data(
-            model_years, CHRONO_TIMESTAMP, df, resource_df, agg_fields, cmp_type_list, [soc_col]
+            model_years, CHRONO_TIMESTAMP, df, resource_df, agg_fields, cmp_type_list, op_cols
         )
 
         # Append Dispatch window weights if requested.
@@ -1366,11 +1397,7 @@ class ResolveHourlyResultsViewer:
 
     def create_chrono_soc_plot(
         self,
-        power_provided_df: pd.DataFrame,
-        zonal_imports_df: pd.DataFrame,
-        load_incl_chg_df: pd.DataFrame,
-        model_year: int,
-        zone: str,
+        soc_df: pd.DataFrame,
         title_note: str = "",
     ) -> Tuple[Figure, pd.DataFrame, pd.DataFrame]:
         """
@@ -1384,13 +1411,8 @@ class ResolveHourlyResultsViewer:
         Returns:
             Tuple[Figure, pd.DataFrame, pd.DataFrame]: The plot figure, power provided DataFrame, and load including charging DataFrame.
         """
-
-        raise NotImplementedError(f"SOC by resource functionality not yet implemented.")
-
-        agg_time = CHRONO_TIMESTAMP
-        soc_col = self.determine_soc_source(power_provided_df)
-        fig = self._plot_line_agg_grp(agg_time, power_provided_df, soc_col)
-        # subfig.show()
+        soc_col = self.determine_soc_source(soc_df)
+        fig = self._plot_line_agg_grp(CHRONO_TIMESTAMP, soc_df, soc_col)
         fig.update_layout(title=title_note)
         return fig
 

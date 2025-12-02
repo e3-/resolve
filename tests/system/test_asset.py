@@ -65,6 +65,16 @@ class TestAsset(ComponentTestTemplate):
         assert block.operational_capacity[pd.Timestamp("2035-01-01 00:00")].expr() == 200
         assert block.operational_capacity[pd.Timestamp("2045-01-01 00:00")].expr() == 150
 
+    def test_planned_new_capacity(self, make_component_with_block_copy):
+        asset = make_component_with_block_copy()
+        block = asset.formulation_block
+        model = block.model()
+        modeled_years = model.MODELED_YEARS
+
+        first_year = modeled_years[1]
+        assert block.planned_new_capacity[first_year].expr() == 100.0
+        assert all(block.planned_new_capacity[year].expr() == 0.0 for year in modeled_years if year > first_year)
+
     def test_can_build_new_constraint(self, make_custom_component_with_block):
         asset = make_custom_component_with_block(can_build_new=False)
         block = asset.formulation_block
@@ -846,6 +856,11 @@ class TestAssetGroup(TestAsset):
         assert operational_group.formulation_block.cumulative_retired_capacity[pd.Timestamp("2035-01-01")].expr() == 225
         assert operational_group.formulation_block.cumulative_retired_capacity[pd.Timestamp("2045-01-01")].expr() == 250
 
+    def test_planned_new_capacity(self, make_component_with_block_copy):
+        """Planned new capacity is only defined at the Asset level, not AssetGroup."""
+        operational_group = make_component_with_block_copy()
+        assert not hasattr(operational_group.formulation_block, "planned_new_capacity")
+
     def test_can_build_new_constraint(self, make_component_with_block_copy):
         """Because the operational group should just represent the sum of the investment decisions of the resources in
         that group, it should not have its own investment decision constraints"""
@@ -879,6 +894,33 @@ class TestAssetGroup(TestAsset):
         )  # 200 selected - 150 slack + 200 planned
         assert block.potential_constraint[pd.Timestamp("2025-01-01")].upper() == 600
         assert block.potential_constraint[pd.Timestamp("2025-01-01")].expr()
+
+    def test_max_build_rate_constraint(self, make_component_with_block_copy):
+        operational_group = make_component_with_block_copy()
+        block = operational_group.formulation_block
+
+        assert block.max_build_rate_constraint.is_indexed()
+        assert block.max_build_rate_constraint.index_set() is block.model().MODELED_YEARS
+
+        for resource in operational_group.asset_instances.values():
+            resource.formulation_block.selected_capacity.fix(500)
+            resource.formulation_block.asset_potential_slack.fix(0)
+
+        assert block.max_build_rate_constraint[pd.Timestamp("2025-01-01")].body() == 1200
+        assert block.max_build_rate_constraint[pd.Timestamp("2025-01-01")].upper() == 600
+        assert not block.max_build_rate_constraint[pd.Timestamp("2025-01-01")].expr()
+
+        for resource in operational_group.asset_instances.values():
+            resource.formulation_block.selected_capacity.fix(250)
+            resource.formulation_block.asset_potential_slack.fix(75)
+
+        assert block.max_build_rate_constraint[pd.Timestamp("2025-01-01")].body() == 550  # 500 selected - 150 slack +
+        # 200 planned
+        assert block.max_build_rate_constraint[pd.Timestamp("2025-01-01")].upper() == 600
+        assert block.max_build_rate_constraint[pd.Timestamp("2025-01-01")].expr()
+
+        assert list(block.max_build_rate_constraint.keys()) == [pd.Timestamp("2025-01-01")]  # This should be
+        # true because asset group has no assets with build year besides 2025 and 0 planned new capacity
 
     def test_min_cumulative_new_build_constraint(self, make_component_with_block_copy):
         operational_group = make_component_with_block_copy()
