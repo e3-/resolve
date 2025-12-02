@@ -282,7 +282,9 @@ class TestHybridStorageResource(test_storage.TestStorageResource):
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]  # 0.9 from conftest.py
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
+            weather_timestamp
+        ]  # 0.9 from conftest.py
         paired_block.operational_capacity[modeled_year] = 1
 
         # Test where constraint holds
@@ -315,7 +317,9 @@ class TestHybridStorageResource(test_storage.TestStorageResource):
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]  # 0.9 from conftest.py
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
+            weather_timestamp
+        ]  # 0.9 from conftest.py
         interconnection_limit = 1.0
 
         # Set operational capacity first if it's a variable (True for resource groups)
@@ -369,7 +373,9 @@ class TestHybridStorageResource(test_storage.TestStorageResource):
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]  # 0.9 from conftest.py
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
+            weather_timestamp
+        ]  # 0.9 from conftest.py
         paired_block.operational_capacity[modeled_year] = 1
 
         # Test where constraint holds
@@ -401,7 +407,9 @@ class TestHybridStorageResource(test_storage.TestStorageResource):
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]  # 0.9 from conftest.py
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
+            weather_timestamp
+        ]  # 0.9 from conftest.py
         interconnection_limit = resource.hybrid_linkage.interconnection_limit_mw.data.at[
             modeled_year
         ]  # 1.0 from conftest.py
@@ -672,7 +680,7 @@ class TestHybridStorageResourceGroup(TestStorageResourceGroup, TestHybridStorage
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
             weather_timestamp
         ]  # 0.8 defined in conftest.py
         interconnection_limit = 1.0
@@ -728,7 +736,7 @@ class TestHybridStorageResourceGroup(TestStorageResourceGroup, TestHybridStorage
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
             weather_timestamp
         ]  # 0.8 defined in conftest.py
         paired_block.operational_capacity[modeled_year] = 1
@@ -763,7 +771,7 @@ class TestHybridStorageResourceGroup(TestStorageResourceGroup, TestHybridStorage
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
             weather_timestamp
         ]  # 0.8 defined in conftest.py
         paired_block.operational_capacity[modeled_year] = 1
@@ -797,7 +805,7 @@ class TestHybridStorageResourceGroup(TestStorageResourceGroup, TestHybridStorage
         paired_block = resource.paired_variable_resource.formulation_block
 
         # Immutable values
-        multiplier = resource.hybrid_erm_policy_linkage.multiplier.data.at[
+        multiplier = resource.paired_resource_erm_policy_linkage.multiplier.data.at[
             weather_timestamp
         ]  # 0.8 defined in conftest.py
         interconnection_limit = resource.hybrid_linkage.interconnection_limit_mw.data.at[modeled_year]  # 1.0

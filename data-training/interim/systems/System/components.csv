@@ -126,6 +126,14 @@ ElectricResourceGroup,erm_solar,ERM_Reliability,True
 ElectricResourceGroup,erm_wind,ERM_Reliability,True
 ElectricResourceGroup,erm_storage,ERM_Reliability,True
 ElectricResourceGroup,erm_shed,ERM_Reliability,True
+ElectricResourceGroup,Solar_rv_group,Base,True
+ElectricResourceGroup,Wind_rv_group,Base,True
+ElectricResourceGroup,Storage_rv_group,Base,True
+ElectricResourceGroup,Gas_rv_group,Base,True
+ElectricResourceGroup,Hydro_rv_group,Base,True
+ElectricResourceGroup,DR_rv_group,Base,True
+ElectricResourceGroup,Geothermal_rv_group,Base,True
+ElectricResourceGroup,Nuclear_rv_group,Base,True
 EnergyReserveMargin,ERM,ERM_Reliability,True
 Load,Zone_A_Baseline,Base,True
 Load,Zone_B_Baseline,Base,True

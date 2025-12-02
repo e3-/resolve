@@ -43,6 +43,8 @@ from new_modeling_toolkit.system.electric.reserve import Reserve
 from new_modeling_toolkit.system.electric.reserve import ReserveDirection
 from new_modeling_toolkit.system.electric.resources import GenericResource
 from new_modeling_toolkit.system.electric.resources import ThermalResource
+from new_modeling_toolkit.system.electric.resources.flex_load import FlexLoadResource
+from new_modeling_toolkit.system.electric.resources.flex_load import FlexLoadResourceGroup
 from new_modeling_toolkit.system.electric.resources.hybrid import HybridSolarResource
 from new_modeling_toolkit.system.electric.resources.hybrid import HybridSolarResourceGroup
 from new_modeling_toolkit.system.electric.resources.hybrid import HybridStorageResource
@@ -54,6 +56,7 @@ from new_modeling_toolkit.system.electric.resources.hybrid import HybridWindReso
 from new_modeling_toolkit.system.electric.resources.hydro import HydroResource
 from new_modeling_toolkit.system.electric.resources.hydro import HydroResourceGroup
 from new_modeling_toolkit.system.electric.resources.shed_dr import ShedDrResource
+from new_modeling_toolkit.system.electric.resources.shed_dr import ShedDrResourceGroup
 from new_modeling_toolkit.system.electric.resources.storage import StorageDurationConstraint
 from new_modeling_toolkit.system.electric.resources.storage import StorageResource
 from new_modeling_toolkit.system.electric.resources.storage import StorageResourceGroup
@@ -533,6 +536,13 @@ def test_generic_resource(test_asset: Asset):
 
 
 @pytest.fixture(scope="session")
+def test_generic_resource_w_integer_build(test_generic_resource):
+    comp = copy.deepcopy(test_generic_resource)
+    comp.integer_build_increment = 50
+    return comp
+
+
+@pytest.fixture(scope="session")
 def test_thermal_resource(test_generic_resource: GenericResource):
     init_kwargs = test_generic_resource.model_dump()
     init_kwargs.update(
@@ -762,8 +772,15 @@ def test_thermal_unit_commitment_resource_2(test_thermal_unit_commitment_resourc
     init_kwargs = test_thermal_unit_commitment_resource.model_dump()
     init_kwargs.update(
         name="ThermalUnitCommitmentResource2",
-        addition_to_load=4,
+        addition_to_load=0.1,
     )
+    return ThermalUnitCommitmentResource(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
+def test_thermal_unit_commitment_resource_single_unit(test_thermal_unit_commitment_resource):
+    init_kwargs = test_thermal_unit_commitment_resource.model_dump()
+    init_kwargs.update(name="ThermalUnitCommitmentResourceSingleUnit", unit_commitment_mode="single_unit")
     return ThermalUnitCommitmentResource(**init_kwargs)
 
 
@@ -814,7 +831,15 @@ def test_shed_dr_resource(test_thermal_unit_commitment_resource: ThermalResource
             ),
             freq_="YS",
         ),
+        allow_inter_period_sharing=True,
     )
+    return ShedDrResource(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
+def test_shed_dr_resource_single_unit(test_shed_dr_resource):
+    init_kwargs = test_shed_dr_resource.model_dump()
+    init_kwargs.update(name="ShedDrSingleUnitResource", unit_commitment_mode="single_unit")
     return ShedDrResource(**init_kwargs)
 
 
@@ -857,9 +882,36 @@ def test_shed_dr_resource_no_energy_budget(test_thermal_unit_commitment_resource
             ),
         ),
         max_call_duration=3,
+        allow_inter_period_sharing=True,
     )
     del init_kwargs["energy_budget_annual"]
     return ShedDrResource(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
+def test_flex_load_resource(test_shed_dr_resource: ShedDrResource, test_storage_resource: StorageResource):
+    init_kwargs = test_shed_dr_resource.model_dump()
+    init_kwargs.update(test_storage_resource.model_dump())
+    init_kwargs.pop("ramp_rate_2_hour")
+    init_kwargs.pop("ramp_rate_3_hour")
+    init_kwargs.pop("ramp_rate_4_hour")
+    init_kwargs["ramp_rate_1_hour"] = 0.4
+    init_kwargs.update(
+        name="FlexLoadResource",
+        adjacency=1,
+        storage_duration=4,
+    )
+    return FlexLoadResource(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
+def test_flex_load_single_unit_resource(test_flex_load_resource: FlexLoadResource):
+    init_kwargs = test_flex_load_resource.model_dump()
+    init_kwargs.update(
+        name="FlexLoadSingleUnitResource",
+        unit_commitment_mode="single_unit",
+    )
+    return FlexLoadResource(**init_kwargs)
 
 
 @pytest.fixture(scope="session")
@@ -960,7 +1012,7 @@ def test_storage_resource(test_generic_resource: GenericResource):
             weather_year=True,
         ),
         power_input_min=ts.FractionalTimeseries(
-            name="power_input_max",
+            name="power_input_min",
             data=pd.Series(
                 index=pd.DatetimeIndex(
                     [
@@ -1276,7 +1328,7 @@ def test_custom_constraint_lhs():
             ),
         ),
         weather_year_hourly_multiplier=ts.NumericTimeseries(
-            name="modeled_year_multiplier",
+            name="weather_year_hourly_multiplier",
             data=pd.Series(
                 index=pd.DatetimeIndex(
                     [
@@ -2512,6 +2564,34 @@ def test_storage_resource_group(test_generic_resource_group, test_storage_resour
 
 
 @pytest.fixture(scope="session")
+def test_shed_dr_resource_group(test_generic_resource_group, test_shed_dr_resource):
+    init_kwargs = test_generic_resource_group.model_dump()
+    init_kwargs.update(name="shed_dr_resource_group_0")
+    for attr_name, attr_value in test_shed_dr_resource.model_dump().items():
+        if attr_name not in init_kwargs:
+            init_kwargs[attr_name] = attr_value
+    return ShedDrResourceGroup(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
+def test_flex_load_resource_group(test_storage_resource_group, test_flex_load_resource):
+    init_kwargs = test_storage_resource_group.model_dump()
+    init_kwargs.update(
+        name="shift_dr_resource_group_0",
+        adjacency=1,
+        storage_duration=4,
+        ramp_rate_2_hour=None,
+        ramp_rate_3_hour=None,
+        ramp_rate_4_hour=None,
+        ramp_rate_1_hour=0.4,
+    )
+    for attr_name, attr_value in test_flex_load_resource.model_dump().items():
+        if attr_name not in init_kwargs:
+            init_kwargs[attr_name] = attr_value
+    return FlexLoadResourceGroup(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
 def test_plant_group(test_asset_group, test_plant):
     init_kwargs = test_asset_group.model_dump(
         include={
@@ -2627,6 +2707,8 @@ def test_sequestration_group(test_plant_group, test_sequestration):
 def test_system(
     dir_structure: DirStructure,
     test_asset,
+    test_flex_load_resource,
+    test_flex_load_single_unit_resource,
     test_generic_resource,
     test_hydro_resource,
     test_thermal_resource,
@@ -2645,7 +2727,9 @@ def test_system(
     test_hybrid_storage_resource_4,
     test_thermal_unit_commitment_resource,
     test_thermal_unit_commitment_resource_2,
+    test_thermal_unit_commitment_resource_single_unit,
     test_shed_dr_resource,
+    test_shed_dr_resource_single_unit,
     test_shed_dr_resource_no_energy_budget,
     test_reserve_up,
     test_reserve_down,
@@ -2697,6 +2781,8 @@ def test_system(
     test_erm,
 ):
     test_asset = test_asset.copy()
+    test_flex_load_resource = test_flex_load_resource.copy()
+    test_flex_load_single_unit_resource = test_flex_load_single_unit_resource.copy()
     test_generic_resource = test_generic_resource.copy()
     test_hydro_resource = test_hydro_resource.copy()
     test_thermal_resource = test_thermal_resource.copy()
@@ -2715,6 +2801,7 @@ def test_system(
     test_hybrid_storage_resource_4 = test_hybrid_storage_resource_4.copy()
     test_thermal_unit_commitment_resource = test_thermal_unit_commitment_resource.copy()
     test_thermal_unit_commitment_resource_2 = test_thermal_unit_commitment_resource_2.copy()
+    test_thermal_unit_commitment_resource_single_unit = test_thermal_unit_commitment_resource_single_unit.copy()
     test_reserve_up = test_reserve_up.copy()
     test_reserve_down = test_reserve_down.copy()
     test_zone_1 = test_zone_1.copy()
@@ -2771,11 +2858,14 @@ def test_system(
             test_generic_resource.name: test_generic_resource,
             test_thermal_resource.name: test_thermal_resource,
             test_thermal_resource_2.name: test_thermal_resource_2,
+            test_thermal_unit_commitment_resource_single_unit.name: test_thermal_unit_commitment_resource_single_unit,
             test_solar_resource.name: test_solar_resource,
             test_wind_resource.name: test_wind_resource,
             test_hydro_resource.name: test_hydro_resource,
             test_storage_resource.name: test_storage_resource,
             test_storage_resource_2.name: test_storage_resource_2,
+            test_flex_load_resource.name: test_flex_load_resource,
+            test_flex_load_single_unit_resource.name: test_flex_load_single_unit_resource,
             test_hybrid_variable_resource.name: test_hybrid_variable_resource,
             test_hybrid_storage_resource.name: test_hybrid_storage_resource,
             test_hybrid_variable_resource_2.name: test_hybrid_variable_resource_2,
@@ -2787,6 +2877,7 @@ def test_system(
             test_thermal_unit_commitment_resource.name: test_thermal_unit_commitment_resource,
             test_thermal_unit_commitment_resource_2.name: test_thermal_unit_commitment_resource_2,
             test_shed_dr_resource.name: test_shed_dr_resource,
+            test_shed_dr_resource_single_unit.name: test_shed_dr_resource_single_unit,
             test_shed_dr_resource_no_energy_budget.name: test_shed_dr_resource_no_energy_budget,
             test_tx_path.name: test_tx_path,
             test_tx_path_2.name: test_tx_path_2,
@@ -2862,14 +2953,44 @@ def test_system(
                     instance_from=test_solar_resource,
                     instance_to=test_elcc_surface,
                     elcc_axis_index=1,
-                    elcc_axis_multiplier=0.25,
+                    elcc_axis_multiplier=ts.NumericTimeseries(
+                        name="interconnection_limit_mw",
+                        data=pd.Series(
+                            index=pd.DatetimeIndex(
+                                [
+                                    "2025-01-01 00:00",
+                                    "2030-01-01 00:00",
+                                    "2035-01-01 00:00",
+                                    "2045-01-01 00:00",
+                                ],
+                                name="timestamp",
+                            ),
+                            data=0.25,
+                            name="value",
+                        ),
+                    ),
                 ),
                 AssetToELCC(
                     name=(test_storage_resource_2.name, test_elcc_surface.name),
                     instance_from=test_storage_resource_2,
                     instance_to=test_elcc_surface,
                     elcc_axis_index=1,
-                    elcc_axis_multiplier=0.15,
+                    elcc_axis_multiplier=ts.NumericTimeseries(
+                        name="interconnection_limit_mw",
+                        data=pd.Series(
+                            index=pd.DatetimeIndex(
+                                [
+                                    "2025-01-01 00:00",
+                                    "2030-01-01 00:00",
+                                    "2035-01-01 00:00",
+                                    "2045-01-01 00:00",
+                                ],
+                                name="timestamp",
+                            ),
+                            data=0.15,
+                            name="value",
+                        ),
+                    ),
                 ),
             ],
             "ELCCFacetToSurface": [
@@ -3017,8 +3138,28 @@ def test_system(
                     instance_to=test_zone_1,
                 ),
                 ResourceToZone(
+                    name=(test_thermal_unit_commitment_resource_single_unit.name, test_zone_1.name),
+                    instance_from=test_thermal_unit_commitment_resource_single_unit,
+                    instance_to=test_zone_1,
+                ),
+                ResourceToZone(
                     name=(test_shed_dr_resource.name, test_zone_1.name),
                     instance_from=test_shed_dr_resource,
+                    instance_to=test_zone_1,
+                ),
+                ResourceToZone(
+                    name=(test_shed_dr_resource_single_unit.name, test_zone_1.name),
+                    instance_from=test_shed_dr_resource,
+                    instance_to=test_zone_1,
+                ),
+                ResourceToZone(
+                    name=(test_flex_load_resource.name, test_zone_1.name),
+                    instance_from=test_flex_load_resource,
+                    instance_to=test_zone_1,
+                ),
+                ResourceToZone(
+                    name=(test_flex_load_single_unit_resource.name, test_zone_1.name),
+                    instance_from=test_flex_load_single_unit_resource,
                     instance_to=test_zone_1,
                 ),
             ],
@@ -3147,6 +3288,16 @@ def test_system(
                     instance_from=test_shed_dr_resource,
                     instance_to=test_reserve_down,
                 ),
+                ResourceToReserve(
+                    name=(test_flex_load_resource.name, test_reserve_up.name),
+                    instance_from=test_flex_load_resource,
+                    instance_to=test_reserve_up,
+                ),
+                ResourceToReserve(
+                    name=(test_flex_load_resource.name, test_reserve_down.name),
+                    instance_from=test_flex_load_resource,
+                    instance_to=test_reserve_down,
+                ),
             ],
             "ZoneToTransmissionPath": [
                 ZoneToTransmissionPath(
@@ -3244,6 +3395,11 @@ def test_system(
                     instance_from=test_candidate_fuel_1,
                     instance_to=test_thermal_resource_2,
                 ),
+                CandidateFuelToResource(
+                    name=(test_candidate_fuel_1.name, test_thermal_unit_commitment_resource_single_unit.name),
+                    instance_from=test_candidate_fuel_1,
+                    instance_to=test_thermal_unit_commitment_resource_single_unit,
+                ),
             ],
             "ERMContribution": [
                 ERMContribution(
@@ -3293,7 +3449,7 @@ def test_system(
                         name="multiplier",
                         data=pd.Series(
                             index=pd.DatetimeIndex(["2010-01-01 00:00"]),
-                            data=0.8,
+                            data=0.9,
                         ),
                         weather_year=True,
                     ),
@@ -3301,6 +3457,19 @@ def test_system(
                 ERMContribution(
                     name=(test_shed_dr_resource.name, test_erm.name),
                     instance_from=test_shed_dr_resource,
+                    instance_to=test_erm,
+                    multiplier=ts.NumericTimeseries(
+                        name="multiplier",
+                        data=pd.Series(
+                            index=pd.DatetimeIndex(["2010-01-01 00:00"]),
+                            data=0.9,
+                        ),
+                        weather_year=True,
+                    ),
+                ),
+                ERMContribution(
+                    name=(test_shed_dr_resource_single_unit.name, test_erm.name),
+                    instance_from=test_shed_dr_resource_single_unit,
                     instance_to=test_erm,
                     multiplier=ts.NumericTimeseries(
                         name="multiplier",
@@ -4238,6 +4407,7 @@ def test_system_with_operational_groups(
     test_asset_group,
     test_tx_path_group,
     test_generic_resource,
+    test_generic_resource_w_integer_build,
     test_generic_resource_group,
     test_hydro_resource,
     test_hydro_resource_group,
@@ -4306,6 +4476,8 @@ def test_system_with_operational_groups(
     test_candidate_fuel_1,
     test_candidate_fuel_2,
     test_erm,
+    test_flex_load_resource,
+    test_flex_load_resource_group,
 ):
     test_asset = test_asset.copy()
     test_generic_resource = test_generic_resource.copy()
@@ -4375,6 +4547,8 @@ def test_system_with_operational_groups(
     test_candidate_fuel_1 = test_candidate_fuel_1.copy()
     test_candidate_fuel_2 = test_candidate_fuel_2.copy()
     test_erm = test_erm.copy()
+    test_flex_load_resource = test_flex_load_resource.copy()
+    test_flex_load_resource_group = test_flex_load_resource_group.copy()
 
     # Create a dictionary of components for the system, including placeholder copies of certain resources
     #  to use in operational grouping
@@ -4465,6 +4639,10 @@ def test_system_with_operational_groups(
             f"{test_sequestration.name}_copy": test_sequestration.copy(
                 update={"name": f"{test_sequestration.name}_copy"}
             ),
+            test_flex_load_resource.name: test_flex_load_resource,
+            f"{test_flex_load_resource.name}_copy": test_flex_load_resource.model_copy(
+                update={"name": f"{test_flex_load_resource.name}_copy"}
+            ),
         },
         asset_groups={
             test_asset_group.name: test_asset_group,
@@ -4489,6 +4667,7 @@ def test_system_with_operational_groups(
             test_fuel_storage_group.name: test_fuel_storage_group,
             test_negative_emissions_technology_group.name: test_negative_emissions_technology_group,
             test_sequestration_group.name: test_sequestration_group,
+            test_flex_load_resource_group.name: test_flex_load_resource_group,
         },
         reserves={test_reserve_up.name: test_reserve_up, test_reserve_down.name: test_reserve_down},
         annual_energy_policies={test_rps.name: test_rps},
@@ -4533,14 +4712,44 @@ def test_system_with_operational_groups(
                 instance_from=test_solar_resource,
                 instance_to=test_elcc_surface,
                 elcc_axis_index=1.0,
-                elcc_axis_multiplier=0.25,
+                elcc_axis_multiplier=ts.NumericTimeseries(
+                    name="interconnection_limit_mw",
+                    data=pd.Series(
+                        index=pd.DatetimeIndex(
+                            [
+                                "2025-01-01 00:00",
+                                "2030-01-01 00:00",
+                                "2035-01-01 00:00",
+                                "2045-01-01 00:00",
+                            ],
+                            name="timestamp",
+                        ),
+                        data=0.25,
+                        name="value",
+                    ),
+                ),
             ),
             AssetToELCC(
                 name=(test_storage_resource_2.name, test_elcc_surface.name),
                 instance_from=test_storage_resource_2,
                 instance_to=test_elcc_surface,
                 elcc_axis_index=1.0,
-                elcc_axis_multiplier=0.15,
+                elcc_axis_multiplier=ts.NumericTimeseries(
+                    name="interconnection_limit_mw",
+                    data=pd.Series(
+                        index=pd.DatetimeIndex(
+                            [
+                                "2025-01-01 00:00",
+                                "2030-01-01 00:00",
+                                "2035-01-01 00:00",
+                                "2045-01-01 00:00",
+                            ],
+                            name="timestamp",
+                        ),
+                        data=0.15,
+                        name="value",
+                    ),
+                ),
             ),
         ],
         "ELCCFacetToSurface": [
@@ -4629,6 +4838,16 @@ def test_system_with_operational_groups(
             ResourceToZone(
                 name=(test_shed_dr_resource.name, test_zone_1.name),
                 instance_from=test_shed_dr_resource,
+                instance_to=test_zone_1,
+            ),
+            ResourceToZone(
+                name=(test_flex_load_resource.name, test_zone_1.name),
+                instance_from=test_flex_load_resource,
+                instance_to=test_zone_1,
+            ),
+            ResourceToZone(
+                name=(test_flex_load_resource_group.name, test_zone_1.name),
+                instance_from=test_flex_load_resource_group,
                 instance_to=test_zone_1,
             ),
         ],
@@ -4752,6 +4971,16 @@ def test_system_with_operational_groups(
                 name=(test_hybrid_storage_resource_group.name, test_reserve_down.name),
                 instance_from=test_hybrid_storage_resource_group,
                 instance_to=test_reserve_down,
+            ),
+            ResourceToReserve(
+                name=(test_flex_load_resource_group.name, test_reserve_down.name),
+                instance_from=test_flex_load_resource_group,
+                instance_to=test_reserve_down,
+            ),
+            ResourceToReserve(
+                name=(test_flex_load_resource_group.name, test_reserve_up.name),
+                instance_from=test_flex_load_resource_group,
+                instance_to=test_reserve_up,
             ),
         ],
         "ZoneToTransmissionPath": [
@@ -5064,7 +5293,7 @@ def test_system_with_operational_groups(
                     name="multiplier",
                     data=pd.Series(
                         index=pd.DatetimeIndex(["2010-01-01 00:00"]),
-                        data=0.9,
+                        data=0.8,
                     ),
                     weather_year=True,
                 ),
@@ -5658,6 +5887,7 @@ def test_system_with_operational_groups(
         (FuelStorage, test_fuel_storage_group),
         (NegativeEmissionsTechnology, test_negative_emissions_technology_group),
         (Sequestration, test_sequestration_group),
+        (FlexLoadResource, test_flex_load_resource_group),
     ]:
         for asset_instance in components["assets"].values():
             if (type(asset_instance) == group_type) and (asset_instance.name.endswith("_copy")):

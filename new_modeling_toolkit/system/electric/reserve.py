@@ -178,6 +178,11 @@ class Reserve(component.Component):
                     rule=self._annual_total_operational_cost,
                     doc="Annual Total Operational Cost ($)",
                 ),
+                annual_total_slack_operational_cost=pyo.Expression(
+                    model.MODELED_YEARS,
+                    rule=self._annual_total_operational_cost,
+                    doc="Annual Total Slack Operational Cost ($)",
+                ),
             )
         return pyomo_components
 

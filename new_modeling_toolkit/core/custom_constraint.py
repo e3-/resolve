@@ -68,6 +68,13 @@ class CustomConstraintRHS(Component):
 
         return all(getattr(obj, "is_annual", False) for obj in self.custom_constraints.values())
 
+    def revalidate(self):
+        super().revalidate()
+        if self.custom_constraints == {}:
+            raise ValueError(
+                f"CustomConstraintRHS `{self.name}` must have at least one linked CustomConstraintLinkage."
+            )
+
     def _construct_operational_rules(
         self, model: "ModelTemplate", construct_costs: bool
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
@@ -183,8 +190,17 @@ class CustomConstraintRHS(Component):
         for cc_linkage in self.custom_constraints.values():
             lhs_multiplier = cc_linkage.lhs_instance.get_lhs_multiplier(index, self.is_hourly)
 
-            # If index in variable index, add to LHS
-            lhs += cc_linkage.pyomo_component[cc_linkage.return_valid_index(index)] * lhs_multiplier
+            # If index in pyomo_component index, add to LHS
+            if cc_linkage.return_valid_index(index) in cc_linkage.pyomo_component.index_set():
+                lhs += cc_linkage.pyomo_component[cc_linkage.return_valid_index(index)] * lhs_multiplier
+            # If pyomo_component is not indexed, add to LHS (e.g., selected_capacity, integer_build Vars)
+            elif cc_linkage.variable_index == [None]:
+                lhs += cc_linkage.pyomo_component * lhs_multiplier
+            # If pyomo_component has an index, but not the expected one, throw an error
+            elif cc_linkage.return_valid_index(index) not in cc_linkage.pyomo_component.index_set():
+                raise KeyError(
+                    f"Custom Constraint pyomo component {cc_linkage.pyomo_component} does not have index {cc_linkage.return_valid_index(index)}"
+                )
 
         # If none of the components in the custom constraint were added to the LHS (e.g., all for the wrong model year)
         if isinstance(lhs, int):
@@ -260,6 +276,11 @@ class CustomConstraintRHS(Component):
         return block.annual_total_slack_operational_cost[modeled_year]
 
     def _hourly_custom_constraint_dual(self, block, modeled_year, dispatch_window, timestamp):
+
+        # Return None if constraint was not constructed for this index
+        if (modeled_year, dispatch_window, timestamp) not in block.custom_constraint.index_set():
+            return None
+
         dual = block.custom_constraint[modeled_year, dispatch_window, timestamp].get_suffix_value(
             "dual", default=np.nan
         )
@@ -275,6 +296,11 @@ class CustomConstraintRHS(Component):
         )
 
     def _annual_custom_constraint_dual(self, block, modeled_year):
+
+        # Return None if constraint was not constructed for this index
+        if modeled_year not in block.custom_constraint.index_set():
+            return None
+
         dual = block.custom_constraint[modeled_year].get_suffix_value("dual", default=np.nan)
         model: ModelTemplate = block.model()
         annual_discount_factor = model.temporal_settings.modeled_year_discount_factors.data.at[modeled_year]

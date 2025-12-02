@@ -41,7 +41,7 @@ from new_modeling_toolkit.resolve.day_sampling import DaySamplingSystem
 # %%
 # Specify data folder in which System and case settings are saved
 
-data_folder = "data"
+data_folder = "data"  # <-- Input name of data folder here
 dir_str = DirStructure(data_folder=data_folder)
 DaySampSys = DaySamplingSystem(dir_str)
 
@@ -119,7 +119,8 @@ DaySampSys.set_grid_search_range()
 # %%
 # Run grid search with range of weights
 
-DaySampSys.run_grid_search()
+create_plots = True  # <-- Change to False to skip diagnostic plots
+DaySampSys.run_grid_search(create_plots=create_plots)
 
 # %% [markdown]
 # --------------------------

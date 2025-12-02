@@ -173,8 +173,8 @@ class TestLoad(ComponentTestTemplate):
         assert resource.formulation_block.load.doc == "Hourly Load (MWh)"
         assert resource.formulation_block.rep_annual_energy.doc == "Representative Annual Energy (MWh)"
         assert resource.formulation_block.annual_energy.doc == "Average Annual Energy (MWh)"
-        assert resource.formulation_block.rep_annual_peak.doc == "Representative Annual Peak (MWh)"
-        assert resource.formulation_block.annual_peak.doc == "Average Annual Peak (MWh)"
+        assert resource.formulation_block.rep_annual_peak.doc == "Representative Annual Peak (MW)"
+        assert resource.formulation_block.annual_peak.doc == "Average Annual Peak (MW)"
 
         assert resource.model_fields["scale_by_capacity"].title == "Scale by Median Peak"
         assert resource.model_fields["scale_by_energy"].title == "Scale by Mean Annual Energy"

@@ -4,6 +4,7 @@ import pytest
 from new_modeling_toolkit.system import ThermalResourceGroup
 from new_modeling_toolkit.system.electric.resources import ThermalResource
 from new_modeling_toolkit.system.electric.resources.thermal import ThermalUnitCommitmentResource
+from tests.system.component_test_template import ComponentTestTemplate
 from tests.system.electric.resources import test_generic
 from tests.system.electric.resources import test_unit_commitment
 
@@ -285,201 +286,6 @@ class TestThermalResource(test_generic.TestGenericResource):
         )
 
 
-# _RESOURCE_INIT_KWARGS = dict(
-#     capacity_planned=ts.NumericTimeseries(
-#         name="capacity_planned",
-#         data=pd.Series(
-#             index=pd.DatetimeIndex(["2020-01-01", "2030-01-01"], name="timestamp"),
-#             data=[200.0, 100.0],
-#             name="value",
-#         ),
-#     )
-# )
-
-# @pytest.fixture(scope="class")
-# def resource_for_budget_tests(self, make_resource_copy):
-#     resource = make_resource_copy()
-#     resource.capacity_planned = ts.NumericTimeseries(
-#         name="capacity_planned",
-#         data=pd.Series(
-#             index=pd.DatetimeIndex(["2020-01-01", "2030-01-01"], name="timestamp"),
-#             data=[200.0, 400.0],
-#             name="value",
-#         ),
-#     )
-#     return resource
-#
-# def test_scaled_annual_energy_budget(self, resource_for_budget_tests):
-#     resource = copy.deepcopy(resource_for_budget_tests)
-#     resource.energy_budget_annual = ts.FractionalTimeseries(
-#         name="energy_budget_annual",
-#         data=pd.Series(
-#             index=pd.DatetimeIndex(["2010-01-01", "2019-01-01"], name="timestamp"), data=[0.000856164, 0.001141553]
-#         ),
-#         freq_="YS",
-#         weather_year=True,
-#     )
-#
-#     load_calendar = pd.date_range(start="2010-01-01 00:00", end="2010-01-01 12:00", freq="H", name="timestamp")
-#     resource.upsample(load_calendar)
-#     expected_energy_budget_annual = pd.Series(
-#         index=pd.date_range(start="2010-01-01 00:00", end="2010-12-31 23:00", freq="YS", name="timestamp"),
-#         data=0.000856164,
-#     )
-#     pd.testing.assert_series_equal(
-#         resource.energy_budget_annual.data,
-#         expected_energy_budget_annual,
-#     )
-#
-# def test_scaled_daily_energy_budget(self, resource_for_budget_tests):
-#     resource = copy.deepcopy(resource_for_budget_tests)
-#     resource.energy_budget_daily = ts.FractionalTimeseries(
-#         name="energy_budget_daily",
-#         data=pd.Series(
-#             index=pd.DatetimeIndex(["2010-07-01", "2010-07-02"], name="timestamp"), data=[0.104166667, 0.114583333]
-#         ),
-#         freq_="D",
-#         weather_year=True,
-#     )
-#
-#     expected_profile = {
-#         2020: pd.Series(
-#             index=pd.DatetimeIndex(["2010-07-01", "2010-07-02"], name="timestamp"),
-#             data=[500.0, 550.0],
-#         ),
-#         2030: pd.Series(
-#             index=pd.DatetimeIndex(["2010-07-01", "2010-07-02"], name="timestamp"),
-#             data=[1000.0, 1100.0],
-#         ),
-#     }
-#     assert resource.scaled_daily_energy_budget.keys() == expected_profile.keys()
-#     for modeled_year, profile in resource.scaled_daily_energy_budget.items():
-#         pd.testing.assert_series_equal(profile, expected_profile[modeled_year])
-#
-# def test_scaled_monthly_energy_budget(self, resource_for_budget_tests):
-#     resource = copy.deepcopy(resource_for_budget_tests)
-#     resource.energy_budget_monthly = ts.FractionalTimeseries(
-#         name="energy_budget_monthly",
-#         data=pd.Series(
-#             index=pd.DatetimeIndex(["2010-07-01", "2010-08-01"], name="timestamp"), data=[0.00672043, 0.008400538]
-#         ),
-#         freq_="MS",
-#         weather_year=True,
-#     )
-#
-#     expected_profile = {
-#         2020: pd.Series(
-#             index=pd.DatetimeIndex(["2010-07-01", "2010-08-01"], name="timestamp"),
-#             data=[1000.0, 1250.0],
-#         ),
-#         2030: pd.Series(
-#             index=pd.DatetimeIndex(["2010-07-01", "2010-08-01"], name="timestamp"),
-#             data=[2000.0, 2500.0],
-#         ),
-#     }
-#     assert resource.scaled_monthly_energy_budget.keys() == expected_profile.keys()
-#     for modeled_year, profile in resource.scaled_monthly_energy_budget.items():
-#         pd.testing.assert_series_equal(profile, expected_profile[modeled_year])
-#
-# def test_rescale_incremental(self, make_resource_copy):
-#     """Test the `rescale()` function with `incremental=True`."""
-#     resource = make_resource_copy()
-#
-#     resource.rescale(modeled_year=2020, capacity=100, incremental=True)
-#     pd.testing.assert_series_equal(
-#         resource.capacity_planned.data,
-#         pd.Series(
-#             index=pd.DatetimeIndex(["2020-01-01", "2030-01-01"], name="timestamp"),
-#             data=[300.0, 100.0],
-#             name="value",
-#         ),
-#     )
-#
-# def test_scaled_pmax_profile(self, make_resource_copy):
-#     resource = make_resource_copy()
-#
-#     expected_profile = {
-#         2020: pd.Series(
-#             index=pd.DatetimeIndex(
-#                 ["2010-01-01 00:00", "2010-01-01 01:00", "2010-01-01 02:00", "2010-01-01 03:00"], name="timestamp"
-#             ),
-#             data=[200.0, 0.0, 50.0, 100.0],
-#             name="value",
-#         ),
-#         2030: pd.Series(
-#             index=pd.DatetimeIndex(
-#                 ["2010-01-01 00:00", "2010-01-01 01:00", "2010-01-01 02:00", "2010-01-01 03:00"], name="timestamp"
-#             ),
-#             data=[100.0, 0.0, 25.0, 50.0],
-#             name="value",
-#         ),
-#     }
-#
-#     assert resource.scaled_pmax_profile.keys() == expected_profile.keys()
-#     for modeled_year, profile in resource.scaled_pmax_profile.items():
-#         pd.testing.assert_series_equal(profile, expected_profile[modeled_year])
-#
-# def test_dispatch_second_modeled_year(self, make_resource_copy):
-#     resource = make_resource_copy()
-#
-#     net_load = pd.Series(
-#         index=pd.DatetimeIndex(["2010-01-01 00:00", "2010-01-01 01:00", "2010-01-01 02:00", "2010-01-01 03:00"]),
-#         data=[50.0, -20.0, 0, 150.0],
-#     )
-#     updated_net_load = resource.dispatch(net_load=net_load, modeled_year=2030)
-#
-#     pd.testing.assert_series_equal(
-#         resource.heuristic_provide_power_mw,
-#         pd.Series(
-#             index=pd.DatetimeIndex(
-#                 ["2010-01-01 00:00", "2010-01-01 01:00", "2010-01-01 02:00", "2010-01-01 03:00"], name="timestamp"
-#             ),
-#             data=[100.0, 0.0, 25.0, 50.0],
-#             name="value",
-#         ),
-#     )
-#     pd.testing.assert_series_equal(
-#         updated_net_load,
-#         pd.Series(
-#             index=pd.DatetimeIndex(
-#                 ["2010-01-01 00:00", "2010-01-01 01:00", "2010-01-01 02:00", "2010-01-01 03:00"]
-#             ),
-#             data=[-50.0, -20.0, -25.0, 100.0],
-#         ),
-#     )
-#
-# def test_construct_operational_block(self, make_dispatch_model_copy, monkeypatch):
-#     construct_operational_block_mock = mock.Mock()
-#     monkeypatch.setattr(ThermalResource, "construct_operational_block", construct_operational_block_mock)
-#     model = make_dispatch_model_copy()
-#     assert len(model.blocks) == 0
-#     construct_operational_block_mock.assert_not_called()
-#
-# def test_variable_bounds(self):
-#     pass
-#
-# def test_power_output_max_constraint(self):
-#     pass
-#
-# def test_power_output_min_constraint(self):
-#     pass
-#
-# def test_power_input_max_constraint(self):
-#     pass
-#
-# def test_adjust_budgets_for_optimization(self):
-#     pass
-#
-# def test_annual_energy_budget_constraint(self):
-#     pass
-#
-# def test_daily_energy_budget_constraint(self):
-#     pass
-#
-# def test_monthly_energy_budget_constraint(self):
-#     pass
-
-
 class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentResource, TestThermalResource):
     _COMPONENT_CLASS = ThermalUnitCommitmentResource
     _COMPONENT_NAME = "ThermalUnitCommitmentResource"
@@ -582,15 +388,34 @@ class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentR
         assert block.resource_fuel_consumption_constraint[first_index].upper() == upper
         assert block.resource_fuel_consumption_constraint[first_index].body() == body
 
-    def test_synchronous_condenser_addition_to_load(self, make_component_with_block_copy, first_index):
+    def test_synchronous_condenser_constraint(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy(component_name="ThermalUnitCommitmentResource2")
         block = resource.formulation_block
 
-        block.committed_capacity[first_index] = 5
-        assert block.synchronous_condenser_addition_to_load[first_index].expr() == 20
+        assert resource.addition_to_load == 0.1
 
-        block.committed_capacity[first_index] = 11
-        assert block.synchronous_condenser_addition_to_load[first_index].expr() == 44
+        block.committed_capacity[first_index] = 5
+        block.sync_cond_power_input[first_index] = 0.5
+        assert block.synchronous_condenser_constraint[first_index].expr()
+
+        block.committed_capacity[first_index] = 5
+        block.sync_cond_power_input[first_index] = 0.6
+        assert not block.synchronous_condenser_constraint[first_index].expr()
+
+        block.committed_capacity[first_index] = 10
+        block.sync_cond_power_input[first_index] = 0.9
+        assert not block.synchronous_condenser_constraint[first_index].expr()
+
+    def test_annual_sync_cond_power_input(self, make_component_with_block_copy, first_index):
+        resource = make_component_with_block_copy(component_name="ThermalUnitCommitmentResource2")
+        block = resource.formulation_block
+        modeled_year = first_index[0]
+        assert resource.addition_to_load == 0.1
+
+        for dw, ts in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS:
+            block.sync_cond_power_input[modeled_year, dw, ts] = 1.0
+
+        assert block.annual_sync_cond_power_input[modeled_year].expr() == 1.0 * 3 * 0.6 * 365 + 1.0 * 3 * 0.4 * 365
 
     @pytest.mark.parametrize(
         "committed_units, start_units, power_output_fuel1, power_output_fuel2, fuel_consumption_fuel_1, fuel_consumption_fuel_2, expr, body",
@@ -652,6 +477,148 @@ class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentR
         block.power_output[first_index].fix(25)
         assert block.total_power_output_by_fuel_constraint[first_index].body() == 5
         assert not block.total_power_output_by_fuel_constraint[first_index].expr()
+
+
+class TestThermalResourceUnitCommitmentSingleUnit(ComponentTestTemplate):
+    _COMPONENT_CLASS = ThermalResource
+    _COMPONENT_NAME = "ThermalUnitCommitmentResourceSingleUnit"
+    _SYSTEM_COMPONENT_DICT_NAME = "thermal_uc_resources"
+
+    @pytest.mark.parametrize(
+        "committed_units, committed_capacity, expected_body, expected_expr",
+        [
+            # If not committed, committed_capacity must be 0 (<= 0*max_potential)
+            pytest.param(0, 0.0, 0.0, True, id="not_committed_zero_capacity"),
+            pytest.param(0, 10.0, 10.0, False, id="not_committed_positive_capacity_violates"),
+            # If committed (1), capacity must be <= fixed max_potential (=300)
+            pytest.param(1, 100.0, 100.0 - 300.0, True, id="committed_within_max"),
+            pytest.param(1, 300.0, 0.0, True, id="committed_equal_max"),
+            pytest.param(1, 310.0, 10.0, False, id="committed_above_max"),
+        ],
+    )
+    def test_committed_capacity_ub(
+        self,
+        make_component_with_block_copy,
+        first_index,
+        committed_units,
+        committed_capacity,
+        expected_body,
+        expected_expr,
+    ):
+        """
+        Unit test for UnitCommitmentResource._committed_capacity_ub():
+        committed_capacity[yt] <= max_potential[y] * committed_units[yt]
+
+        We directly set/fix the relevant variables and parameters on the resource block and
+        verify the constructed constraint's body, bound, and truthiness without solving.
+        """
+        resource = make_component_with_block_copy()
+        b = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+
+        # Ensure SINGLE_UNIT path is active for committed_capacity var and constraint
+        # The fixture should already be configured appropriately in tests; we only set parameters/vars.
+        b.committed_units[modeled_year, dispatch_window, timestamp].fix(committed_units)
+        b.committed_capacity[modeled_year, dispatch_window, timestamp].fix(committed_capacity)
+
+        c = b.committed_capacity_ub[modeled_year, dispatch_window, timestamp]
+        # Upper bound is None for <=; evaluation happens via expr()
+        assert c.upper() == 0
+        # Body is LHS - RHS
+        assert c.body() == expected_body
+        # expr(): True if inequality satisfied/binding, False if violated
+        assert bool(c.expr()) is expected_expr
+
+    @pytest.mark.parametrize(
+        "unit_size, committed_capacity, expected_body, expected_expr",
+        [
+            # committed_capacity <= unit_size (satisfied)
+            pytest.param(100.0, 50.0, 50.0 - 100.0, True, id="below_unit_size"),
+            # committed_capacity == unit_size (binding)
+            pytest.param(100.0, 100.0, 0.0, True, id="equal_unit_size"),
+            # committed_capacity > unit_size (violation)
+            pytest.param(100.0, 110.0, 10.0, False, id="above_unit_size"),
+        ],
+    )
+    def test_committed_capacity_unit_size_max(
+        self,
+        make_component_with_block_copy,
+        first_index,
+        unit_size,
+        committed_capacity,
+        expected_body,
+        expected_expr,
+    ):
+        """
+        Unit test for UnitCommitmentResource._committed_capacity_unit_size_max():
+        committed_capacity[yt] <= unit_size[y]
+
+        For SINGLE_UNIT mode, unit_size is defined as an Expression equal to operational_capacity[year].
+        We explicitly set operational_capacity for the modeled year to a chosen unit_size and fix
+        committed_capacity, then verify the constraint body and satisfaction.
+        """
+        resource = make_component_with_block_copy()
+        b = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+
+        # Set the unit size via operational_capacity (since SINGLE_UNIT uses dynamic unit_size Expression)
+        b.operational_capacity[modeled_year] = unit_size
+        # Fix committed_capacity at the specific timepoint
+        b.committed_capacity[modeled_year, dispatch_window, timestamp].fix(committed_capacity)
+
+        c = b.committed_capacity_unit_size_max[modeled_year, dispatch_window, timestamp]
+        assert c.upper() == 0
+        assert c.body() == expected_body  # LHS - RHS = committed_capacity - unit_size
+        assert bool(c.expr()) is expected_expr
+
+    @pytest.mark.parametrize(
+        "unit_size, committed_units, committed_capacity, expected_body, expected_expr",
+        [
+            # When not committed (0), RHS = unit_size - max_potential.
+            # With max_potential large (e.g., 300), constraint relaxes; any nonnegative committed_capacity satisfies.
+            pytest.param(100.0, 0, 0.0, (100.0 - 300.0) - 0, True, id="not_committed_zero_capacity_relaxed"),
+            pytest.param(100.0, 0, 50.0, (100.0 - 300.0) - 50, True, id="not_committed_positive_capacity_relaxed"),
+            # When committed (1), constraint enforces committed_capacity >= unit_size.
+            pytest.param(100.0, 1, 90.0, 100.0 - 90, False, id="committed_below_unit_size"),
+            pytest.param(100.0, 1, 100.0, 0.0, True, id="committed_equal_unit_size"),
+            pytest.param(100.0, 1, 120.0, -20.0, True, id="committed_above_unit_size"),
+        ],
+    )
+    def test_committed_capacity_unit_size_min(
+        self,
+        make_component_with_block_copy,
+        first_index,
+        unit_size,
+        committed_units,
+        committed_capacity,
+        expected_body,
+        expected_expr,
+    ):
+        """
+        Unit test for UnitCommitmentResource._committed_capacity_unit_size_min():
+        committed_capacity[yt] >= unit_size[y] - max_potential[y] * (1 - committed_units[yt])
+
+        For SINGLE_UNIT, unit_size is dynamic via operational_capacity. We set operational_capacity,
+        max_potential for the modeled year, fix committed_units and committed_capacity, and verify the
+        constraint body/value and truthiness.
+        """
+        resource = make_component_with_block_copy()
+        b = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+
+        # Configure parameters/expressions
+        b.operational_capacity[modeled_year] = unit_size
+
+        # Fix variables
+        b.committed_units[modeled_year, dispatch_window, timestamp].fix(committed_units)
+        b.committed_capacity[modeled_year, dispatch_window, timestamp].fix(committed_capacity)
+
+        c = b.committed_capacity_unit_size_min[modeled_year, dispatch_window, timestamp]
+        # Lower-bound constraint has lower() == 0 after moving all to LHS
+        assert c.upper() == 0
+        # Body is LHS - RHS
+        assert c.body() == expected_body
+        assert bool(c.expr()) is expected_expr
 
 
 class TestThermalResourceGroup(test_generic.TestGenericResourceGroup, TestThermalResource):

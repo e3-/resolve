@@ -83,16 +83,16 @@ class HybridStorageResource(StorageResource):
         return hybrid_linkage
 
     @property
-    def hybrid_erm_policy_linkage(self):
+    def paired_variable_resource(self) -> HybridVariableResource:
+        return self.hybrid_linkage.instance_to
+
+    @property
+    def paired_resource_erm_policy_linkage(self):
         """Gets the ERM policy linkage for the hybrid storage resource for accessibility."""
         if len(self.erm_policies) == 0:
             return None
         linkage_name = list(self.erm_policies.keys())[0]
-        return self.erm_policies[linkage_name]
-
-    @property
-    def paired_variable_resource(self) -> HybridVariableResource:
-        return self.hybrid_linkage.instance_to
+        return self.paired_variable_resource.erm_policies[linkage_name]
 
     def _construct_investment_rules(
         self, model: "ModelTemplate", construct_costs: bool
@@ -345,7 +345,7 @@ class HybridStorageResource(StorageResource):
         return (
             self.formulation_block.erm_power_output[modeled_year, weather_period, weather_timestamp]
             + self.paired_variable_resource.formulation_block.operational_capacity[modeled_year]
-            * self.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]
+            * self.paired_resource_erm_policy_linkage.multiplier.data.at[weather_timestamp]
             <= self.paired_variable_resource.formulation_block.operational_capacity[modeled_year]
         )
 
@@ -365,7 +365,7 @@ class HybridStorageResource(StorageResource):
         return (
             self.formulation_block.erm_power_output[modeled_year, weather_period, weather_timestamp]
             + self.paired_variable_resource.formulation_block.operational_capacity[modeled_year]
-            * self.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]
+            * self.paired_resource_erm_policy_linkage.multiplier.data.at[weather_timestamp]
             <= self.hybrid_linkage.interconnection_limit_mw.data.at[modeled_year]
         )
 
@@ -392,7 +392,7 @@ class HybridStorageResource(StorageResource):
         return (
             self.formulation_block.erm_power_input[modeled_year, weather_period, weather_timestamp]
             - self.paired_variable_resource.formulation_block.operational_capacity[modeled_year]
-            * self.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]
+            * self.paired_resource_erm_policy_linkage.multiplier.data.at[weather_timestamp]
             <= power_input_limit
         )
 
@@ -419,7 +419,7 @@ class HybridStorageResource(StorageResource):
         return (
             self.formulation_block.erm_power_input[modeled_year, weather_period, weather_timestamp]
             - self.paired_variable_resource.formulation_block.operational_capacity[modeled_year]
-            * self.hybrid_erm_policy_linkage.multiplier.data.at[weather_timestamp]
+            * self.paired_resource_erm_policy_linkage.multiplier.data.at[weather_timestamp]
             <= power_input_limit
         )
 

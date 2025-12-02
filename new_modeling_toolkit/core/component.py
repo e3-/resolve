@@ -1342,8 +1342,7 @@ class Component(FromCSVMixIn):
 
     def _create_results_from_non_indexed_attributes(self) -> list[pd.DataFrame]:
         """Loop through all numerical attributes on the object. If a `title` is defined in the attribute Field
-        definition, Return the attribute value as a dataframe using the modeled year that is closest to the 'build_year'
-         as the MODELED_YEAR index.
+        definition, Return the attribute value as a dataframe with all MODELED_YEARS as the index.
 
         Returns: list of pd.DataFrames with ["MODELED_YEARS""] as index and attribute 'title' as column header
         """
@@ -1355,9 +1354,10 @@ class Component(FromCSVMixIn):
             x for x in field_dict if field_dict[x].title is not None and x not in self.get_timeseries_attribute_names()
         ]:
             column_name = field_dict[att].title
-            year = min(self._build_year_based_annual_index())
+            start_year = min(self._build_year_based_annual_index())
+            years = [year for year in self.formulation_block.model().MODELED_YEARS if year >= start_year]
             df = pd.DataFrame(
-                index=pd.Index(name=self.formulation_block.model().MODELED_YEARS.name, data=[year]),
+                index=pd.Index(name=self.formulation_block.model().MODELED_YEARS.name, data=years),
                 data=str(getattr(self, att)),
                 columns=[column_name],
             )

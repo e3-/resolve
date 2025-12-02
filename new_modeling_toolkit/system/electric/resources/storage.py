@@ -809,24 +809,18 @@ class StorageResource(GenericResource):
         (e.g., charging for half the hour and discharging for half the hour).
         """
         if len(self.reserves) > 0:
-            return self.formulation_block.power_output[
-                modeled_year, dispatch_window, timestamp
-            ] + self.formulation_block.power_input[
-                modeled_year, dispatch_window, timestamp
-            ] + self.formulation_block.total_up_reserves_by_timepoint[
-                modeled_year, dispatch_window, timestamp
-            ] + self.formulation_block.total_down_reserves_by_timepoint[
-                modeled_year, dispatch_window, timestamp
-            ] <= 0.5 * (
-                self.formulation_block.power_output_max[modeled_year, dispatch_window, timestamp]
-                + self.formulation_block.power_input_max[modeled_year, dispatch_window, timestamp]
+            return (
+                self.formulation_block.power_output[modeled_year, dispatch_window, timestamp]
+                + self.formulation_block.power_input[modeled_year, dispatch_window, timestamp]
+                + self.formulation_block.total_up_reserves_by_timepoint[modeled_year, dispatch_window, timestamp]
+                + self.formulation_block.total_down_reserves_by_timepoint[modeled_year, dispatch_window, timestamp]
+                <= self.formulation_block.operational_capacity[modeled_year]
             )
         else:
-            return self.formulation_block.power_output[
-                modeled_year, dispatch_window, timestamp
-            ] + self.formulation_block.power_input[modeled_year, dispatch_window, timestamp] <= 0.5 * (
-                self.formulation_block.power_output_max[modeled_year, dispatch_window, timestamp]
-                + self.formulation_block.power_input_max[modeled_year, dispatch_window, timestamp]
+            return (
+                self.formulation_block.power_output[modeled_year, dispatch_window, timestamp]
+                + self.formulation_block.power_input[modeled_year, dispatch_window, timestamp]
+                <= self.formulation_block.operational_capacity[modeled_year]
             )
 
     def _soc_inter_intra_joint(self, block, modeled_year, chrono_period, timestamp):

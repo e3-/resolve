@@ -145,14 +145,14 @@ class TestZone(ComponentTestTemplate):
         zone = make_component_with_block_copy()
         block = zone.formulation_block
 
-        zone.resource_instances["ThermalUnitCommitmentResource"].formulation_block.committed_capacity[
+        zone.resource_instances["ThermalUnitCommitmentResource"].formulation_block.sync_cond_power_input[
             first_index
-        ] = 10  # addition_to_load = 0
-        zone.resource_instances["ThermalUnitCommitmentResource2"].formulation_block.committed_capacity[
+        ] = 100
+        zone.resource_instances["ThermalUnitCommitmentResource2"].formulation_block.sync_cond_power_input[
             first_index
-        ] = 12345  # addition_to_load = 4
+        ] = 12345
 
-        assert block.zonal_synchronous_condenser_increase_load[first_index].expr() == 0 + 4 * 12345
+        assert block.zonal_synchronous_condenser_increase_load[first_index].expr() == 100 + 12345
 
     def test_zonal_increase_load(self, make_component_with_block_copy, first_index):
         zone = make_component_with_block_copy()
@@ -695,9 +695,14 @@ class TestZone(ComponentTestTemplate):
         assert block.annual_zonal_sequestration_by_product.doc == "Annual Zonal Sequestration (Product Units)"
         assert block.annual_zonal_net_imports_by_product.doc == "Annual Zonal Net Imports (Product Units)"
         assert block.annual_zonal_net_release_by_product.doc == "Annual Zonal Net Release (Product Units)"
-        assert block.annual_provide_power.doc == "Provide Power (MWh)"
-        assert block.annual_input_load.doc == "Input Load (MWh)"
-        assert block.annual_increase_load.doc == "Increase Load (MWh)"
+        assert block.annual_provide_power.doc == "Annual Zonal Power Output (MWh)"
+        assert block.annual_input_load.doc == "Annual Zonal Input Load (MWh)"
+        assert block.annual_increase_load.doc == "Annual Zonal Power Input (MWh)"
+        assert block.annual_net_power_output.doc == "Annual Zonal Net Power Output (MWh)"
+        assert block.annual_resource_increase_load.doc == "Annual Resource Increase Load (MWh)"
+        assert block.annual_plant_increase_load.doc == "Annual Plant Increase Load (MWh)"
+        assert block.annual_demand_increase_load.doc == "Annual Demand Increase Load (MWh)"
+        assert block.annual_sync_cond_increase_load.doc == "Annual Sync Cond Increase Load (MWh)"
         assert block.annual_gross_imports.doc == "Gross Imports (MWh)"
         assert block.annual_gross_exports.doc == "Gross Exports (MWh)"
         assert block.annual_net_imports.doc == "Net Imports (MWh)"

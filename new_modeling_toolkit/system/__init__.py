@@ -50,6 +50,7 @@ from new_modeling_toolkit.system.electric.reserve import Reserve
 from new_modeling_toolkit.system.electric.resource_group import ResourceGroup
 from new_modeling_toolkit.system.electric.resources import ElectricResource
 from new_modeling_toolkit.system.electric.resources import FlexLoadResource
+from new_modeling_toolkit.system.electric.resources import FlexLoadResourceGroup
 from new_modeling_toolkit.system.electric.resources import GenericResource
 from new_modeling_toolkit.system.electric.resources import HybridStorageResource
 from new_modeling_toolkit.system.electric.resources import HybridVariableResource
@@ -136,6 +137,7 @@ __all__ = [
     "VariableResource",
     "SolarResource",
     "WindResource",
+    "FlexLoadResourceGroup",
     "GenericResourceGroup",
     "HydroResourceGroup",
     "StorageResourceGroup",
@@ -282,10 +284,10 @@ class System(Component):
             list(self.elcc_surfaces.values()) +
             list(self.policies.values()) +
             list(self.caiso_tx_constraints.values()) +
-            list(self.custom_constraints_lhs.values()) +
-            list(self.custom_constraints_rhs.values()) +
             list(self.products.values()) +
-            list(self.zones.values())
+            list(self.zones.values()) +
+            list(self.custom_constraints_lhs.values()) +
+            list(self.custom_constraints_rhs.values())
         )
 
         # Reorder the list so that HybridVariableResources are always before HybridStorageResources
@@ -501,6 +503,10 @@ class System(Component):
         return {k: v for k, v in self.asset_groups.items() if isinstance(v, GenericResourceGroup)}
 
     @property
+    def flex_load_resource_groups(self):
+        return {k: v for k, v in self.asset_groups.items() if isinstance(v, FlexLoadResourceGroup)}
+
+    @property
     def generic_resource_groups(self):
         return {k: v for k, v in self.asset_groups.items() if isinstance(v, GenericResourceGroup)}
 
@@ -640,7 +646,7 @@ class System(Component):
                     curr_twl = getattr(vintage_instance, twl_attribute).values()
                     if curr_twl:
                         for twl_instance in curr_twl:
-                            if twl_key in self.linkages:
+                            if twl_key in self.three_way_linkages:
                                 self.three_way_linkages[twl_key].append(twl_instance)
                             else:
                                 self.three_way_linkages[twl_key] = [twl_instance]
@@ -1031,11 +1037,11 @@ class System(Component):
         return values
 
     def _validate_electricity_products_and_linkages(self):
-        resource_flag = any(isinstance(component, GenericResource) for component in self.assets.values()
+        resource_flag = (any(isinstance(component, GenericResource) for component in self.assets.values())
                          or any(isinstance(component, GenericResourceGroup) for component in self.asset_groups.values()))
 
 
-        plant_flag = any(isinstance(component, Plant) for component in self.assets.values()
+        plant_flag = (any(isinstance(component, Plant) for component in self.assets.values())
                          or any(isinstance(component, PlantGroup) for component in self.asset_groups.values()))
 
         if resource_flag and plant_flag:

@@ -4,11 +4,12 @@ from pyomo.environ import value
 
 from new_modeling_toolkit.system.electric.resources.shed_dr import ShedDrResource
 from tests.system.electric.resources import test_unit_commitment
+from tests.system.electric.resources.test_thermal import TestThermalResourceUnitCommitmentSingleUnit
 
 
 class TestShedDrResource(test_unit_commitment.TestUnitCommitmentResource):
     @pytest.fixture(scope="function")
-    def block_comp_for_budget_tests(
+    def shed_block_comp_for_budget_tests(
         self, make_component_with_block_copy_inter_period_sharing, first_index_erm, first_index
     ):
         block = make_component_with_block_copy_inter_period_sharing().formulation_block
@@ -80,19 +81,50 @@ class TestShedDrResource(test_unit_commitment.TestUnitCommitmentResource):
         super().test_check_if_operationally_equal(make_component_with_block_copy, test_zone_1, test_zone_2)
 
     def test_annual_dr_call_limit_constraint(self, make_component_with_block_copy, first_index):
+        """
+        Validate the annual DR-call limit constraint construction.
+
+        Context and parameterization (from fixtures/component defaults):
+        - max_annual_calls = 100 calls/year
+        - unit_size = 50 MW (each committed "unit" represents 50 MW of curtailable load)
+        - power_output_max = 219 MW (system parameter for ShedDrResource in this test setup)
+        - A "call" is triggered when start_units[t] > 0 at any hour t; the model aggregates
+          calls across the year.
+
+        Therefore, the annual limit on the number of calls scales with capacity as:
+            annual_limit_calls = 365 * (max_annual_calls / unit_size)
+        which in this test equals 365 * (100 / 50) = 730.
+
+        The left-hand side (LHS) of the constraint is the sum over hours of start_units[t] * power_output_max.
+        In this test, each unit start at an hour contributes 219 to the LHS (since power_output_max = 219).
+
+        The constraint has the form (for the modeled year y):
+            sum_t start_units[y, t] * 219 <= 365 * (100 / 50)
+        which is equivalently tested here by checking the body() value (LHS - RHS).
+        """
         resource = make_component_with_block_copy()
         resource_block = resource.formulation_block
         modeled_year, dispatch_window, timestamp = first_index
+
+        # Start with a clean slate: zero all starts.
         resource_block.start_units.fix(0)
+
+        # Trigger one DR call at the first timestamp: contributes 219 to the LHS.
         resource_block.start_units[modeled_year, dispatch_window, timestamp].fix(1)
         assert resource_block.annual_dr_call_limit_constraint[modeled_year].upper() == 0
+        # body() = LHS - RHS = (1 * 219) - (365 * (100 / 50))
         assert resource_block.annual_dr_call_limit_constraint[modeled_year].body() == 1 * 219 - (365 * (100 / 50))
+        # Constraint is still satisfied (<= 0)
         assert resource_block.annual_dr_call_limit_constraint[modeled_year].expr()
 
+        # Add a second call one hour later: now LHS = 2 * 219
         resource_block.start_units[modeled_year, dispatch_window, timestamp + pd.DateOffset(hours=1)].fix(1)
         assert resource_block.annual_dr_call_limit_constraint[modeled_year].body() == 2 * 219 - (365 * (100 / 50))
         assert resource_block.annual_dr_call_limit_constraint[modeled_year].expr()
 
+        # Add eight more units two hours later (simulating multiple units starting in the same hour):
+        # total starts so far = 1 + 1 + 8 = 10; LHS = 10 * 219. This should now violate the constraint
+        # given the test parameterization, so expr() should be False.
         resource_block.start_units[modeled_year, dispatch_window, timestamp + pd.DateOffset(hours=2)].fix(8)
         assert resource_block.annual_dr_call_limit_constraint[modeled_year].body() == 10 * 219 - (365 * (100 / 50))
         assert not resource_block.annual_dr_call_limit_constraint[modeled_year].expr()
@@ -289,8 +321,8 @@ class TestShedDrResource(test_unit_commitment.TestUnitCommitmentResource):
         assert block.erm_power_output_max_constraint[first_index_erm].body() == 0.0
         assert block.erm_power_output_max_constraint[first_index_erm].expr()
 
-    def test_erm_annual_energy_budget_constraint(self, block_comp_for_budget_tests, first_index_erm):
-        block = block_comp_for_budget_tests
+    def test_erm_annual_energy_budget_constraint(self, shed_block_comp_for_budget_tests, first_index_erm):
+        block = shed_block_comp_for_budget_tests
         model = block.model()
         modeled_year = model.MODELED_YEARS.first()
         constraint_index_1 = modeled_year, model.WEATHER_YEARS.first()
@@ -331,8 +363,8 @@ class TestShedDrResource(test_unit_commitment.TestUnitCommitmentResource):
 
         assert block.erm_annual_energy_budget_constraint[constraint_index_1].expr()
 
-    def test_erm_daily_energy_budget_constraint(self, block_comp_for_budget_tests, first_index_erm):
-        block = block_comp_for_budget_tests
+    def test_erm_daily_energy_budget_constraint(self, shed_block_comp_for_budget_tests, first_index_erm):
+        block = shed_block_comp_for_budget_tests
         model = block.model()
         modeled_year, weather_period, _ = first_index_erm
         constraint_index_1 = modeled_year, weather_period
@@ -571,3 +603,145 @@ class TestShedDrResource(test_unit_commitment.TestUnitCommitmentResource):
         assert block.erm_shutdown_units_ub_constraint[last_index_erm].upper() == 0.0
         assert block.erm_shutdown_units_ub_constraint[last_index_erm].body() == 1.0
         assert not block.erm_shutdown_units_ub_constraint[last_index_erm].expr()
+
+
+class TestShedDrSingleUnitResource(TestThermalResourceUnitCommitmentSingleUnit):
+    _COMPONENT_CLASS = ShedDrResource
+    _COMPONENT_NAME = "ShedDrSingleUnitResource"
+    _SYSTEM_COMPONENT_DICT_NAME = "shed_dr_resources"
+
+    @pytest.mark.parametrize(
+        "erm_committed_units, erm_committed_capacity, expected_body, expected_expr",
+        [
+            # If not committed, committed_capacity must be 0 (<= 0*max_potential)
+            pytest.param(0, 0.0, 0.0, True, id="not_committed_zero_capacity"),
+            pytest.param(0, 10.0, 10.0, False, id="not_committed_positive_capacity_violates"),
+            # If committed (1), capacity must be <= fixed max_potential (=300)
+            pytest.param(1, 100.0, 100.0 - 300.0, True, id="committed_within_max"),
+            pytest.param(1, 300.0, 0.0, True, id="committed_equal_max"),
+            pytest.param(1, 310.0, 10.0, False, id="committed_above_max"),
+        ],
+    )
+    def test_erm_committed_capacity_ub(
+        self,
+        make_component_with_block_copy,
+        first_index_erm,
+        erm_committed_units,
+        erm_committed_capacity,
+        expected_body,
+        expected_expr,
+    ):
+        """
+        Unit test for UnitCommitmentResource._erm_committed_capacity_ub():
+        erm_committed_capacity[yt] <= max_potential[y] * erm_committed_units[yt]
+
+        We directly set/fix the relevant variables and parameters on the resource block and
+        verify the constructed constraint's body, bound, and truthiness without solving.
+        """
+        resource = make_component_with_block_copy()
+        b = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index_erm
+
+        # Ensure SINGLE_UNIT path is active for erm_committed_capacity var and constraint
+        # The fixture should already be configured appropriately in tests; we only set parameters/vars.
+        b.erm_committed_units[modeled_year, dispatch_window, timestamp].fix(erm_committed_units)
+        b.erm_committed_capacity[modeled_year, dispatch_window, timestamp].fix(erm_committed_capacity)
+
+        c = b.erm_committed_capacity_ub[modeled_year, dispatch_window, timestamp]
+        # Upper bound is None for <=; evaluation happens via expr()
+        assert c.upper() == 0
+        # Body is LHS - RHS
+        assert c.body() == expected_body
+        # expr(): True if inequality satisfied/binding, False if violated
+        assert bool(c.expr()) is expected_expr
+
+    @pytest.mark.parametrize(
+        "unit_size, erm_committed_capacity, expected_body, expected_expr",
+        [
+            # erm_committed_capacity <= unit_size (satisfied)
+            pytest.param(100.0, 50.0, 50.0 - 100.0, True, id="below_unit_size"),
+            # erm_committed_capacity == unit_size (binding)
+            pytest.param(100.0, 100.0, 0.0, True, id="equal_unit_size"),
+            # erm_committed_capacity > unit_size (violation)
+            pytest.param(100.0, 110.0, 10.0, False, id="above_unit_size"),
+        ],
+    )
+    def test_erm_committed_capacity_unit_size_max(
+        self,
+        make_component_with_block_copy,
+        first_index_erm,
+        unit_size,
+        erm_committed_capacity,
+        expected_body,
+        expected_expr,
+    ):
+        """
+        Unit test for UnitCommitmentResource._erm_committed_capacity_unit_size_max():
+        erm_committed_capacity[yt] <= unit_size[y]
+
+        For SINGLE_UNIT mode, unit_size is defined as an Expression equal to operational_capacity[year].
+        We explicitly set operational_capacity for the modeled year to a chosen unit_size and fix
+        erm_committed_capacity, then verify the constraint body and satisfaction.
+        """
+        resource = make_component_with_block_copy()
+        b = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index_erm
+
+        # Set the unit size via operational_capacity (since SINGLE_UNIT uses dynamic unit_size Expression)
+        b.operational_capacity[modeled_year] = unit_size
+        # Fix erm_committed_capacity at the specific timepoint
+        b.erm_committed_capacity[modeled_year, dispatch_window, timestamp].fix(erm_committed_capacity)
+
+        c = b.erm_committed_capacity_unit_size_max[modeled_year, dispatch_window, timestamp]
+        assert c.upper() == 0
+        assert c.body() == expected_body  # LHS - RHS = erm_committed_capacity - unit_size
+        assert bool(c.expr()) is expected_expr
+
+    @pytest.mark.parametrize(
+        "unit_size, erm_committed_units, erm_committed_capacity, expected_body, expected_expr",
+        [
+            # When not committed (0), RHS = unit_size - max_potential.
+            # With max_potential large (e.g., 300), constraint relaxes; any nonnegative erm_committed_capacity satisfies.
+            pytest.param(100.0, 0, 0.0, (100.0 - 300.0) - 0, True, id="not_erm_committed_zero_capacity_relaxed"),
+            pytest.param(100.0, 0, 50.0, (100.0 - 300.0) - 50, True, id="not_committed_positive_capacity_relaxed"),
+            # When committed (1), constraint enforces erm_committed_capacity >= unit_size.
+            pytest.param(100.0, 1, 90.0, 100.0 - 90, False, id="committed_below_unit_size"),
+            pytest.param(100.0, 1, 100.0, 0.0, True, id="committed_equal_unit_size"),
+            pytest.param(100.0, 1, 120.0, -20.0, True, id="committed_above_unit_size"),
+        ],
+    )
+    def test_erm_committed_capacity_unit_size_min(
+        self,
+        make_component_with_block_copy,
+        first_index_erm,
+        unit_size,
+        erm_committed_units,
+        erm_committed_capacity,
+        expected_body,
+        expected_expr,
+    ):
+        """
+        Unit test for UnitCommitmentResource._erm_committed_capacity_unit_size_min():
+        erm_committed_capacity[yt] >= unit_size[y] - max_potential[y] * (1 - erm_committed_units[yt])
+
+        For SINGLE_UNIT, unit_size is dynamic via operational_capacity. We set operational_capacity,
+        max_potential for the modeled year, fix erm_committed_units and erm_committed_capacity, and verify the
+        constraint body/value and truthiness.
+        """
+        resource = make_component_with_block_copy()
+        b = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index_erm
+
+        # Configure parameters/expressions
+        b.operational_capacity[modeled_year] = unit_size
+
+        # Fix variables
+        b.erm_committed_units[modeled_year, dispatch_window, timestamp].fix(erm_committed_units)
+        b.erm_committed_capacity[modeled_year, dispatch_window, timestamp].fix(erm_committed_capacity)
+
+        c = b.erm_committed_capacity_unit_size_min[modeled_year, dispatch_window, timestamp]
+        # Lower-bound constraint has lower() == 0 after moving all to LHS
+        assert c.upper() == 0
+        # Body is LHS - RHS
+        assert c.body() == expected_body
+        assert bool(c.expr()) is expected_expr

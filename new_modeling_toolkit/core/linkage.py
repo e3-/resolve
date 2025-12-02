@@ -1248,17 +1248,13 @@ class AssetToELCC(Linkage):
     multiplier_unit: Annotated[str | None, Metadata(default_exclude=True)] = None
     attribute: Annotated[Literal["power", "energy"], Metadata(default_exclude=True)] = "power"
     elcc_axis_index: int = 1
-    elcc_axis_multiplier: float = 1
-
-    @pydantic.root_validator(skip_on_failure=True)
-    def has_axis_index_if_multiplier(cls, values):
-        if values["elcc_axis_multiplier"] is not None:
-            assert values["elcc_axis_index"] is not None, (
-                "`elcc_axis_multiplier` was specified but `elcc_axis_index` was not. You must specify an "
-                "`elcc_axis_index` in order to use an `elcc_axis_multiplier`."
-            )
-
-        return values
+    elcc_axis_multiplier: ts.NumericTimeseries = pydantic.Field(
+        description="A timeseries multiplier to scale the ELCC values along the specified axis index.",
+        default_factory=ts.Timeseries.one,
+        default_freq="YS",
+        up_method="ffill",
+        down_method="mean",
+    )
 
 
 class XToFinalFuel(Linkage):

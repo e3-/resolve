@@ -17,9 +17,15 @@ dependencies:
   - panel=1.5.2
 
   # DVC
-  - dvc>=3.55
+  - dvc>=3.63
   - dvc-s3>=3.2
   - libsqlite<3.49.0
+
+  - aiobotocore=2.24.1
+  - boto3=1.39.11
+  - botocore=1.39.11
+  - s3fs=2024.12.0   # keeps fsspec recent enough for dvc-s3
+
 
   - pip:
       - -r requirements.txt

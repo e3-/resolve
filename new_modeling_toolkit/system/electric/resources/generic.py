@@ -102,6 +102,7 @@ class GenericResource(Asset):
             # Other
             "integer_build",
             "integer_build_increment",
+            "annual_sync_cond_power_input",
         ]
 
     ############
@@ -1280,6 +1281,8 @@ class GenericResourceGroup(AssetGroup, GenericResource):
             "annual_start_cost",
             "annual_shutdown_cost",
             "annual_total_operational_cost",
+            # Other
+            "annual_sync_cond_power_input",
             # Investment-related costs -- not needed for groups
         ]
 

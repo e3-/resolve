@@ -118,6 +118,7 @@ class Load(component.Component):
         default_freq="YS",
         up_method="interpolate",
         down_method="max",
+        title="T&D Losses Adjustment Factor",
         description="T&D loss adjustment to gross up to system-level loads. For example, a DER may be able to serve "
         "8% more load (i.e., 1.08) than an equivalent bulk system resource due to T&D losses. Adjustment factor is "
         "**directly multiplied** against load (as opposed to 1 / (1 + ``td_losses_adjustment``).",
@@ -172,6 +173,7 @@ class Load(component.Component):
             "annual_energy",
             "rep_annual_peak",
             "annual_peak",
+            "td_losses_adjustment",
         ]
 
     def revalidate(self):
@@ -465,9 +467,9 @@ class Load(component.Component):
                 model.MODELED_YEARS, rule=self._annual_energy, doc="Average Annual Energy (MWh)"
             ),
             rep_annual_peak=pyo.Expression(
-                model.MODELED_YEARS, rule=self._rep_annual_peak, doc="Representative Annual Peak (MWh)"
+                model.MODELED_YEARS, rule=self._rep_annual_peak, doc="Representative Annual Peak (MW)"
             ),
-            annual_peak=pyo.Expression(model.MODELED_YEARS, rule=self._annual_peak, doc="Average Annual Peak (MWh)"),
+            annual_peak=pyo.Expression(model.MODELED_YEARS, rule=self._annual_peak, doc="Average Annual Peak (MW)"),
         )
 
         return pyomo_components

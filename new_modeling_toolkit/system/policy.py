@@ -87,7 +87,7 @@ class Policy(component.Component):
     custom_constraints: Annotated[
         dict[str, CustomConstraintLinkage], Metadata(linkage_order=3, default_exclude=True)
     ] = {}
-    slack_penalty: float = Field(default=1_000_000, description=("Cost to model of relaxing policy ($) "))
+    slack_penalty: float = Field(default=100_000_000, description=("Cost to model of relaxing policy ($) "))
     type: Literal["emissions", "energy", "prm", "erm"] = Field(
         description=("Type of policy. Can be related to energy, emissions, prm, erm")
     )
@@ -255,16 +255,15 @@ class Policy(component.Component):
                 df.loc[:, "Component Type"] = df.apply(
                     lambda row: self.governed_items[row.name[0]].instance_from.__class__.__name__, axis=1
                 )
-                df.loc[:, "Zone"] = df.apply(
+                df.loc[:, "Zone(s)"] = df.apply(
                     lambda row: (
-                        list(self.governed_items[row.name[0]].instance_from.zones.keys())[0]
-                        if hasattr(self.governed_items[row.name[0]].instance_from, "zones")
-                        and len(list(self.governed_items[row.name[0]].instance_from.zones.keys())) == 1
+                        self.governed_items[row.name[0]].instance_from.zone_names_string
+                        if hasattr(self.governed_items[row.name[0]].instance_from, "zone_names_string")
                         else ""
                     ),
                     axis=1,
                 )
-                component_columns_added = ["Component Type", "Zone"]
+                component_columns_added = ["Component Type", "Zone(s)"]
                 if self.__class__.__name__ == "PlanningReserveMargin":
                     df.loc[:, "Vintage Parent Group"] = df.apply(
                         lambda row: (
@@ -276,25 +275,6 @@ class Policy(component.Component):
                         axis=1,
                     )
                     component_columns_added.append("Vintage Parent Group")
-                if hasattr(self, "tx_paths") and len(self.tx_paths) > 0:
-                    df.loc[:, "From Zone"] = df.apply(
-                        lambda row: (
-                            self.governed_items[row.name[0]].instance_from.from_zone.instance_from.name
-                            if hasattr(self.governed_items[row.name[0]].instance_from, "from_zone")
-                            else ""
-                        ),
-                        axis=1,
-                    )
-                    component_columns_added.append("From Zone")
-                    df.loc[:, "To Zone"] = df.apply(
-                        lambda row: (
-                            self.governed_items[row.name[0]].instance_from.to_zone.instance_from.name
-                            if hasattr(self.governed_items[row.name[0]].instance_from, "to_zone")
-                            else ""
-                        ),
-                        axis=1,
-                    )
-                    component_columns_added.append("To Zone")
                 component_index_header, modeled_year_header = df.index.names
                 df.reset_index(inplace=True)
                 df.set_index(
@@ -574,6 +554,10 @@ class HourlyEnergyStandard(Policy):
                     data=self.target.slice_by_year(year.year) * total_load,
                     weather_year=True,
                 )
+        elif self.target_units == TargetUnits.RELATIVE:
+            raise AssertionError(
+                f"Relative target units were selected for `{self.__class__.__name__}` `{self.name}`, but no loads are linked to the policy."
+            )
         elif self.loads:
             raise NotImplementedError(
                 f"update_targets_from_loads not implemented for `{self.__class__.__name__}` without loads and relative target units."

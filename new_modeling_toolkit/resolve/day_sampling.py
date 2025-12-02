@@ -62,7 +62,15 @@ class DaySamplingClusterer(CustomModel):
     prof_8760_cluster: Optional[pd.DataFrame | pd.Series] = None
     results_folder_name: str = None
 
-    def _pivot_chrono_periods(self):
+    def _pivot_chrono_periods(self) -> None:
+        """
+        Pivot and normalize time series data for clustering.
+
+        Transforms input profiles into a daily/hourly DataFrame suitable for clustering.
+
+        Returns:
+            None
+        """
         # chrono_periods is a dataframe with daily index and columns for every variable/hour combo in the 24-hour day
         self.chrono_periods = pd.concat(
             [
@@ -91,7 +99,15 @@ class DaySamplingClusterer(CustomModel):
         self.chrono_periods = self.chrono_periods.dropna(how="any").T.reset_index(drop=True).T
 
     @timer
-    def get_clusters(self):
+    def get_clusters(self) -> None:
+        """
+        Run k-medoids clustering to select representative days and map results to timestamps.
+
+        Clusters the daily profiles and assigns each day to a representative medoid.
+
+        Returns:
+            None
+        """
         self._pivot_chrono_periods()
 
         # calculate distance matrix used in the clustering
@@ -133,8 +149,15 @@ class DaySamplingClusterer(CustomModel):
             self.distance_matrix, self.medoid_results.labels
         )  # potentially not useful metric depending on the shape of the data (more challenging in higher dimensions
 
-    def calculate_rmse(self):
-        """Calculate RMSE for every component included in Clusterer."""
+    def calculate_rmse(self) -> None:
+        """
+        Calculate normalized RMSE for each component and weighted total.
+
+        Computes RMSE between original and clustered profiles for each component.
+
+        Returns:
+            None
+        """
         rmse: dict = {}
         for cat in self.components_to_plot.keys():
             if len(self.components_to_plot[cat]) != 0:
@@ -156,7 +179,13 @@ class DaySamplingClusterer(CustomModel):
         )
         self.rmse = rmse
 
-    def output_df_rmse(self):
+    def output_df_rmse(self) -> pd.DataFrame:
+        """
+        Return a DataFrame summarizing cluster weights and RMSEs for the current grid combo.
+
+        Returns:
+            pd.DataFrame: DataFrame with cluster number, weights, and RMSEs.
+        """
         # Combine weights and RMSE for specific grid combo in df
         df_weights = pd.DataFrame(self.grid_combo, index=[0]).add_suffix("_weight")
         df_rmse = pd.DataFrame(self.rmse, index=[0]).add_suffix("_RMSE")
@@ -168,10 +197,14 @@ class DaySamplingClusterer(CustomModel):
         return pd.concat([df_clusters, df_grid_combo], axis=1)
 
     @timer
-    def collect_cluster_results(self):
+    def collect_cluster_results(self) -> None:
         """
-        Collect data and save in dataframe for plotting.
-        No return value.
+        Aggregate raw, clustered, and reconstructed profiles for analysis and plotting.
+
+        Collects and organizes clustering results into DataFrames for further analysis and visualization.
+
+        Returns:
+            None
         """
         # Raw data input for all components
         self.prof_raw = pd.DataFrame(
@@ -213,9 +246,12 @@ class DaySamplingClusterer(CustomModel):
     #         print('Raw and cluster-reconstituted profiles collected.')
 
     ## Results saving and visuals
-    def save_cluster_csvs(self):
+    def save_cluster_csvs(self) -> None:
         """
-        Get chrono and dispatch window mapping and save to local.
+        Save mapping of chrono periods and dispatch windows to CSV files in results folder.
+
+        Returns:
+            None
         """
         df = self.clustered_dates.resample("D").first().reset_index()
         df.columns = ["chrono_period", "dispatch_window"]
@@ -240,9 +276,17 @@ class DaySamplingClusterer(CustomModel):
     #         print(f'Timeseries csvs saved to {self.results_folder_name}.')
 
     @timer
-    def force_rep_days(
-        self, extreme_dates, number_of_closest_days
-    ):  # extreme_day_indices is position of extreme day in c.clustered_dates -- double check correct day is being selected, e.g. by calling c._compare_daily_peak_load_ranges()
+    def force_rep_days(self, extreme_dates: list, number_of_closest_days: int) -> None:
+        """
+        Force specific extreme dates to be included as representative days, updating cluster assignments.
+
+        Args:
+            extreme_dates (list): Dates to force as representative days.
+            number_of_closest_days (int): Number of closest days to reassign.
+
+        Returns:
+            None
+        """
         new_distance = pd.DataFrame(self.distance_matrix, index=self.chrono_periods.index)
         new_distance.index = pd.to_datetime(new_distance.index)
 
@@ -282,8 +326,13 @@ class DaySamplingClusterer(CustomModel):
         map_to_rep_periods.columns = ["index", "chrono_period", "dispatch_window", "include"]  # , "weight"]
         map_to_rep_periods.to_csv(self.results_folder_name + "/chrono_periods_extreme.csv", index=False)
 
-    def create_plots(self):
-        """Create and save visuals for screening clustering performance"""
+    def create_plots(self) -> None:
+        """
+        Generate and save visualizations to assess clustering and representative day selection.
+
+        Returns:
+            None
+        """
 
         # Direct hourly results comparison between raw and rep-day profiles
         self._compare_clustered_timeseries()
@@ -294,6 +343,7 @@ class DaySamplingClusterer(CustomModel):
                 if re in self.prof_raw.columns:
                     self._show_joint_distribution(re, ld[0])
 
+        # TODO: Update _check_hydro_budget method and reimplement here
         # # Hydro: check rep-day constituted budget and compare with historical annual availability
         # if "hydro" in self.components_to_plot.keys():
         #     self._check_hydro_budget()
@@ -309,11 +359,15 @@ class DaySamplingClusterer(CustomModel):
         self._compare_daily_peak_load_ranges()
 
     @timer
-    def _compare_clustered_timeseries(self):
-        """Create a plotly figure with comparison metrics between original and clustered timeseries and save local.
-        TODO: Can add more components than just the ones that were used to cluster on to do this comparison
-        TODO: This won't work out of the box with modeled year timeseries.
+    def _compare_clustered_timeseries(self) -> None:
         """
+        Create and save comparison plots of original vs clustered timeseries for each component.
+
+        Returns:
+            None
+        """
+        # TODO: Can add more components than just the ones that were used to cluster on to do this comparison
+        # TODO: This won't work out of the box with modeled year timeseries.
         with open(self.results_folder_name + "/compare_clustered_ts.html", "a") as f:
             for component, _ in self.components_to_cluster:
                 profiles_for_plotting = pd.concat(
@@ -456,7 +510,16 @@ class DaySamplingClusterer(CustomModel):
 
         f.close()
 
-    def _show_rep_days_8760(self, n_colors=365):
+    def _show_rep_days_8760(self, n_colors: int = 365) -> None:
+        """
+        Visualize the distribution of representative days across the year using color-coded scatter plot.
+
+        Args:
+            n_colors (int): Number of colors to use in the visualization.
+
+        Returns:
+            None
+        """
         colors = px.colors.sample_colorscale("IceFire", [n / (n_colors - 1) for n in range(n_colors)])
         colors = pd.Series(colors, index=range(0, 365))
         colors = colors.to_frame(name="colors")
@@ -505,9 +568,16 @@ class DaySamplingClusterer(CustomModel):
         #         fig.show()
         fig.write_html(self.results_folder_name + "/rep-periods.html")
 
-    def _show_joint_distribution(self, resource_name, load_name):
+    def _show_joint_distribution(self, resource_name: str, load_name: str) -> None:
         """
-        Create a joint distribution plot of selected renewable and load.
+        Plot joint distribution of a renewable resource and load for original and clustered data.
+
+        Args:
+            resource_name (str): Name of the renewable resource profile.
+            load_name (str): Name of the load profile.
+
+        Returns:
+            None
         """
         f_path = self.results_folder_name + "/Resource-Load Joint Distribution"
         os.makedirs(f_path, exist_ok=True)
@@ -544,9 +614,12 @@ class DaySamplingClusterer(CustomModel):
         plt.close(jointplot.fig)
         jointplot.fig.savefig(f_path + "/" + resource_name + "_" + load_name + "_joint_distri.png", bbox_inches="tight")
 
-    def _show_repday_location(self):
+    def _show_repday_location(self) -> None:
         """
-        Normalized distribution of raw data + location of selected days
+        Show histogram of daily averages with markers for selected representative days.
+
+        Returns:
+            None
         """
         df_raw_byday = self.prof_raw.groupby(["day"]).mean()
         df_cluster_byday = self.prof_cluster.groupby(["day"]).mean()
@@ -573,7 +646,13 @@ class DaySamplingClusterer(CustomModel):
                 fig.savefig(f_path + f"/Rep_day_location_{comp}.png")
                 plt.close()
 
-    def _show_repday_distribution(self):
+    def _show_repday_distribution(self) -> None:
+        """
+        Visualize the distribution of representative days by weekday, month, and year.
+
+        Returns:
+            None
+        """
         f_path = self.results_folder_name + "/Rep Day Distribution"
         os.makedirs(f_path, exist_ok=True)
         df_daily = self.prof_cluster.resample("D").first().dropna()
@@ -610,9 +689,12 @@ class DaySamplingClusterer(CustomModel):
         fig.savefig(f_path + f"/Rep_day_distribution.png")
         plt.close()
 
-    def _show_daily_CF_range(self):
+    def _show_daily_CF_range(self) -> None:
         """
-        Range of daily CF (mostly for resources) by month in raw data vs reconstructed 8760.
+        Compare monthly range and mean of daily capacity factors for raw and clustered data.
+
+        Returns:
+            None
         """
         f_path = self.results_folder_name + "/CF Range Comparison"
         os.makedirs(f_path, exist_ok=True)
@@ -676,7 +758,13 @@ class DaySamplingClusterer(CustomModel):
                 fig.savefig(f_path + f"/Daily_CF_range_{comp}.png")
                 plt.close()
 
-    def _compare_daily_peak_load_ranges(self):
+    def _compare_daily_peak_load_ranges(self) -> None:
+        """
+        Plot boxplots and scatter of daily peak loads for representative and actual days.
+
+        Returns:
+            None
+        """
         from matplotlib.lines import Line2D
 
         fig, ax = plt.subplots(figsize=[12, 4])
@@ -716,7 +804,16 @@ class DaySamplingClusterer(CustomModel):
         plt.savefig(f_path + f"/peak_load_ranges.png", bbox_inches="tight")
         plt.close()
 
-    def _show_scaled_CF_comparison(self, resource_name):
+    def _show_scaled_CF_comparison(self, resource_name: str) -> None:
+        """
+        Scale clustered resource profile to match original mean CF and plot month-hour shape.
+
+        Args:
+            resource_name (str): Name of the resource to scale and plot.
+
+        Returns:
+            None
+        """
         f_path = self.results_folder_name + "/Scaled CF Comparison"
         os.makedirs(f_path, exist_ok=True)
 
@@ -772,9 +869,12 @@ class DaySamplingClusterer(CustomModel):
         )
         fig.write_html(f_path + f"/Month-Hour CF comp_{resource_name}.html")
 
-    def _show_annual_peak_loads(self):
+    def _show_annual_peak_loads(self) -> None:
         """
-        Range of total gross peak loads in raw data vs reconstructed 8760.
+        Compare annual peak loads in raw and reconstructed clustered data.
+
+        Returns:
+            None
         """
 
         f_path = self.results_folder_name + "/Peak Loads Comparisons"
@@ -802,9 +902,16 @@ class DaySamplingClusterer(CustomModel):
         fig.tight_layout()
         fig.savefig(f_path + f"/annual_peak_loads.png")
 
-    def _show_repday_shape(self, month_list, season_name):
+    def _show_repday_shape(self, month_list: list, season_name: str) -> None:
         """
-        For selected month (season), show the range of actual daily shape in raw data vs what we have in representative days
+        Plot daily profile shapes for selected months, comparing raw and representative days.
+
+        Args:
+            month_list (list): List of months to include.
+            season_name (str): Name of the season for labeling.
+
+        Returns:
+            None
         """
         df_raw_month = self.prof_raw.loc[self.prof_raw["month"].isin(month_list)]
         df_cluster_month = self.prof_cluster.loc[self.prof_cluster["month"].isin(month_list)]
@@ -873,9 +980,14 @@ class DaySamplingClusterer(CustomModel):
 
                 fig.write_html(f_path + f"/Daily_shape_comp_{comp}_{season_name}.html")
 
-    def _check_hydro_budget(self):
-        # UPDATE
-        # this function needs a lot of checks
+    def _check_hydro_budget(self) -> None:
+        """
+        Analyze and plot differences in hydro energy budget between raw and clustered data.
+
+        Returns:
+            None
+        """
+        # TODO: Not yet implemented. This function needs a lot of checks
         f_path = self.results_folder_name + "/Hydro Budget Check"
         os.makedirs(f_path, exist_ok=True)
 
@@ -989,23 +1101,30 @@ class DaySamplingSystem:
 
     clusters: dict[str, DaySamplingClusterer] = {}
 
-    def __init__(
-        self,
-        dir_str: DirStructure,
-        case_name: str = None,
-        system_name: str = None,
-    ):
+    def __init__(self, dir_str: DirStructure, case_name: str = None, system_name: str = None) -> None:
+        """
+        Initialize the day sampling system with directory structure and optional case/system names.
+
+        Args:
+            dir_str (DirStructure): Directory structure object.
+            case_name (str, optional): Name of the case.
+            system_name (str, optional): Name of the system.
+
+        Returns:
+            None
+        """
         self.dir_str = dir_str
         self.inputs_dir = dir_str.data_settings_dir.joinpath("resolve")
         self.system_dir = dir_str.data_interim_dir.joinpath("systems")
         self.case_name = case_name
         self.system_name = system_name
 
-    def input_selection(self):
+    def input_selection(self) -> None:
         """
-        Select a case and system for clustering analysis.
-        A case represent selected scenario tags;
-        A system represent underlying resource, load, and zone definitions.
+        Display widgets to select case, system, target year, and weather years for analysis.
+
+        Returns:
+            None
         """
         case_list = [pathlib.Path(d).name for d in glob.glob(str(self.inputs_dir / "*")) if pathlib.Path(d).is_dir()]
         system_list = [pathlib.Path(d).name for d in glob.glob(str(self.system_dir / "*")) if pathlib.Path(d).is_dir()]
@@ -1096,19 +1215,47 @@ class DaySamplingSystem:
             )
         )
 
-    def load_prep_data(self):
+    def load_prep_data(self) -> None:
         """
         Relies on system constructing functions here to access all information from a kit system.
         """
         self.resolve_settings_dir = self.inputs_dir / self.case_name
-        self.scenarios = pd.read_csv(self.resolve_settings_dir / "scenarios.csv")["scenarios"].tolist()
 
+        # Throw warning if System specified in Case does not match System specified by user
+        case_attributes = pd.read_csv(self.inputs_dir / self.case_name / "attributes.csv")
+        system_name_in_case = case_attributes.loc[case_attributes["attribute"] == "system", "value"].item()
+        if system_name_in_case != self.system_name:
+            print(
+                f"The system name you gave, {self.system_name}, does not match the system name in the case "
+                f"you gave, {system_name_in_case}. Using the system {self.system_name}. Double check your inputs "
+                f"to make sure this is correct."
+            )
+
+        # Filter scenarios in Case
+        if (self.resolve_settings_dir / "scenarios.csv").is_file():
+            logger.debug(f"Reading scenario settings")
+            scenarios = pd.read_csv(self.resolve_settings_dir / "scenarios.csv")
+            if all(x in scenarios.columns for x in ["priority", "include"]):
+                scenarios = (
+                    scenarios.sort_values(by=["priority"], ascending=True)
+                    .loc[scenarios["include"], "scenarios"]
+                    .tolist()
+                )
+            else:
+                scenarios = scenarios["scenarios"].tolist()
+        else:
+            logger.warning("No scenarios.csv file found - using only default blank scenario")
+            scenarios = []
+
+        # Instantiate system
         _, system_instance = System.from_csv(
             filename=self.system_dir / self.system_name / "attributes.csv",
-            scenarios=self.scenarios,
+            scenarios=scenarios,
             data={"dir_str": self.dir_str, "model_name": "resolve"},
         )
         setattr(self, "system", system_instance)
+
+        # Add variable resource and load components
         self.wind_component = list(self.system.wind_resources.keys()) + [
             k for k, v in self.system.wind_resource_groups.items() if v.aggregate_operations
         ]
@@ -1130,7 +1277,7 @@ class DaySamplingSystem:
         if self.load_component:
             print(f"Loads: {self.load_component}")
 
-    def _upload_portfolio_csv(self, path):
+    def _upload_portfolio_csv(self, path: bytes) -> None:
         df_group = pd.read_csv(io.BytesIO(path))[["Resource", "Modeled Year", "Weight"]]
         df_group["Modeled Year"] = pd.to_datetime(df_group["Modeled Year"]).dt.year
         df_group["Modeled Year"] = df_group["Modeled Year"].astype("Int64")
@@ -1142,14 +1289,26 @@ class DaySamplingSystem:
         pd.set_option("display.max_rows", len(self.weighting_portfolio))
         display(self.weighting_portfolio)
 
-    def _create_ones_weighting(self):
+    def _create_ones_weighting(self) -> None:
+        """
+        Create a default weighting portfolio assigning weight 1 to all resources.
+
+        Returns:
+            None
+        """
         ind = self.wind_component + self.solar_component + self.hydro_component
         df = pd.DataFrame(np.ones(len(ind)), index=ind)
         df.columns = ["Operational Capacity (MW)"]
         df.index.name = "Resource"
         self.weighting_portfolio = df
 
-    def load_resource_weights(self):
+    def load_resource_weights(self) -> None:
+        """
+        Widget interface to upload or assign initial resource weights for clustering.
+
+        Returns:
+            None
+        """
         label = widgets.HTML(
             """
             <span style="color:#034E6E; font-family: Arial, sans-serif; font-size: 14px;">
@@ -1188,8 +1347,14 @@ class DaySamplingSystem:
         butt.on_click(_set_portfolio)
         display(widgets.VBox([label, select, butt, outt]))
 
-    def _create_combined_profile(self):
-        ## calculate total wind, solar, hydro generation for plotting purpose later
+    def _create_combined_profile(self) -> None:
+        """
+        Aggregate total wind, solar, hydro, RE, load, and net load profiles for plotting and analysis.
+
+        Returns:
+            None
+        """
+        # Calculate total wind, solar, hydro generation for plotting purpose later
         self.dict_profiles["Total_solar"] = sum(
             self.weighting_portfolio.loc[comp].values * self.dict_profiles[comp] for comp in self.solar_component
         )
@@ -1205,9 +1370,12 @@ class DaySamplingSystem:
         ## calculate net loads
         self.dict_profiles["Net_Load"] = self.dict_profiles["Total_load"] - self.dict_profiles["Total_RE"]
 
-    def load_profiles_input(self):
+    def load_profiles_input(self) -> None:
         """
-        Load the profiles and construct an accessible dictionary based on defined system.
+        Load and align all resource and load profiles, applying initial weights and truncating to overlap.
+
+        Returns:
+            None
         """
         self.dict_profiles = {}
 
@@ -1314,7 +1482,13 @@ class DaySamplingSystem:
         self._create_combined_profile()
         logger.info(f"\nAll profiles loaded.")
 
-    def check_correlation(self):
+    def check_correlation(self) -> None:
+        """
+        Calculate and plot correlation matrices for wind, solar, hydro, and load components.
+
+        Returns:
+            None
+        """
         # create output folder first if not exist yet
         path = self.outputs_dir.joinpath("Correlation check")
         if not os.path.exists(path):
@@ -1337,7 +1511,18 @@ class DaySamplingSystem:
             if correlation_components:
                 self._plot_corr_heatmap(correlation_matrix, attr, path)
 
-    def _plot_corr_heatmap(self, correlation_matrix, attr, path):
+    def _plot_corr_heatmap(self, correlation_matrix: pd.DataFrame, attr: str, path: pathlib.Path) -> None:
+        """
+        Plot and save a heatmap of the correlation matrix for a given attribute category.
+
+        Args:
+            correlation_matrix (pd.DataFrame): Correlation matrix.
+            attr (str): Attribute category.
+            path (pathlib.Path): Output path.
+
+        Returns:
+            None
+        """
         text = np.round(correlation_matrix.values, 2).astype(str)
         heatmap = go.Figure(
             data=go.Heatmap(
@@ -1357,9 +1542,12 @@ class DaySamplingSystem:
         heatmap.show()
         heatmap.write_html(path / f"{attr}_correlation.html")
 
-    def remove_redundant_component(self):
+    def remove_redundant_component(self) -> None:
         """
-        Define a threshold above which you would remove certain components since it's highly correlated with other components in the system.
+        Widget interface to set correlation thresholds and remove highly correlated components.
+
+        Returns:
+            None
         """
         label = widgets.HTML(
             """
@@ -1426,12 +1614,6 @@ class DaySamplingSystem:
                         self.weighting_portfolio.reset_index().set_axis(["Component", "Size"], axis=1),
                     ]
                 ).set_index("Component")
-                #
-                # for attr in ['wind', 'solar', 'hydro', 'load']:
-                #     component_correlation = getattr(self, attr + '_correlation', None)
-                #     component_th_selector = getattr(self, attr + '_th_selector', None)
-                #     if component_correlation:
-                #         self._consolidate_features(component_correlation, component_th_selector.value, attr)
 
                 self._consolidate_features(self.wind_correlation, wind_th_selector.value, "wind")
                 self._consolidate_features(self.solar_correlation, solar_th_selector.value, "solar")
@@ -1448,7 +1630,18 @@ class DaySamplingSystem:
             widgets.VBox([label, wind_th_selector, solar_th_selector, hydro_th_selector, load_th_selector, butt, outt])
         )
 
-    def _consolidate_features(self, df_corr, threshold, attr):
+    def _consolidate_features(self, df_corr: pd.DataFrame, threshold: float, attr: str) -> None:
+        """
+        Drop features above correlation threshold, keeping those with higher operational magnitude.
+
+        Args:
+            df_corr (pd.DataFrame): Correlation matrix.
+            threshold (float): Correlation threshold.
+            attr (str): Attribute category.
+
+        Returns:
+            None
+        """
         # Calculate the correlation matrix
 
         if threshold == 1:
@@ -1490,7 +1683,13 @@ class DaySamplingSystem:
         print(f"  - {remain_str}")
         print("-" * 20)
 
-    def design_clustering_param(self):
+    def design_clustering_param(self) -> None:
+        """
+        Widget interface to set clustering parameters: rep days, hydro, weather years, wind types.
+
+        Returns:
+            None
+        """
         tab_contents = ["# of Rep days", "Include Hydro Input?", "Weather year to use", "OSW vs. LBW?"]
         children = [
             widgets.VBox(
@@ -1619,7 +1818,16 @@ class DaySamplingSystem:
         butt.on_click(_collect_input)
         display(widgets.VBox([tab, butt, outt]))
 
-    def _build_weight_selector(self, label):
+    def _build_weight_selector(self, label: str) -> widgets.Text:
+        """
+        Create a text widget for entering a list of weights for a resource category.
+
+        Args:
+            label (str): Label for the widget.
+
+        Returns:
+            widgets.Text: The created widget.
+        """
         return widgets.Text(
             value="",
             placeholder="Enter a list of weights w/o space (e.g., 1,3,6,9,15,20)",
@@ -1629,13 +1837,34 @@ class DaySamplingSystem:
             layout={"width": "50%"},
         )
 
-    def set_grid_search_range(self):
+    def set_grid_search_range(self) -> None:
+        """
+        Display UI to set grid search weight ranges for clustering.
+
+        Returns:
+            None
+        """
         self._set_weight_ui(mode="grid_search")
 
-    def set_extreme_days_weights(self):
+    def set_extreme_days_weights(self) -> None:
+        """
+        Display UI to set weights for extreme day selection.
+
+        Returns:
+            None
+        """
         self._set_weight_ui(mode="extreme_days")
 
-    def _set_weight_ui(self, mode):
+    def _set_weight_ui(self, mode: str) -> None:
+        """
+        Widget interface to set weights for grid search or extreme days, with validation.
+
+        Args:
+            mode (str): Either 'grid_search' or 'extreme_days'.
+
+        Returns:
+            None
+        """
         is_grid_search = mode == "grid_search"
         desc_html = {
             "grid_search": """
@@ -1720,8 +1949,16 @@ class DaySamplingSystem:
 
         butt.on_click(_apply_weights)
 
-    def run_grid_search(self):
+    def run_grid_search(self, create_plots: bool = True) -> None:
+        """
+        Run grid search over weight combinations, clustering and saving RMSE results for each.
 
+        Args:
+            create_plots (bool): Whether to generate plots for each grid combo.
+
+        Returns:
+            None
+        """
         # Get grid search parameter ranges
         keys = list(self.grid_search_weight_dict.keys())  # e.g., ['solar', 'wind', 'load', etc.]
         values = list(self.grid_search_weight_dict.values())
@@ -1735,7 +1972,7 @@ class DaySamplingSystem:
             df_rmse_search = pd.concat(
                 [
                     df_rmse_search,
-                    self._run_single_grid_combo_results(grid_combo),
+                    self._run_single_grid_combo_results(grid_combo=grid_combo, create_plots=create_plots),
                 ],
                 ignore_index=True,
             )
@@ -1744,7 +1981,17 @@ class DaySamplingSystem:
         df_rmse_search.to_csv(str(self.outputs_dir) + "/rmse_for_all_combo.csv")
         logger.info(f"RMSE results saved in: reports/day_sampling/{self.system.name}/rmse_for_all_combo.csv")
 
-    def _run_single_grid_combo_results(self, grid_combo: dict[str, float]):
+    def _run_single_grid_combo_results(self, grid_combo: dict[str, float], create_plots: bool = True) -> pd.DataFrame:
+        """
+        Run clustering and extract results for a single grid combo, saving outputs and plots.
+
+        Args:
+            grid_combo (dict): Grid combo of weights.
+            create_plots (bool): Whether to generate plots.
+
+        Returns:
+            pd.DataFrame: RMSE results for the grid combo.
+        """
         grid_combo_name = "-".join(f"{k}_{v}" for k, v in grid_combo.items())
 
         nonzero_weights = ", ".join(f"{k}: {v}" for k, v in grid_combo.items() if v != 0)
@@ -1772,7 +2019,7 @@ class DaySamplingSystem:
         )
 
         # Run and output results
-        df_single_grid_combo_rmse = self._run_and_extract_cluster(cluster)
+        df_single_grid_combo_rmse = self._run_and_extract_cluster(cluster=cluster, create_plots=create_plots)
 
         self.clusters[grid_combo_name] = cluster
 
@@ -1781,7 +2028,16 @@ class DaySamplingSystem:
         )
         return df_single_grid_combo_rmse
 
-    def _get_cluster_components(self, grid_combo: dict[str, float]):
+    def _get_cluster_components(self, grid_combo: dict[str, float]) -> tuple[list, dict]:
+        """
+        Apply weights to components and return lists for clustering and plotting.
+
+        Args:
+            grid_combo (dict): Grid combo of weights.
+
+        Returns:
+            tuple: (components_to_cluster, components_to_plot)
+        """
         weighted_components = self.consolidated_input.copy(deep=True)
         components_to_cluster = []
         components_to_plot = {}
@@ -1801,7 +2057,17 @@ class DaySamplingSystem:
 
         return components_to_cluster, components_to_plot
 
-    def _run_and_extract_cluster(self, cluster: DaySamplingClusterer):
+    def _run_and_extract_cluster(self, cluster: DaySamplingClusterer, create_plots: bool = True) -> pd.DataFrame:
+        """
+        Run clustering, collect results, save outputs, and optionally generate plots.
+
+        Args:
+            cluster (DaySamplingClusterer): Clusterer instance.
+            create_plots (bool): Whether to generate plots.
+
+        Returns:
+            pd.DataFrame: RMSE results for the cluster.
+        """
         # Spinning up clusters
         cluster.get_clusters()
         # Collect rep day results
@@ -1811,11 +2077,18 @@ class DaySamplingSystem:
         # Calculate RMSE stats and save
         cluster.calculate_rmse()
         # Create and save plots for screening clustering performance if specified
-        cluster.create_plots()
+        if create_plots:
+            cluster.create_plots()
 
         return cluster.output_df_rmse()
 
-    def set_extreme_days_param(self):
+    def set_extreme_days_param(self) -> None:
+        """
+        Widget interface to select extreme dates and number of closest days to include.
+
+        Returns:
+            None
+        """
         # saves self.extreme_dates: list[str] and self.num_extreme_days: int
         date_selector = widgets.Text(
             value="",
@@ -1859,7 +2132,13 @@ class DaySamplingSystem:
 
         butt.on_click(_apply_selection)
 
-    def force_extreme_days(self):
+    def force_extreme_days(self) -> None:
+        """
+        Force inclusion of specified extreme dates in clusters for all relevant grid combos.
+
+        Returns:
+            None
+        """
         # Get grid search parameter ranges
         keys = list(self.extreme_days_weight_dict.keys())  # e.g., ['solar', 'wind', 'load', etc.]
         values = list(self.extreme_days_weight_dict.values())
