@@ -403,6 +403,11 @@ class StorageResource(GenericResource):
                     model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
                     rule=self._erm_soc_tracking_constraint,
                 ),
+                erm_soc_max_constraint=pyo.Constraint(
+                    model.MODELED_YEARS,
+                    model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                    rule=self._erm_soc_max_constraint,
+                ),
                 erm_dispatch_cost=pyo.Expression(
                     model.MODELED_YEARS,
                     model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
@@ -1179,7 +1184,7 @@ class StorageResource(GenericResource):
         weather_timestamp: pd.Timestamp,
     ):
         return (
-            block.erm_state_of_charge.data.at[modeled_year, weather_period, weather_timestamp]
+            block.erm_state_of_charge[modeled_year, weather_period, weather_timestamp]
             <= block.operational_storage_capacity[modeled_year] / block.erm_discharging_efficiency[weather_timestamp]
         )
 
@@ -1398,6 +1403,11 @@ class StorageResourceGroup(GenericResourceGroup, StorageResource):
                     model.MODELED_YEARS,
                     model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
                     rule=self._erm_soc_tracking_constraint,
+                ),
+                erm_soc_max_constraint=pyo.Constraint(
+                    model.MODELED_YEARS,
+                    model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
+                    rule=self._erm_soc_max_constraint,
                 ),
                 erm_dispatch_cost=pyo.Expression(
                     model.MODELED_YEARS,

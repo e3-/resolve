@@ -935,6 +935,10 @@ class TestFlexLoadResource(test_shed_dr.TestShedDrResource, test_storage.TestSto
         pass
 
     @pytest.mark.skip(reason="No ERM in FlexLoadResource")
+    def test_erm_soc_max_constraint(self, make_component_with_block_copy_inter_period_sharing, first_index_erm):
+        pass
+
+    @pytest.mark.skip(reason="No ERM in FlexLoadResource")
     def test_erm_power_output_max_constraint(
         self, make_component_with_block_copy_inter_period_sharing, first_index_erm
     ):
