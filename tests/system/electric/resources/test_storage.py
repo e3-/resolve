@@ -1373,6 +1373,48 @@ class TestStorageResource(test_generic.TestGenericResource):
         block.erm_state_of_charge[modeled_year, next_hour].fix(50.0 + (10.0 * 0.85) - (5.0 / 0.9))
         assert block.erm_soc_tracking_constraint[first_index_erm].body() == 0.0
 
+        # Constraint violated
+        block.erm_power_input[first_index_erm].fix(10.0)
+        block.erm_power_output[first_index_erm].fix(5.0)
+        block.erm_state_of_charge[first_index_erm].fix(50.0)
+        block.erm_state_of_charge[modeled_year, next_hour].fix(1000.0)
+        assert block.erm_soc_tracking_constraint[first_index_erm].body() > 0.0
+        assert not block.erm_soc_tracking_constraint[first_index_erm].expr()
+
+    def test_erm_soc_max_constraint(self, make_component_with_block_copy_inter_period_sharing, first_index_erm):
+        modeled_year, weather_period, weather_timestamp = first_index_erm
+        asset = make_component_with_block_copy_inter_period_sharing()
+        block = asset.formulation_block
+        assert block.erm_discharging_efficiency[weather_timestamp].expr() == 0.9
+
+        # soc is less than max
+        block.operational_storage_capacity[modeled_year] = 90.0
+        block.erm_state_of_charge[first_index_erm] = 50.0
+        assert block.erm_soc_max_constraint[first_index_erm].upper() == 0.0
+        assert block.erm_soc_max_constraint[first_index_erm].body() == -50.0  # 50 - (90 / 0.9)
+        assert block.erm_soc_max_constraint[first_index_erm].expr()
+
+        # soc is over max but under (max / discharging efficiency)
+        block.operational_storage_capacity[modeled_year] = 90.0
+        block.erm_state_of_charge[first_index_erm] = 95.0
+        assert block.erm_soc_max_constraint[first_index_erm].upper() == 0.0
+        assert block.erm_soc_max_constraint[first_index_erm].body() == -5.0  # 95 - (90 / 0.9)
+        assert block.erm_soc_max_constraint[first_index_erm].expr()
+
+        # soc is equal to (max / discharging efficiency)
+        block.operational_storage_capacity[modeled_year] = 90.0
+        block.erm_state_of_charge[first_index_erm] = 100.0
+        assert block.erm_soc_max_constraint[first_index_erm].upper() == 0.0
+        assert block.erm_soc_max_constraint[first_index_erm].body() == 0.0  # 100 - (90 / 0.9)
+        assert block.erm_soc_max_constraint[first_index_erm].expr()
+
+        # soc is over limit, constraint violated
+        block.operational_storage_capacity[modeled_year] = 90.0
+        block.erm_state_of_charge[first_index_erm] = 200.0
+        assert block.erm_soc_max_constraint[first_index_erm].upper() == 0.0
+        assert block.erm_soc_max_constraint[first_index_erm].body() == 100.0  # 200 - (90 / 0.9)
+        assert not block.erm_soc_max_constraint[first_index_erm].expr()
+
     def test_erm_dispatch_cost(self, make_component_with_block_copy_inter_period_sharing, first_index_erm):
         asset = make_component_with_block_copy_inter_period_sharing()
         block = asset.formulation_block

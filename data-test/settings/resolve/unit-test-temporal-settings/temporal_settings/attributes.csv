@@ -1,0 +1,10 @@
+timestamp,attribute,value
+1/1/25,modeled_years,TRUE
+1/1/30,modeled_years,TRUE
+1/1/35,modeled_years,TRUE
+1/1/45,modeled_years,TRUE
+None,dispatch_window_edge_effects,loopback
+None,dollar_year,2022
+None,discount_rate,0.05
+None,end_effect_years,20
+None,timeseries_cluster_name,unit-test
