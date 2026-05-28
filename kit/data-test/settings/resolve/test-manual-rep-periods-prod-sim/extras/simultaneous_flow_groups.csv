@@ -1,0 +1,3 @@
+Simultaneous Flow Group,Transmission Path,Direction
+NW_to_CA,TxPath,forward
+CA_to_NW,TxPath,reverse

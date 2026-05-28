@@ -1,13 +1,26 @@
 import pandas as pd
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.system.policy import AnnualEmissionsPolicy
-from new_modeling_toolkit.system.policy import AnnualEnergyStandard
-from new_modeling_toolkit.system.policy import EnergyReserveMargin
-from new_modeling_toolkit.system.policy import HourlyEnergyStandard
-from new_modeling_toolkit.system.policy import PlanningReserveMargin
+import resolve.core.temporal.timeseries as ts
+from resolve.core.linkage import AnnualEnergyStandardContribution
+from resolve.core.model import ModelTemplate
+from resolve.system.policy import AnnualEmissionsPolicy
+from resolve.system.policy import AnnualEnergyStandard
+from resolve.system.policy import EnergyReserveMargin
+from resolve.system.policy import HourlyEnergyStandard
+from resolve.system.policy import PlanningReserveMargin
 from tests.system.component_test_template import ComponentTestTemplate
+
+
+def _resample_system_for_temporal_settings(system, temporal_settings):
+    modeled_years = temporal_settings.modeled_years.data.loc[temporal_settings.modeled_years.data.values].index
+    system.resample_ts_attributes(
+        modeled_years=(min(modeled_years).year, max(modeled_years).year),
+        weather_years=(
+            min(temporal_settings.dispatch_windows_map.index.get_level_values("timestamp").year),
+            max(temporal_settings.dispatch_windows_map.index.get_level_values("timestamp").year),
+        ),
+    )
 
 
 # TODO: Update results reporting unit tests for policy
@@ -88,8 +101,75 @@ class TestAnnualEnergyStandard(ComponentTestTemplate):
         policy.resources["ThermalUnitCommitmentResource"].instance_from.formulation_block.annual_power_output_by_fuel[
             "CandidateFuel2", modeled_year
         ] = 700  # NOT rps eligible fuel
+        policy.resources[
+            "ThermalUnitCommitmentResource"
+        ].instance_from.formulation_block.annual_sync_cond_power_input_by_fuel["CandidateFuel1", modeled_year] = 50
+        policy.resources[
+            "ThermalUnitCommitmentResource"
+        ].instance_from.formulation_block.annual_sync_cond_power_input_by_fuel["CandidateFuel2", modeled_year] = 60
 
-        assert rps_block.policy_lhs[modeled_year].expr() == 100 + 100 + 500
+        assert rps_block.policy_lhs[modeled_year].expr() == 100 + 100 + (500 - 50)
+
+    def test_single_fuel_thermal_policy_lhs(self, test_system, test_temporal_settings):
+        system = test_system.copy()
+        policy = system.annual_energy_policies["TestRPS"]
+
+        for resource in [
+            system.thermal_resources["ThermalResource2"],
+            system.thermal_uc_resources["ThermalUnitCommitmentResourceSingleUnit"],
+        ]:
+            linkage = AnnualEnergyStandardContribution(
+                name=(resource.name, policy.name),
+                instance_from=resource,
+                instance_to=policy,
+                multiplier=ts.NumericTimeseries(
+                    name="multiplier",
+                    data=pd.Series(index=pd.DatetimeIndex(["2025-01-01", "2030-01-01"]), data=[1.0, 1.0]),
+                ),
+            )
+            system.linkages["AllToPolicy"].append(linkage)
+            linkage.announce_linkage_to_instances()
+
+        _resample_system_for_temporal_settings(system, test_temporal_settings)
+        model = ModelTemplate(
+            system=system,
+            temporal_settings=test_temporal_settings,
+            construct_investment_rules=True,
+            construct_operational_rules=True,
+            construct_costs=True,
+        )
+        policy = model.system.annual_energy_policies["TestRPS"]
+        rps_block = policy.formulation_block
+        modeled_year = model.MODELED_YEARS.first()
+
+        policy.resources["SolarResource1"].instance_from.formulation_block.power_output_annual[modeled_year] = 0
+        for resource_name in ["ThermalResource1", "ThermalUnitCommitmentResource"]:
+            resource_block = policy.resources[resource_name].instance_from.formulation_block
+            resource_block.annual_power_output_by_fuel["CandidateFuel1", modeled_year] = 0
+            resource_block.annual_power_output_by_fuel["CandidateFuel2", modeled_year] = 0
+
+            if resource_name == "ThermalUnitCommitmentResource":
+                resource_block.annual_sync_cond_power_input_by_fuel["CandidateFuel1", modeled_year] = 0
+                resource_block.annual_sync_cond_power_input_by_fuel["CandidateFuel2", modeled_year] = 0
+
+        policy.resources["ThermalResource2"].instance_from.formulation_block.annual_power_output_by_fuel[
+            "CandidateFuel1", modeled_year
+        ] = 70
+        policy.resources[
+            "ThermalUnitCommitmentResourceSingleUnit"
+        ].instance_from.formulation_block.annual_power_output_by_fuel["CandidateFuel1", modeled_year] = 90
+        policy.resources[
+            "ThermalUnitCommitmentResourceSingleUnit"
+        ].instance_from.formulation_block.annual_sync_cond_power_input_by_fuel["CandidateFuel1", modeled_year] = 20
+
+        assert rps_block.energy_policy_annual_contribution_by_resource["ThermalResource2", modeled_year].expr() == 70
+        assert (
+            rps_block.energy_policy_annual_contribution_by_resource[
+                "ThermalUnitCommitmentResourceSingleUnit", modeled_year
+            ].expr()
+            == 90 - 20
+        )
+        assert rps_block.policy_lhs[modeled_year].expr() == 70 + (90 - 20)
 
     def test_annual_total_operational_cost_target(self, make_component_with_block_copy, first_index):
         policy = make_component_with_block_copy()
@@ -687,7 +767,9 @@ class TestEnergyReserveMargin(ComponentTestTemplate):
             == 12 * 0.5
         )
 
-    def test_tx_path_contribution(self, make_component_with_block_copy_inter_period_sharing, first_index_erm):
+    def test_tx_path_contribution_constraint(
+        self, make_component_with_block_copy_inter_period_sharing, first_index_erm
+    ):
         modeled_year, weather_period, weather_timestamp = first_index_erm
         policy = make_component_with_block_copy_inter_period_sharing()
         block = policy.formulation_block
@@ -695,7 +777,29 @@ class TestEnergyReserveMargin(ComponentTestTemplate):
         tx_path = tx_linkage.instance_from
         tx_path.formulation_block.operational_capacity[modeled_year] = 50.0
 
-        assert block.tx_path_contribution["TxPath", modeled_year, weather_period, weather_timestamp].expr() == 45.0
+        block.tx_path_contribution["TxPath", modeled_year, weather_period, weather_timestamp] = (
+            45.0  # = operational_capacity * linkage_multiplier
+        )
+        assert block.tx_path_contribution_constraint["TxPath", modeled_year, weather_period, weather_timestamp].expr()
+        assert (
+            block.tx_path_contribution_constraint["TxPath", modeled_year, weather_period, weather_timestamp].body() == 0
+        )
+
+        block.tx_path_contribution["TxPath", modeled_year, weather_period, weather_timestamp] = 40.0
+        assert block.tx_path_contribution_constraint["TxPath", modeled_year, weather_period, weather_timestamp].expr()
+        assert (
+            block.tx_path_contribution_constraint["TxPath", modeled_year, weather_period, weather_timestamp].body()
+            == -5
+        )
+
+        block.tx_path_contribution["TxPath", modeled_year, weather_period, weather_timestamp] = 47.5
+        assert not block.tx_path_contribution_constraint[
+            "TxPath", modeled_year, weather_period, weather_timestamp
+        ].expr()
+        assert (
+            block.tx_path_contribution_constraint["TxPath", modeled_year, weather_period, weather_timestamp].body()
+            == 2.5
+        )
 
     def test_generic_asset_contribution(self, make_component_with_block_copy_inter_period_sharing, first_index_erm):
         modeled_year, weather_period, weather_timestamp = first_index_erm
@@ -710,26 +814,80 @@ class TestEnergyReserveMargin(ComponentTestTemplate):
             == 45.0
         )
 
+    def test_hourly_storage_contribution(self, make_component_with_block_copy, first_index_erm):
+        policy = make_component_with_block_copy()
+        block = policy.formulation_block
+
+        modeled_year, weather_period, weather_timestamp = first_index_erm
+
+        block.storage_resource_contribution["StorageResource1", modeled_year, weather_period, weather_timestamp] = 11
+        block.storage_resource_contribution[
+            "HybridStorageResource1", modeled_year, weather_period, weather_timestamp
+        ] = 66
+
+        assert block.hourly_storage_contribution[modeled_year, weather_period, weather_timestamp].expr() == 77
+
+    def test_hourly_shed_dr_contribution(self, make_component_with_block_copy, first_index_erm):
+        policy = make_component_with_block_copy()
+        block = policy.formulation_block
+
+        modeled_year, weather_period, weather_timestamp = first_index_erm
+
+        block.shed_dr_resource_contribution["ShedDRResource", modeled_year, weather_period, weather_timestamp] = 33
+        block.shed_dr_resource_contribution[
+            "ShedDRResourceNoEnergyBudget", modeled_year, weather_period, weather_timestamp
+        ] = 0.0
+
+        assert block.hourly_shed_dr_contribution[modeled_year, weather_period, weather_timestamp].expr() == 33
+
+    def test_other_resource_contribution(self, make_component_with_block_copy, first_index_erm):
+        policy = make_component_with_block_copy()
+        block = policy.formulation_block
+
+        modeled_year, weather_period, weather_timestamp = first_index_erm
+
+        block.other_resource_contribution["SolarResource1", modeled_year, weather_period, weather_timestamp] = 22
+        block.other_resource_contribution[
+            "HybridVariableResource1", modeled_year, weather_period, weather_timestamp
+        ] = 77
+
+        assert block.hourly_other_resource_contribution[modeled_year, weather_period, weather_timestamp].expr() == 99
+
+    def test_hourly_tx_path_contribution(self, make_component_with_block_copy, first_index_erm, last_index_erm):
+        policy = make_component_with_block_copy()
+        block = policy.formulation_block
+
+        modeled_year, weather_period, weather_timestamp = first_index_erm
+
+        block.tx_path_contribution["TxPath", modeled_year, weather_period, weather_timestamp] = 44
+        assert block.hourly_tx_path_contribution[modeled_year, weather_period, weather_timestamp].expr() == 44
+
+        block.tx_path_contribution["TxPath", last_index_erm] = 11
+        assert block.hourly_tx_path_contribution[last_index_erm].expr() == 11
+
+    def test_generic_asset_contribution(self, make_component_with_block_copy, first_index_erm, last_index_erm):
+        policy = make_component_with_block_copy()
+        block = policy.formulation_block
+
+        modeled_year, weather_period, weather_timestamp = first_index_erm
+
+        block.generic_asset_contribution["GenericAsset1", modeled_year, weather_period, weather_timestamp] = 55
+        assert block.hourly_generic_asset_contribution[modeled_year, weather_period, weather_timestamp].expr() == 55
+
+        block.generic_asset_contribution["GenericAsset1", last_index_erm] = 22
+        assert block.hourly_generic_asset_contribution[last_index_erm].expr() == 22
+
     def test_policy_lhs(self, make_component_with_block_copy_inter_period_sharing, first_index_erm):
         policy = make_component_with_block_copy_inter_period_sharing()
         block = policy.formulation_block
 
         modeled_year, weather_period, weather_timestamp = first_index_erm
 
-        block.storage_resource_contribution["StorageResource1", modeled_year, weather_period, weather_timestamp] = 11
-        block.other_resource_contribution["SolarResource1", modeled_year, weather_period, weather_timestamp] = 22
-        block.shed_dr_resource_contribution["ShedDRResource", modeled_year, weather_period, weather_timestamp] = 33
-        block.shed_dr_resource_contribution[
-            "ShedDRResourceNoEnergyBudget", modeled_year, weather_period, weather_timestamp
-        ] = 0.0
-        block.tx_path_contribution["TxPath", modeled_year, weather_period, weather_timestamp] = 44
-        block.generic_asset_contribution["GenericAsset1", modeled_year, weather_period, weather_timestamp] = 55
-        block.storage_resource_contribution[
-            "HybridStorageResource1", modeled_year, weather_period, weather_timestamp
-        ] = 66
-        block.other_resource_contribution[
-            "HybridVariableResource1", modeled_year, weather_period, weather_timestamp
-        ] = 77
+        block.hourly_shed_dr_contribution[modeled_year, weather_period, weather_timestamp] = 33
+        block.hourly_tx_path_contribution[modeled_year, weather_period, weather_timestamp] = 44
+        block.hourly_generic_asset_contribution[modeled_year, weather_period, weather_timestamp] = 55
+        block.hourly_storage_contribution[modeled_year, weather_period, weather_timestamp] = 77
+        block.hourly_other_resource_contribution[modeled_year, weather_period, weather_timestamp] = 99
 
         assert block.policy_lhs[modeled_year, weather_period, weather_timestamp].expr() == pytest.approx(
             11 + 22 + 33 + 44 + 55 + 66 + 77
@@ -767,6 +925,7 @@ class TestEnergyReserveMargin(ComponentTestTemplate):
         # test annual slack costs
         first_modeled_year = pd.Timestamp("2025-01-01")
         second_modeled_year = pd.Timestamp("2030-01-01")
+        block.tx_path_contribution["TxPath", :, :, :] = 0
         block.policy_slack[first_modeled_year, :, :] = 1.5
         block.policy_slack[second_modeled_year, :, :] = 2.5
         num_days_per_year = block.model().num_days_per_modeled_year[first_modeled_year]

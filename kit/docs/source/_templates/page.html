@@ -1,0 +1,31 @@
+{% extends "!page.html" %}
+
+{{ super() }}
+
+{% block body_after %}
+
+{{ super() }}
+
+<br>
+<br>
+
+<section id="comments">
+    <script src="https://giscus.app/client.js"
+            data-repo="e3-/encyclopedia"
+            data-repo-id="R_kgDOIDK3Bw"
+            data-category="Documentation"
+            data-category-id="DIC_kwDOIDK3B84CdTTK"
+            data-mapping="pathname"
+            data-strict="0"
+            data-reactions-enabled="1"
+            data-emit-metadata="0"
+            data-input-position="top"
+            data-theme="preferred_color_scheme"
+            data-lang="en"
+            data-loading="lazy"
+            crossorigin="anonymous"
+            async>
+    </script>
+</section>
+
+{% endblock %}

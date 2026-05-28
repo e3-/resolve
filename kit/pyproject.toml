@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kit"
+description = "E3's New Modeling Toolkit"
+version = "5.8.1"
+authors = [{ name = "Energy and Environmental Economics, Inc." }]
+requires-python = ">=3.10"
+dynamic = ["dependencies"]
+
+# Add runtime deps here if needed (e.g., pandas). Example:
+# dependencies = ["pandas>=1.5"]
+[project.optional-dependencies]
+datalake = [
+    "data_utils[core] @ git+https://github.com/e3-/data-utils.git@1.4.0",
+    ]
+
+dev = [
+    "autodoc_pydantic==2.2.0",
+    "black>=23.0,<24.0",
+    "commitizen==3.25.0",
+    "darker==1.7.3",
+    "graphviz==0.20.3",
+    "line-profiler==4.1.3",
+    "memory-profiler==0.61.0",
+    "myst-parser==2.0.0",
+    "pre-commit==3.7.1",
+    "pytest==7.4.4",
+    "pytest-check==2.6.2",
+    "pytest-sugar==0.9.7",
+    "pytest-xdist[psutil]==3.6.1",
+    "sphinx==7.2.6",
+    "sphinxawesome-theme==5.1.4",
+    "sphinxcontrib-mermaid==0.9.2",
+    "sphinx-autobuild==2024.4.16",
+    "sphinx-design==0.5.0",
+    "sphinx-last-updated-by-git==0.3.7",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[project.scripts]
+datalake = "kit.cli:main"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_type = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
+major_version_zero = true
+
+# Ensure package data (like units.csv) is included in the build.
+[tool.setuptools.package-data]
+"kit.core" = ["*.csv"]
+
+[tool.setuptools.packages.find]
+include = ["kit*"]
+exclude = ["docker*", "deploy*", "reports*", "notebooks*"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = [ "requirements.txt" ] }

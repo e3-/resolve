@@ -1,0 +1,5 @@
+timestamp,attribute,value,scenario
+None,mean_time_to_repair,24,
+1/1/2050 0:00,planned_installed_capacity,15440,
+None,provide_power_potential_profile,.\data-test\profiles\onshore_Massachusetts_0.35-0.45.csv,
+None,random_seed,3,

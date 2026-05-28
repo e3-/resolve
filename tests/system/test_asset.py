@@ -4,10 +4,10 @@ import functools
 import pandas as pd
 import pytest
 
-from new_modeling_toolkit.core.excel import LinkageFieldsToWrite
-from new_modeling_toolkit.core.model import ModelTemplate
-from new_modeling_toolkit.system.asset import Asset
-from new_modeling_toolkit.system.asset import AssetGroup
+from resolve.core.excel import LinkageFieldsToWrite
+from resolve.core.model import ModelTemplate
+from resolve.system.asset import Asset
+from resolve.system.asset import AssetGroup
 from tests.system.component_test_template import ComponentTestTemplate
 
 

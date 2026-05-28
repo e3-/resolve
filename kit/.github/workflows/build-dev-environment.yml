@@ -1,0 +1,37 @@
+name: Build Dev Environment
+
+on:
+  workflow_call:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'pyproject.toml'
+
+permissions:
+  contents: read
+
+jobs:
+  build-dev-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Token
+        id: app_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ vars.GH_APPLICATION_ID }}
+          application_private_key: ${{ secrets.GH_APPLICATION_KEY }}
+          organization: ${{ github.repository_owner }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Configure git for private repos
+        run: |
+          git config --global url."https://x-access-token:${{ steps.app_token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Create NMT Dev environment (Miniconda)
+        run: |
+          conda env create -f environment-dev.yml

@@ -3,10 +3,10 @@ import copy
 import pandas as pd
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.core.model import ModelTemplate
-from new_modeling_toolkit.system import VariableResourceGroup
-from new_modeling_toolkit.system.electric.resources import VariableResource
+import resolve.core.temporal.timeseries as ts
+from resolve.core.model import ModelTemplate
+from resolve.system import VariableResourceGroup
+from resolve.system.electric.resources import VariableResource
 from tests.system.electric.resources import test_generic
 
 
@@ -276,13 +276,13 @@ class TestVariableResource(test_generic.TestGenericResource):
             pd.Timestamp("2045-01-01 00:00"),
         ]:
             assert non_curtailable_block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0))
             )
 
             assert curtailable_block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0))
             ) + (curtailable_block.annual_total_curtailment_cost[year].expr())
 
     def test_expressions_for_non_curtailable_resource(
@@ -290,70 +290,43 @@ class TestVariableResource(test_generic.TestGenericResource):
         make_component_with_block_copy_non_curtailable,
     ):
         """
-        Test the expressions for a non-curtailable variable resource. Assert that the expressions are not initialized.
+        Test the expressions for a non-curtailable variable resource. Assert that the expressions are initialized.
         """
         resource = make_component_with_block_copy_non_curtailable()
-        with pytest.raises(AttributeError):
-            scheduled_curtailment = resource.formulation_block.scheduled_curtailment
-            total_scheduled_curtailment = resource.formulation_block.annual_total_scheduled_curtailment
-            resource_curtailment_cost = resource.formulation_block.resource_curtailment_cost_in_timepoint
-            total_curtailment_cost = resource.formulation_block.annual_total_curtailment_cost
+        block = resource.formulation_block
 
-            assert scheduled_curtailment is None
-            assert total_scheduled_curtailment is None
-            assert resource_curtailment_cost is None
-            assert total_curtailment_cost is None
+        assert block.scheduled_curtailment.doc == "Curtailed Energy (MWh)"
+        assert block.annual_total_scheduled_curtailment.doc == "Annual Curtailed Energy (MWh)"
+        assert block.resource_curtailment_cost_in_timepoint.doc == "Curtailment Cost ($)"
+        assert block.annual_total_curtailment_cost.doc == "Annual Curtailment Cost ($)"
 
-    def test_provide_power_curtailment_constraint(
+    def test_non_curtailable_no_budget_curtailment_cost(
         self,
         make_custom_component_with_block,
+        first_index,
     ):
         """
-        Test the Provide_Power_Curtailment_Constraint.  After assigning values to power_output and power_output_max,
-        assert that the constraint lower and upper bounds are zero, and that the constraint holds.
+        Test that non-curtailable variable resources with no energy budgets are penalized for curtailment.
         """
         resource = make_custom_component_with_block(
             curtailable=False,
             energy_budget_daily=None,
+            energy_budget_monthly=None,
+            energy_budget_annual=None,
         )
         block = resource.formulation_block
-        model = block.model()
+        modeled_year, dispatch_window, timestamp = first_index
 
-        # fix variables in body of constraint
-        block.operational_capacity[pd.Timestamp("2025-01-01")] = 100
+        block.operational_capacity[modeled_year] = 100
+        block.power_output[modeled_year, dispatch_window, timestamp].fix(20)
 
-        for i in range(1, 7):
-            block.power_output[pd.Timestamp("2025-01-01 00:00:00"), model.DISPATCH_WINDOWS_AND_TIMESTAMPS[i]].fix(
-                block.power_output_max[
-                    pd.Timestamp("2025-01-01 00:00:00"),
-                    model.DISPATCH_WINDOWS_AND_TIMESTAMPS[i],
-                ].expr()
-            )
+        scheduled_curtailment = block.scheduled_curtailment[modeled_year, dispatch_window, timestamp].expr()
 
-        for dw, ts in model.DISPATCH_WINDOWS_AND_TIMESTAMPS:
-            assert block.provide_power_curtailment_constraint[
-                pd.Timestamp("2025-01-01 00:00:00"),
-                dw,
-                ts,
-            ].body() == pytest.approx(0.0)
+        curtailment_cost = block.resource_curtailment_cost_in_timepoint[modeled_year, dispatch_window, timestamp].expr()
 
-            assert block.provide_power_curtailment_constraint[
-                pd.Timestamp("2025-01-01 00:00:00"),
-                dw,
-                ts,
-            ].upper() == pytest.approx(0.0)
-
-            assert block.provide_power_curtailment_constraint[
-                pd.Timestamp("2025-01-01 00:00:00"),
-                dw,
-                ts,
-            ].upper() == pytest.approx(0.0)
-
-            assert block.provide_power_curtailment_constraint[
-                pd.Timestamp("2025-01-01 00:00:00"),
-                dw,
-                ts,
-            ].expr()
+        assert resource.non_curtailable_no_budgets
+        assert scheduled_curtailment == pytest.approx(80.0)
+        assert curtailment_cost == pytest.approx(100_000 * scheduled_curtailment)
 
     def test_provide_power_curtailment_constraint_for_curtailable_resource(
         self,

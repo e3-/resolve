@@ -1,12 +1,62 @@
+import copy
+
 import pandas as pd
+import pyomo.environ as pyo
 import pytest
 
-from new_modeling_toolkit.system import ThermalResourceGroup
-from new_modeling_toolkit.system.electric.resources import ThermalResource
-from new_modeling_toolkit.system.electric.resources.thermal import ThermalUnitCommitmentResource
+from resolve.core.model import ModelTemplate
+from resolve.system import ThermalResourceGroup
+from resolve.system.electric.resources import ThermalResource
+from resolve.system.electric.resources.thermal import ThermalUnitCommitmentResource
 from tests.system.component_test_template import ComponentTestTemplate
 from tests.system.electric.resources import test_generic
 from tests.system.electric.resources import test_unit_commitment
+
+
+def _resample_system_for_temporal_settings(system, temporal_settings):
+    modeled_years = temporal_settings.modeled_years.data.loc[temporal_settings.modeled_years.data.values].index
+    system.resample_ts_attributes(
+        modeled_years=(min(modeled_years).year, max(modeled_years).year),
+        weather_years=(
+            min(temporal_settings.dispatch_windows_map.index.get_level_values("timestamp").year),
+            max(temporal_settings.dispatch_windows_map.index.get_level_values("timestamp").year),
+        ),
+    )
+
+
+@pytest.mark.parametrize("construct_costs", [True, False])
+def test_thermal_resources_construct_with_and_without_costs(test_system, test_temporal_settings, construct_costs):
+    system = test_system.copy()
+    _resample_system_for_temporal_settings(system, test_temporal_settings)
+
+    model = ModelTemplate(
+        system=system,
+        temporal_settings=test_temporal_settings,
+        construct_investment_rules=True,
+        construct_operational_rules=True,
+        construct_costs=construct_costs,
+    )
+
+    resources = [
+        model.system.thermal_resources["ThermalResource1"],
+        model.system.thermal_resources["ThermalResource2"],
+        model.system.thermal_uc_resources["ThermalUnitCommitmentResource"],
+        model.system.thermal_uc_resources["ThermalUnitCommitmentResource2"],
+    ]
+    for resource in resources:
+        block = resource.formulation_block
+        assert hasattr(block, "annual_power_output_by_fuel")
+        if len(resource.candidate_fuels) > 1:
+            assert hasattr(block, "power_output_by_fuel")
+            assert hasattr(block, "power_output_by_fuel_constraint")
+        else:
+            assert not hasattr(block, "power_output_by_fuel")
+            assert not hasattr(block, "power_output_by_fuel_constraint")
+
+        if construct_costs:
+            assert hasattr(block, "annual_total_resource_fuel_cost")
+        else:
+            assert not hasattr(block, "annual_total_resource_fuel_cost")
 
 
 class TestThermalResource(test_generic.TestGenericResource):
@@ -233,8 +283,8 @@ class TestThermalResource(test_generic.TestGenericResource):
         )
 
         assert block.annual_total_operational_cost[last_year].expr() == (
-            0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0))
-            + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0))
+            0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0))
+            + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0))
             + 0.6 * 365 * (10 + 11 + 12)
             + 0.4 * 365 * (13 + 14 + 15)
         )
@@ -268,6 +318,15 @@ class TestThermalResource(test_generic.TestGenericResource):
         assert block.power_output_by_fuel_constraint["CandidateFuel2", first_index].body() == -10
         assert not block.power_output_by_fuel_constraint["CandidateFuel2", first_index].expr()
 
+    def test_multi_fuel_power_output_by_fuel_components(self, make_component_with_block_copy):
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+
+        assert len(resource.candidate_fuels) > 1
+        assert hasattr(block, "power_output_by_fuel")
+        assert hasattr(block, "power_output_by_fuel_constraint")
+        assert hasattr(block, "annual_power_output_by_fuel")
+
     def test_annual_power_output_by_fuel(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy()
         block = resource.formulation_block
@@ -283,6 +342,33 @@ class TestThermalResource(test_generic.TestGenericResource):
         assert (
             block.annual_power_output_by_fuel["CandidateFuel2", modeled_year].expr()
             == 200 * 3 * 0.6 * 365 + 200 * 3 * 0.4 * 365
+        )
+
+    def test_single_fuel_annual_power_output_by_fuel_falls_back_to_aggregate(
+        self, make_component_with_block_copy, first_index
+    ):
+        component_names = {
+            "thermal_resources": "ThermalResource2",
+            "thermal_uc_resources": "ThermalUnitCommitmentResource2",
+        }
+        if self._SYSTEM_COMPONENT_DICT_NAME not in component_names:
+            pytest.skip("Single-fuel fallback is tested on individual thermal resources.")
+        component_name = component_names[self._SYSTEM_COMPONENT_DICT_NAME]
+        resource = make_component_with_block_copy(component_name=component_name)
+        block = resource.formulation_block
+        modeled_year = first_index[0]
+        candidate_fuel = next(iter(resource.candidate_fuels))
+
+        assert len(resource.candidate_fuels) == 1
+        assert not hasattr(block, "power_output_by_fuel")
+        assert not hasattr(block, "power_output_by_fuel_constraint")
+        assert hasattr(block, "annual_power_output_by_fuel")
+
+        block.power_output[modeled_year, :, :] = 100
+
+        assert (
+            block.annual_power_output_by_fuel[candidate_fuel, modeled_year].expr()
+            == block.power_output_annual[modeled_year].expr()
         )
 
 
@@ -347,11 +433,88 @@ class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentR
             pd.Timestamp("2045-01-01 00:00"),
         ]:
             assert block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0) + (10 * 2 * 3) + (5 * 4 * 3) + (3 * 3))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0) + (10 * 2 * 3) + (5 * 4 * 3) + (3 * 3))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0) + (20 * 2 * 3) + (10 * 4 * 3) + (3 * 3))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0) + (20 * 2 * 3) + (10 * 4 * 3) + (3 * 3))
             )
 
         assert block.annual_total_operational_cost
+
+    def test_commitment_tracking_constraint(self, make_component_with_block_copy, first_index):
+        """Thermal UC skips aggregate tracking because fuel-level tracking implies it."""
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+
+        assert len(block.commitment_tracking_constraint) == 0
+        with pytest.raises(KeyError):
+            block.commitment_tracking_constraint[first_index]
+
+    def test_single_fuel_commitment_tracking_uses_aggregate_state(self, make_component_with_block_copy, first_index):
+        resource = make_component_with_block_copy(component_name="ThermalUnitCommitmentResource2")
+        block = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+        next_timestamp = block.model().TIMESTAMPS_IN_DISPATCH_WINDOWS[dispatch_window].nextw(timestamp)
+        next_index = (modeled_year, dispatch_window, next_timestamp)
+
+        assert len(resource.candidate_fuels) == 1
+        assert not hasattr(block, "committed_units_by_fuel")
+        assert not hasattr(block, "start_units_by_fuel")
+        assert not hasattr(block, "shutdown_units_by_fuel")
+        assert not hasattr(block, "committed_units_by_fuel_tracking_constraint")
+        assert not hasattr(block, "power_output_by_fuel")
+        assert not hasattr(block, "sync_cond_power_input_by_fuel")
+        assert hasattr(block, "annual_sync_cond_power_input_by_fuel")
+        assert len(block.commitment_tracking_constraint) > 0
+
+        block.committed_units[first_index] = 1
+        block.committed_units[next_index] = 2
+        block.start_units[next_index] = 1
+        block.shutdown_units[next_index] = 0
+        assert block.commitment_tracking_constraint[first_index].expr()
+
+        block.shutdown_units[next_index] = 1
+        assert not block.commitment_tracking_constraint[first_index].expr()
+
+    def test_commitment_tracking_inter_period(self, make_component_with_block_copy_inter_period_sharing):
+        """Thermal UC skips aggregate inter-period tracking because fuel-level tracking implies it."""
+        resource = make_component_with_block_copy_inter_period_sharing()
+        block = resource.formulation_block
+        modeled_year = pd.Timestamp("2025-01-01")
+        first_index = (modeled_year, pd.Timestamp("2012-02-15"), pd.Timestamp("2012-02-15 14:00"))
+        constraint_index = (modeled_year, pd.Timestamp("2012-01-02"))
+
+        assert len(block.commitment_tracking_constraint) == 0
+        assert len(block.commitment_tracking_inter_period_constraint) == 0
+
+        with pytest.raises(KeyError):
+            block.commitment_tracking_constraint[first_index]
+        with pytest.raises(KeyError):
+            block.commitment_tracking_inter_period_constraint[constraint_index]
+
+        assert hasattr(block, "committed_units_by_fuel_tracking_inter_period_constraint")
+
+    def test_single_fuel_commitment_tracking_inter_period_uses_aggregate_state(self, test_model_inter_period_sharing):
+        resource = copy.deepcopy(
+            test_model_inter_period_sharing.system.thermal_uc_resources["ThermalUnitCommitmentResource2"]
+        )
+        block = resource.formulation_block
+        modeled_year = pd.Timestamp("2025-01-01")
+        first_index = (modeled_year, pd.Timestamp("2012-02-15"), pd.Timestamp("2012-02-15 14:00"))
+        next_index = (modeled_year, pd.Timestamp("2010-06-21"), pd.Timestamp("2010-06-21 00:00"))
+        constraint_index = (modeled_year, pd.Timestamp("2012-01-02"))
+
+        assert len(resource.candidate_fuels) == 1
+        assert len(block.commitment_tracking_constraint) > 0
+        assert len(block.commitment_tracking_inter_period_constraint) > 0
+        assert not hasattr(block, "committed_units_by_fuel_tracking_inter_period_constraint")
+
+        block.committed_units[first_index] = 1
+        block.committed_units[next_index] = 2
+        block.start_units[next_index] = 1
+        block.shutdown_units[next_index] = 0
+        assert block.commitment_tracking_inter_period_constraint[constraint_index].expr()
+
+        block.shutdown_units[next_index] = 1
+        assert not block.commitment_tracking_inter_period_constraint[constraint_index].expr()
 
     @pytest.mark.parametrize(
         "committed_units, start_units, power_output, fuel_consumption_fuel_1, fuel_consumption_fuel_2, expr, upper, body",
@@ -388,49 +551,223 @@ class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentR
         assert block.resource_fuel_consumption_constraint[first_index].upper() == upper
         assert block.resource_fuel_consumption_constraint[first_index].body() == body
 
-    def test_synchronous_condenser_constraint(self, make_component_with_block_copy, first_index):
+    def test_single_fuel_resource_fuel_consumption_constraint_uses_aggregate_uc_state(
+        self, make_component_with_block_copy, first_index
+    ):
         resource = make_component_with_block_copy(component_name="ThermalUnitCommitmentResource2")
         block = resource.formulation_block
+        candidate_fuel = next(iter(resource.candidate_fuels))
+
+        block.committed_units[first_index] = 5
+        block.start_units[first_index] = 3
+        block.power_output[first_index] = 4
+        block.resource_fuel_consumption_in_timepoint_mmbtu[candidate_fuel, first_index] = 15
+
+        assert block.resource_fuel_consumption_constraint[first_index].expr()
+        assert block.resource_fuel_consumption_constraint[first_index].body() == 0
+
+        block.resource_fuel_consumption_in_timepoint_mmbtu[candidate_fuel, first_index] = 14
+        assert not block.resource_fuel_consumption_constraint[first_index].expr()
+        assert block.resource_fuel_consumption_constraint[first_index].body() == 1
+
+    def test_sync_cond_power_input_by_fuel(self, make_custom_component_with_block, first_index):
+        """Test fuel-specific synchronous condenser input expression.
+
+        Args:
+            make_custom_component_with_block: Fixture that creates a custom resource with a Pyomo block.
+            first_index: First modeled-year, dispatch-window, timestamp index tuple.
+        """
+        resource = make_custom_component_with_block(addition_to_load=0.1)
+        block = resource.formulation_block
+        candidate_fuel = "CandidateFuel1"
 
         assert resource.addition_to_load == 0.1
 
-        block.committed_capacity[first_index] = 5
+        block.committed_units_by_fuel[candidate_fuel, first_index] = 2
+        assert pyo.value(block.sync_cond_power_input_by_fuel[candidate_fuel, first_index]) == 10
+        assert not hasattr(block, "synchronous_condenser_by_fuel_constraint")
+
+    def test_synchronous_condenser_constraint(self, make_component_with_block_copy, first_index):
+        resource = make_component_with_block_copy(component_name="ThermalUnitCommitmentResource2")
+        block = resource.formulation_block
+        modeled_year = first_index[0]
+        sync_cond_power_input_per_committed_unit = resource.addition_to_load * pyo.value(block.unit_size[modeled_year])
+
+        block.committed_units[first_index] = 0.5 / sync_cond_power_input_per_committed_unit
         block.sync_cond_power_input[first_index] = 0.5
         assert block.synchronous_condenser_constraint[first_index].expr()
 
-        block.committed_capacity[first_index] = 5
         block.sync_cond_power_input[first_index] = 0.6
-        assert not block.synchronous_condenser_constraint[first_index].expr()
-
-        block.committed_capacity[first_index] = 10
-        block.sync_cond_power_input[first_index] = 0.9
         assert not block.synchronous_condenser_constraint[first_index].expr()
 
     def test_annual_sync_cond_power_input(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy(component_name="ThermalUnitCommitmentResource2")
         block = resource.formulation_block
         modeled_year = first_index[0]
-        assert resource.addition_to_load == 0.1
+        candidate_fuel = next(iter(resource.candidate_fuels))
+
+        annual_weighted_hours = 3 * 0.6 * 365 + 3 * 0.4 * 365
 
         for dw, ts in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS:
             block.sync_cond_power_input[modeled_year, dw, ts] = 1.0
 
-        assert block.annual_sync_cond_power_input[modeled_year].expr() == 1.0 * 3 * 0.6 * 365 + 1.0 * 3 * 0.4 * 365
+        assert block.annual_sync_cond_power_input_by_fuel[candidate_fuel, modeled_year].expr() == annual_weighted_hours
+        assert block.annual_sync_cond_power_input[modeled_year].expr() == annual_weighted_hours
+
+    def test_multi_fuel_annual_sync_cond_power_input(self, make_custom_component_with_block, first_index):
+        resource = make_custom_component_with_block(addition_to_load=0.1)
+        block = resource.formulation_block
+        modeled_year = first_index[0]
+        sync_cond_power_input_per_committed_unit = resource.addition_to_load * pyo.value(block.unit_size[modeled_year])
+        annual_weighted_hours = 3 * 0.6 * 365 + 3 * 0.4 * 365
+
+        for dw, ts in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS:
+            block.committed_units_by_fuel["CandidateFuel1", modeled_year, dw, ts] = (
+                1.0 / sync_cond_power_input_per_committed_unit
+            )
+            block.committed_units_by_fuel["CandidateFuel2", modeled_year, dw, ts] = (
+                2.0 / sync_cond_power_input_per_committed_unit
+            )
+            block.committed_units[modeled_year, dw, ts] = 3.0 / sync_cond_power_input_per_committed_unit
+            block.sync_cond_power_input[modeled_year, dw, ts] = 3.0
+
+        fuel_1_annual = block.annual_sync_cond_power_input_by_fuel["CandidateFuel1", modeled_year].expr()
+        fuel_2_annual = block.annual_sync_cond_power_input_by_fuel["CandidateFuel2", modeled_year].expr()
+
+        assert fuel_1_annual == annual_weighted_hours
+        assert fuel_2_annual == 2 * annual_weighted_hours
+        assert block.annual_sync_cond_power_input[modeled_year].expr() == fuel_1_annual + fuel_2_annual
+
+    def test_uc_state_by_fuel_sum_constraints(self, make_component_with_block_copy, first_index):
+        """Test that fuel-specific unit commitment states sum to total states.
+
+        Args:
+            make_component_with_block_copy: Fixture that creates a resource with a Pyomo block.
+            first_index: First modeled-year, dispatch-window, timestamp index tuple.
+        """
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+
+        block.committed_units[first_index] = 5
+        block.start_units[first_index] = 3
+        block.shutdown_units[first_index] = 2
+
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = 2
+        block.committed_units_by_fuel["CandidateFuel2", first_index] = 3
+        block.start_units_by_fuel["CandidateFuel1", first_index] = 1
+        block.start_units_by_fuel["CandidateFuel2", first_index] = 2
+        block.shutdown_units_by_fuel["CandidateFuel1", first_index] = 1
+        block.shutdown_units_by_fuel["CandidateFuel2", first_index] = 1
+
+        assert block.committed_units_by_fuel_sum_constraint[first_index].expr()
+        assert block.start_units_by_fuel_sum_constraint[first_index].expr()
+        assert block.shutdown_units_by_fuel_sum_constraint[first_index].expr()
+
+        block.shutdown_units_by_fuel["CandidateFuel2", first_index] = 0
+        assert not block.shutdown_units_by_fuel_sum_constraint[first_index].expr()
+
+    def test_committed_units_by_fuel_tracking_constraint(self, make_component_with_block_copy, first_index):
+        """Fuel-level tracking plus sum constraints imply aggregate tracking."""
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+        next_timestamp = block.model().TIMESTAMPS_IN_DISPATCH_WINDOWS[dispatch_window].nextw(timestamp)
+        next_index = (modeled_year, dispatch_window, next_timestamp)
+
+        block.committed_units[first_index] = 3
+        block.committed_units[next_index] = 4
+        block.start_units[next_index] = 2
+        block.shutdown_units[next_index] = 1
+
+        block.committed_units_by_fuel["CandidateFuel1", modeled_year, dispatch_window, timestamp] = 1
+        block.committed_units_by_fuel["CandidateFuel1", modeled_year, dispatch_window, next_timestamp] = 2
+        block.start_units_by_fuel["CandidateFuel1", modeled_year, dispatch_window, next_timestamp] = 1
+        block.shutdown_units_by_fuel["CandidateFuel1", modeled_year, dispatch_window, next_timestamp] = 0
+        block.committed_units_by_fuel["CandidateFuel2", modeled_year, dispatch_window, timestamp] = 2
+        block.committed_units_by_fuel["CandidateFuel2", modeled_year, dispatch_window, next_timestamp] = 2
+        block.start_units_by_fuel["CandidateFuel2", modeled_year, dispatch_window, next_timestamp] = 1
+        block.shutdown_units_by_fuel["CandidateFuel2", modeled_year, dispatch_window, next_timestamp] = 1
+
+        assert block.committed_units_by_fuel_tracking_constraint[
+            "CandidateFuel1", modeled_year, dispatch_window, timestamp
+        ].expr()
+        assert block.committed_units_by_fuel_tracking_constraint[
+            "CandidateFuel2", modeled_year, dispatch_window, timestamp
+        ].expr()
+        assert block.committed_units_by_fuel_sum_constraint[first_index].expr()
+        assert block.committed_units_by_fuel_sum_constraint[next_index].expr()
+        assert block.start_units_by_fuel_sum_constraint[next_index].expr()
+        assert block.shutdown_units_by_fuel_sum_constraint[next_index].expr()
+        assert (
+            pyo.value(
+                block.committed_units[next_index]
+                - block.committed_units[first_index]
+                - block.start_units[next_index]
+                + block.shutdown_units[next_index]
+            )
+            == 0
+        )
+
+        block.shutdown_units_by_fuel["CandidateFuel1", modeled_year, dispatch_window, next_timestamp] = 1
+        assert not block.committed_units_by_fuel_tracking_constraint[
+            "CandidateFuel1", modeled_year, dispatch_window, timestamp
+        ].expr()
+
+    def test_committed_units_by_fuel_tracking_inter_period_constraint(
+        self, make_component_with_block_copy_inter_period_sharing
+    ):
+        """Inter-period fuel-level tracking plus sum constraints imply aggregate tracking."""
+        resource = make_component_with_block_copy_inter_period_sharing()
+        block = resource.formulation_block
+        modeled_year = pd.Timestamp("2025-01-01")
+        first_index = (modeled_year, pd.Timestamp("2012-02-15"), pd.Timestamp("2012-02-15 14:00"))
+        next_index = (modeled_year, pd.Timestamp("2010-06-21"), pd.Timestamp("2010-06-21 00:00"))
+        constraint_index = (modeled_year, pd.Timestamp("2012-01-02"))
+
+        block.committed_units[first_index] = 3
+        block.committed_units[next_index] = 4
+        block.start_units[next_index] = 2
+        block.shutdown_units[next_index] = 1
+
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = 1
+        block.committed_units_by_fuel["CandidateFuel1", next_index] = 2
+        block.start_units_by_fuel["CandidateFuel1", next_index] = 1
+        block.shutdown_units_by_fuel["CandidateFuel1", next_index] = 0
+        block.committed_units_by_fuel["CandidateFuel2", first_index] = 2
+        block.committed_units_by_fuel["CandidateFuel2", next_index] = 2
+        block.start_units_by_fuel["CandidateFuel2", next_index] = 1
+        block.shutdown_units_by_fuel["CandidateFuel2", next_index] = 1
+
+        assert block.committed_units_by_fuel_tracking_inter_period_constraint["CandidateFuel1", constraint_index].expr()
+        assert block.committed_units_by_fuel_tracking_inter_period_constraint["CandidateFuel2", constraint_index].expr()
+        assert block.committed_units_by_fuel_sum_constraint[first_index].expr()
+        assert block.committed_units_by_fuel_sum_constraint[next_index].expr()
+        assert block.start_units_by_fuel_sum_constraint[next_index].expr()
+        assert block.shutdown_units_by_fuel_sum_constraint[next_index].expr()
+        assert (
+            pyo.value(
+                block.committed_units[next_index]
+                - block.committed_units[first_index]
+                - block.start_units[next_index]
+                + block.shutdown_units[next_index]
+            )
+            == 0
+        )
 
     @pytest.mark.parametrize(
-        "committed_units, start_units, power_output_fuel1, power_output_fuel2, fuel_consumption_fuel_1, fuel_consumption_fuel_2, expr, body",
+        "committed_units_fuel1, start_units_fuel1, power_output_fuel1, power_output_fuel2, fuel_consumption_fuel_1, fuel_consumption_fuel_2, expr, body",
         [
             (5, 3, 4, 8, 15, 19, True, 0.0),
-            (5, 3, 4, 8, 0, 19, True, -15.0),
-            (5, 3, 4, 8, 19, 19, False, 4.0),
+            (5, 3, 4, 8, 19, 19, False, -4.0),
+            (5, 3, 4, 8, 10, 19, False, 5.0),
         ],
     )
     def test_power_output_by_fuel_constraint(
         self,
         make_component_with_block_copy,
         first_index,
-        committed_units,
-        start_units,
+        committed_units_fuel1,
+        start_units_fuel1,
         power_output_fuel1,
         power_output_fuel2,
         fuel_consumption_fuel_1,
@@ -441,8 +778,10 @@ class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentR
         resource = make_component_with_block_copy()
         block = resource.formulation_block
 
-        block.committed_units[first_index] = committed_units
-        block.start_units[first_index] = start_units
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = committed_units_fuel1
+        block.start_units_by_fuel["CandidateFuel1", first_index] = start_units_fuel1
+        block.committed_units_by_fuel["CandidateFuel2", first_index] = 5
+        block.start_units_by_fuel["CandidateFuel2", first_index] = 3
         block.power_output_by_fuel["CandidateFuel1", first_index] = power_output_fuel1
         block.power_output_by_fuel["CandidateFuel2", first_index] = power_output_fuel2
 
@@ -458,6 +797,51 @@ class TestThermalUnitCommitmentResource(test_unit_commitment.TestUnitCommitmentR
         assert block.power_output_by_fuel_constraint["CandidateFuel2", first_index].expr()
         assert block.power_output_by_fuel_constraint["CandidateFuel2", first_index].upper() == 0.0
         assert block.power_output_by_fuel_constraint["CandidateFuel2", first_index].body() == 0.0
+
+    def test_power_output_by_fuel_max_constraint(self, make_component_with_block_copy, first_index):
+        """Test the maximum fuel-specific power output constraint.
+
+        Args:
+            make_component_with_block_copy: Fixture that creates a resource with a Pyomo block.
+            first_index: First modeled-year, dispatch-window, timestamp index tuple.
+        """
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = 0
+        block.power_output_by_fuel["CandidateFuel1", first_index] = 1
+
+        assert block.power_output_by_fuel_max_constraint["CandidateFuel1", first_index].body() == 1
+        assert not block.power_output_by_fuel_max_constraint["CandidateFuel1", first_index].expr()
+
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = 1
+        assert block.power_output_by_fuel_max_constraint["CandidateFuel1", first_index].body() == -49
+        assert block.power_output_by_fuel_max_constraint["CandidateFuel1", first_index].expr()
+
+    def test_power_output_by_fuel_min_constraint(self, make_component_with_block_copy, first_index):
+        """Test the minimum fuel-specific power output constraint.
+
+        Args:
+            make_component_with_block_copy: Fixture that creates a resource with a Pyomo block.
+            first_index: First modeled-year, dispatch-window, timestamp index tuple.
+        """
+        resource = make_component_with_block_copy()
+        block = resource.formulation_block
+
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = 0
+        block.power_output_by_fuel["CandidateFuel1", first_index] = 0
+
+        assert block.power_output_by_fuel_min_constraint["CandidateFuel1", first_index].body() == 0
+        assert block.power_output_by_fuel_min_constraint["CandidateFuel1", first_index].expr()
+
+        block.committed_units_by_fuel["CandidateFuel1", first_index] = 1
+        block.power_output_by_fuel["CandidateFuel1", first_index] = 24
+        assert block.power_output_by_fuel_min_constraint["CandidateFuel1", first_index].body() == 1
+        assert not block.power_output_by_fuel_min_constraint["CandidateFuel1", first_index].expr()
+
+        block.power_output_by_fuel["CandidateFuel1", first_index] = 25
+        assert block.power_output_by_fuel_min_constraint["CandidateFuel1", first_index].body() == 0
+        assert block.power_output_by_fuel_min_constraint["CandidateFuel1", first_index].expr()
 
     def test_total_power_output_by_fuel_constraint(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy()

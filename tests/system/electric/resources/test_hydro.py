@@ -1,8 +1,9 @@
 import pandas as pd
 import pytest
+from pyomo import environ as pyo
 
-from new_modeling_toolkit.system import HydroResourceGroup
-from new_modeling_toolkit.system.electric.resources import HydroResource
+from resolve.system import HydroResourceGroup
+from resolve.system.electric.resources import HydroResource
 from tests.system.electric.resources import test_variable
 
 
@@ -44,10 +45,29 @@ class TestHydroResource(test_variable.TestVariableResource):
         non_curtailable_block.power_output.fix(10)
         non_curtailable_block.daily_budget_slack_up.fix()
 
+        assert non_curtailable_resource.non_curtailable_with_budgets
+        assert (
+            non_curtailable_block.scheduled_curtailment[
+                pd.Timestamp("2025-01-01 00:00:00"),
+                pd.Timestamp("2010-06-21 00:00:00"),
+                pd.Timestamp("2010-06-21 00:00:00"),
+            ].expr()
+            == 0
+        )
+        assert (
+            non_curtailable_block.resource_curtailment_cost_in_timepoint[
+                pd.Timestamp("2025-01-01 00:00:00"),
+                pd.Timestamp("2010-06-21 00:00:00"),
+                pd.Timestamp("2010-06-21 00:00:00"),
+            ].expr()
+            == 0
+        )
+
         for year in [
             pd.Timestamp("2025-01-01 00:00"),
             pd.Timestamp("2030-01-01 00:00"),
         ]:
+            assert non_curtailable_block.annual_total_curtailment_cost[year].expr() == 0
             assert (
                 non_curtailable_block.annual_total_operational_cost[year].expr()
                 == (
@@ -67,18 +87,19 @@ class TestHydroResource(test_variable.TestVariableResource):
             pd.Timestamp("2035-01-01 00:00"),
             pd.Timestamp("2045-01-01 00:00"),
         ]:
+            assert non_curtailable_block.annual_total_curtailment_cost[year].expr() == 0
             assert (
                 non_curtailable_block.annual_total_operational_cost[year].expr()
                 == (
-                    0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0))
-                    + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0))
+                    0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0))
+                    + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0))
                 )
                 + 10_000
             )
 
             assert curtailable_block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0))
             ) + (curtailable_block.annual_total_curtailment_cost[year].expr())
 
     def test_daily_budget_slack_cost(
@@ -99,13 +120,13 @@ class TestHydroResource(test_variable.TestVariableResource):
         for day in model.DAYS:
             block.daily_budget_slack_up[modeled_year, day] = 10
             block.daily_budget_slack_down[modeled_year, day] = 0
-        assert block.daily_budget_slack_cost[modeled_year].expr() == 10 * 50_000_000 * len(model.DAYS)
+        assert block.daily_budget_slack_cost[modeled_year].expr() == 10 * 100_000 * len(model.DAYS)
 
         # Test 3: slack up and slack down costs
         for day in model.DAYS:
             block.daily_budget_slack_up[modeled_year, day] = 10
             block.daily_budget_slack_down[modeled_year, day] = 10
-        assert block.daily_budget_slack_cost[modeled_year].expr() == 2 * 10 * 50_000_000 * len(model.DAYS)
+        assert block.daily_budget_slack_cost[modeled_year].expr() == 2 * 10 * 100_000 * len(model.DAYS)
 
         # Test 4: curtailable hydro has no slack cost
         curtailable_hydro = make_component_with_block_copy()
@@ -118,28 +139,108 @@ class TestHydroResource(test_variable.TestVariableResource):
     ):
         non_curtailable_hydro = make_component_with_block_copy_non_curtailable()
         block = non_curtailable_hydro.formulation_block
-        modeled_year, dispatch_window, timestamp = first_index
+        model = make_component_with_block_copy().formulation_block.model()
+        modeled_year, _, _ = first_index
+        weather_year = model.WEATHER_YEARS.first()
 
         # Test 1: no slack cost
-        block.annual_budget_slack_up[modeled_year] = 0
-        block.annual_budget_slack_down[modeled_year] = 0
+        for weather_year_index in model.WEATHER_YEARS:
+            block.annual_budget_slack_up[modeled_year, weather_year_index] = 0
+            block.annual_budget_slack_down[modeled_year, weather_year_index] = 0
         assert block.annual_budget_slack_cost[modeled_year].expr() == 0
 
         # Test 2: slack up cost
-        block.annual_budget_slack_up[modeled_year] = 10
-        block.annual_budget_slack_down[modeled_year] = 0
-        assert block.annual_budget_slack_cost[modeled_year].expr() == 10 * 50_000_000
+        block.annual_budget_slack_up[modeled_year, weather_year] = 10
+        block.annual_budget_slack_down[modeled_year, weather_year] = 0
+        assert block.annual_budget_slack_total[modeled_year].expr() == 10
+        assert block.annual_budget_slack_cost[modeled_year].expr() == 10 * 100_000
 
         # Test 3: slack up and slack down costs
-        block.annual_budget_slack_up[modeled_year] = 10
-        block.annual_budget_slack_down[modeled_year] = 10
-        assert block.annual_budget_slack_cost[modeled_year].expr() == 2 * 10 * 50_000_000
+        block.annual_budget_slack_up[modeled_year, weather_year] = 10
+        block.annual_budget_slack_down[modeled_year, weather_year] = 10
+        assert block.annual_budget_slack_total[modeled_year].expr() == 2 * 10
+        assert block.annual_budget_slack_cost[modeled_year].expr() == 2 * 10 * 100_000
 
         # Test 4: curtailable hydro has no slack cost
         curtailable_hydro = make_component_with_block_copy()
         assert not hasattr(curtailable_hydro.formulation_block, "annual_budget_slack_up")
         assert not hasattr(curtailable_hydro.formulation_block, "annual_budget_slack_down")
         assert not hasattr(curtailable_hydro.formulation_block, "annual_budget_slack_cost")
+
+    def test_annual_energy_budget_constraint(self, test_hydro_resource, test_hydro_resource_group):
+        non_curtailable_hydro = (
+            test_hydro_resource_group.copy()
+            if self._COMPONENT_CLASS is HydroResourceGroup
+            else test_hydro_resource.copy()
+        )
+        non_curtailable_hydro.curtailable = False
+        modeled_year = pd.Timestamp("2025-01-01")
+        weather_year = non_curtailable_hydro.energy_budget_annual.data.index[0]
+        constraint_index = modeled_year, weather_year
+        annual_budget = 750.0
+
+        model = pyo.ConcreteModel()
+        model.MODELED_YEARS = pyo.Set(initialize=[modeled_year])
+        model.WEATHER_YEARS = pyo.Set(initialize=[weather_year])
+        model.hydro = pyo.Block()
+        block = model.hydro
+        block.power_output_annual = pyo.Var(model.MODELED_YEARS, initialize=0.0)
+        block.annual_budget_slack_up = pyo.Var(
+            model.MODELED_YEARS, model.WEATHER_YEARS, within=pyo.NonNegativeReals, initialize=0.0
+        )
+        block.annual_budget_slack_down = pyo.Var(
+            model.MODELED_YEARS, model.WEATHER_YEARS, within=pyo.NonNegativeReals, initialize=0.0
+        )
+        block.annual_energy_budget_MWh = pyo.Var(model.MODELED_YEARS, model.WEATHER_YEARS, initialize=annual_budget)
+        block.annual_energy_budget_MWh[constraint_index].fix(annual_budget)
+        block.annual_energy_budget_constraint = pyo.Constraint(
+            model.MODELED_YEARS,
+            model.WEATHER_YEARS,
+            rule=non_curtailable_hydro._annual_energy_budget_constraint,
+        )
+
+        # Test 1: budget is met exactly with no slack
+        block.power_output_annual[modeled_year].fix(annual_budget)
+        block.annual_budget_slack_up[constraint_index].fix(0.0)
+        block.annual_budget_slack_down[constraint_index].fix(0.0)
+        assert block.annual_energy_budget_constraint[constraint_index].body() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].upper() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].lower is None
+        assert block.annual_energy_budget_constraint[constraint_index].expr()
+
+        # Test 2: budget is met with non-zero down slack
+        block.power_output_annual[modeled_year].fix(annual_budget - 1.0)
+        block.annual_budget_slack_up[constraint_index].fix(0.0)
+        block.annual_budget_slack_down[constraint_index].fix(1.0)
+        assert block.annual_energy_budget_constraint[constraint_index].body() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].upper() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].lower is None
+        assert block.annual_energy_budget_constraint[constraint_index].expr()
+
+        # Test 3: budget is met with non-zero up slack
+        block.power_output_annual[modeled_year].fix(annual_budget + 1.0)
+        block.annual_budget_slack_up[constraint_index].fix(1.0)
+        block.annual_budget_slack_down[constraint_index].fix(0.0)
+        assert block.annual_energy_budget_constraint[constraint_index].body() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].upper() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].lower is None
+        assert block.annual_energy_budget_constraint[constraint_index].expr()
+
+        # Test 4: annual generation is below the budget with no slack
+        block.power_output_annual[modeled_year].fix(annual_budget - 1.0)
+        block.annual_budget_slack_up[constraint_index].fix(0.0)
+        block.annual_budget_slack_down[constraint_index].fix(0.0)
+        assert block.annual_energy_budget_constraint[constraint_index].body() == pytest.approx(-1.0)
+        assert block.annual_energy_budget_constraint[constraint_index].upper() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].lower is None
+        assert block.annual_energy_budget_constraint[constraint_index].expr()
+
+        # Test 5: annual generation exceeds the budget with no slack
+        block.power_output_annual[modeled_year].fix(annual_budget + 1.0)
+        assert block.annual_energy_budget_constraint[constraint_index].body() == pytest.approx(1.0)
+        assert block.annual_energy_budget_constraint[constraint_index].upper() == pytest.approx(0)
+        assert block.annual_energy_budget_constraint[constraint_index].lower is None
+        assert not block.annual_energy_budget_constraint[constraint_index].expr()
 
     def test_daily_energy_budget_constraint(
         self, make_component_with_block_copy, make_component_with_block_copy_non_curtailable, first_index

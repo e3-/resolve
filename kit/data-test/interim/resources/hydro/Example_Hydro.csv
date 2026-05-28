@@ -1,0 +1,6 @@
+timestamp,attribute,value,scenario
+None,energy_budget_monthly,.\data-test\profiles\hydro\Example_Hydro_Budget_Monthly.csv,
+1/1/2030 0:00,planned_installed_capacity,50,
+None,provide_power_min_profile,.\data-test\profiles\hydro\Example_Hydro_Pmin.csv,
+None,provide_power_potential_profile,.\data-test\profiles\hydro\Example_Hydro_Pmax.csv,
+None,random_seed,6,

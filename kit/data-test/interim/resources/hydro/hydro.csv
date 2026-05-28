@@ -1,0 +1,7 @@
+timestamp,attribute,value,scenario
+None,energy_budget_monthly,./data-test/profiles/ISONE_Hydro_Budget_Monthly.csv,
+None,mean_time_to_repair,24,
+1/1/2050 0:00,planned_installed_capacity,1610,
+None,provide_power_min_profile,./data-test/profiles/ISONE_Hydro_Pmin.csv,
+None,provide_power_potential_profile,./data-test/profiles/ISONE_Hydro_Pmax.csv,
+None,random_seed,21,

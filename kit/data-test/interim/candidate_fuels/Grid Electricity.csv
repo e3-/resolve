@@ -1,0 +1,34 @@
+timestamp,attribute,value,scenario
+None,fuel_is_commodity_bool,True,Test Scenario
+None,fuel_is_electricity,True,Test Scenario
+2020-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2021-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2022-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2023-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2024-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2025-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2026-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2027-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2028-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2029-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2030-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2031-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2032-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2033-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2034-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2035-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2036-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2037-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2038-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2039-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2040-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2041-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2042-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2043-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2044-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2045-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2046-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2047-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2048-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2049-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario
+2050-01-01 00:00:00,fuel_price_per_mmbtu,20.0,Test Scenario

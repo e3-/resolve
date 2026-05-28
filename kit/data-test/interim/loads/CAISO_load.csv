@@ -1,0 +1,6 @@
+timestamp,attribute,value,scenario
+2030-01-01 00:00:00,annual_energy_forecast,3000000.0,
+2030-01-01 00:00:00,annual_peak_forecast,650.0,
+None,profile,./data-test/profiles/CAISO_load.csv,
+None,scale_by_capacity,False,
+None,scale_by_energy,True,

@@ -1,0 +1,2019 @@
+component_from,component_to,timestamp,attribute,value
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/20,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/20,blend_limit_fraction,1
+Coal,Coal,1/1/20,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/20,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/20,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/20,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/20,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen Demand,1/1/20,blend_limit_fraction,1
+Hydrogen,Hydrogen_Demand,1/1/20,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/20,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/20,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/20,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/20,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/20,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/20,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/20,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/20,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/20,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/20,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/20,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/20,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/20,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/20,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/20,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/20,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/20,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/20,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/20,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/20,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/20,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/20,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/20,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/20,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/20,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/20,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/20,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/20,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/20,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/20,blend_limit_fraction,0
+Waste,Waste,1/1/20,blend_limit_fraction,0
+Waxes,Waxes,1/1/20,blend_limit_fraction,0
+Wood,Wood,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+,,1/1/20,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/21,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/21,blend_limit_fraction,1
+Coal,Coal,1/1/21,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/21,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/21,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/21,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/21,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/21,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/21,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/21,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/21,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/21,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/21,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/21,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/21,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/21,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/21,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/21,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/21,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/21,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/21,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/21,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/21,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/21,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/21,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/21,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/21,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/21,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/21,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/21,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/21,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/21,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/21,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/21,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/21,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/21,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/21,blend_limit_fraction,0
+Waste,Waste,1/1/21,blend_limit_fraction,0
+Waxes,Waxes,1/1/21,blend_limit_fraction,0
+Wood,Wood,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+,,1/1/21,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/22,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/22,blend_limit_fraction,1
+Coal,Coal,1/1/22,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/22,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/22,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/22,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/22,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/22,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/22,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/22,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/22,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/22,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/22,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/22,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/22,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/22,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/22,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/22,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/22,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/22,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/22,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/22,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/22,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/22,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/22,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/22,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/22,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/22,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/22,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/22,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/22,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/22,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/22,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/22,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/22,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/22,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/22,blend_limit_fraction,0
+Waste,Waste,1/1/22,blend_limit_fraction,0
+Waxes,Waxes,1/1/22,blend_limit_fraction,0
+Wood,Wood,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+,,1/1/22,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/23,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/23,blend_limit_fraction,1
+Coal,Coal,1/1/23,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/23,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/23,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/23,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/23,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/23,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/23,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/23,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/23,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/23,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/23,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/23,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/23,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/23,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/23,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/23,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/23,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/23,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/23,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/23,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/23,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/23,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/23,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/23,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/23,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/23,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/23,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/23,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/23,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/23,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/23,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/23,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/23,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/23,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/23,blend_limit_fraction,0
+Waste,Waste,1/1/23,blend_limit_fraction,0
+Waxes,Waxes,1/1/23,blend_limit_fraction,0
+Wood,Wood,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+,,1/1/23,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/24,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/24,blend_limit_fraction,1
+Coal,Coal,1/1/24,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/24,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/24,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/24,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/24,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/24,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/24,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/24,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/24,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/24,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/24,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/24,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/24,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/24,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/24,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/24,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/24,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/24,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/24,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/24,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/24,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/24,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/24,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/24,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/24,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/24,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/24,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/24,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/24,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/24,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/24,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/24,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/24,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/24,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/24,blend_limit_fraction,0
+Waste,Waste,1/1/24,blend_limit_fraction,0
+Waxes,Waxes,1/1/24,blend_limit_fraction,0
+Wood,Wood,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+,,1/1/24,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/25,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/25,blend_limit_fraction,1
+Coal,Coal,1/1/25,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/25,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/25,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/25,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/25,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/25,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/25,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/25,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/25,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/25,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/25,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/25,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/25,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/25,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/25,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/25,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/25,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/25,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/25,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/25,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/25,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/25,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/25,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/25,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/25,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/25,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/25,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/25,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/25,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/25,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/25,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/25,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/25,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/25,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/25,blend_limit_fraction,0
+Waste,Waste,1/1/25,blend_limit_fraction,0
+Waxes,Waxes,1/1/25,blend_limit_fraction,0
+Wood,Wood,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+,,1/1/25,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/26,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/26,blend_limit_fraction,1
+Coal,Coal,1/1/26,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/26,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/26,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/26,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/26,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/26,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/26,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/26,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/26,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/26,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/26,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/26,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/26,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/26,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/26,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/26,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/26,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/26,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/26,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/26,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/26,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/26,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/26,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/26,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/26,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/26,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/26,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/26,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/26,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/26,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/26,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/26,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/26,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/26,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/26,blend_limit_fraction,0
+Waste,Waste,1/1/26,blend_limit_fraction,0
+Waxes,Waxes,1/1/26,blend_limit_fraction,0
+Wood,Wood,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+,,1/1/26,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/27,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/27,blend_limit_fraction,1
+Coal,Coal,1/1/27,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/27,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/27,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/27,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/27,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/27,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/27,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/27,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/27,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/27,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/27,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/27,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/27,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/27,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/27,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/27,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/27,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/27,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/27,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/27,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/27,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/27,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/27,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/27,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/27,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/27,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/27,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/27,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/27,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/27,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/27,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/27,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/27,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/27,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/27,blend_limit_fraction,0
+Waste,Waste,1/1/27,blend_limit_fraction,0
+Waxes,Waxes,1/1/27,blend_limit_fraction,0
+Wood,Wood,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+,,1/1/27,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/28,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/28,blend_limit_fraction,1
+Coal,Coal,1/1/28,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/28,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/28,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/28,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/28,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/28,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/28,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/28,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/28,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/28,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/28,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/28,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/28,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/28,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/28,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/28,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/28,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/28,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/28,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/28,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/28,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/28,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/28,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/28,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/28,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/28,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/28,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/28,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/28,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/28,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/28,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/28,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/28,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/28,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/28,blend_limit_fraction,0
+Waste,Waste,1/1/28,blend_limit_fraction,0
+Waxes,Waxes,1/1/28,blend_limit_fraction,0
+Wood,Wood,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+,,1/1/28,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/29,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/29,blend_limit_fraction,1
+Coal,Coal,1/1/29,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/29,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/29,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/29,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/29,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/29,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/29,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/29,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/29,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/29,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/29,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/29,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/29,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/29,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/29,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/29,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/29,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/29,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/29,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/29,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/29,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/29,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/29,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/29,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/29,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/29,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/29,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/29,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/29,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/29,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/29,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/29,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/29,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/29,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/29,blend_limit_fraction,0
+Waste,Waste,1/1/29,blend_limit_fraction,0
+Waxes,Waxes,1/1/29,blend_limit_fraction,0
+Wood,Wood,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+,,1/1/29,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/30,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/30,blend_limit_fraction,1
+Coal,Coal,1/1/30,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/30,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/30,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/30,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/30,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/30,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/30,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/30,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/30,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/30,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/30,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/30,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/30,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/30,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/30,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/30,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/30,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/30,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/30,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/30,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/30,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/30,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/30,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/30,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/30,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/30,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/30,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/30,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/30,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/30,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/30,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/30,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/30,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/30,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/30,blend_limit_fraction,0
+Waste,Waste,1/1/30,blend_limit_fraction,0
+Waxes,Waxes,1/1/30,blend_limit_fraction,0
+Wood,Wood,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+,,1/1/30,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/31,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/31,blend_limit_fraction,1
+Coal,Coal,1/1/31,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/31,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/31,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/31,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/31,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/31,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/31,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/31,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/31,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/31,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/31,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/31,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/31,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/31,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/31,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/31,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/31,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/31,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/31,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/31,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/31,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/31,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/31,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/31,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/31,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/31,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/31,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/31,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/31,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/31,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/31,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/31,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/31,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/31,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/31,blend_limit_fraction,0
+Waste,Waste,1/1/31,blend_limit_fraction,0
+Waxes,Waxes,1/1/31,blend_limit_fraction,0
+Wood,Wood,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+,,1/1/31,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/32,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/32,blend_limit_fraction,1
+Coal,Coal,1/1/32,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/32,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/32,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/32,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/32,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/32,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/32,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/32,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/32,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/32,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/32,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/32,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/32,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/32,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/32,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/32,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/32,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/32,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/32,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/32,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/32,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/32,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/32,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/32,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/32,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/32,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/32,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/32,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/32,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/32,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/32,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/32,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/32,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/32,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/32,blend_limit_fraction,0
+Waste,Waste,1/1/32,blend_limit_fraction,0
+Waxes,Waxes,1/1/32,blend_limit_fraction,0
+Wood,Wood,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+,,1/1/32,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/33,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/33,blend_limit_fraction,1
+Coal,Coal,1/1/33,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/33,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/33,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/33,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/33,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/33,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/33,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/33,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/33,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/33,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/33,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/33,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/33,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/33,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/33,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/33,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/33,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/33,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/33,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/33,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/33,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/33,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/33,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/33,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/33,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/33,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/33,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/33,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/33,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/33,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/33,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/33,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/33,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/33,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/33,blend_limit_fraction,0
+Waste,Waste,1/1/33,blend_limit_fraction,0
+Waxes,Waxes,1/1/33,blend_limit_fraction,0
+Wood,Wood,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+,,1/1/33,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/34,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/34,blend_limit_fraction,1
+Coal,Coal,1/1/34,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/34,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/34,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/34,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/34,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/34,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/34,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/34,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/34,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/34,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/34,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/34,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/34,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/34,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/34,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/34,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/34,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/34,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/34,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/34,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/34,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/34,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/34,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/34,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/34,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/34,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/34,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/34,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/34,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/34,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/34,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/34,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/34,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/34,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/34,blend_limit_fraction,0
+Waste,Waste,1/1/34,blend_limit_fraction,0
+Waxes,Waxes,1/1/34,blend_limit_fraction,0
+Wood,Wood,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+,,1/1/34,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/35,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/35,blend_limit_fraction,1
+Coal,Coal,1/1/35,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/35,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/35,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/35,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/35,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/35,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/35,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/35,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/35,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/35,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/35,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/35,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/35,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/35,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/35,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/35,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/35,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/35,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/35,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/35,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/35,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/35,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/35,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/35,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/35,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/35,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/35,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/35,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/35,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/35,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/35,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/35,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/35,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/35,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/35,blend_limit_fraction,0
+Waste,Waste,1/1/35,blend_limit_fraction,0
+Waxes,Waxes,1/1/35,blend_limit_fraction,0
+Wood,Wood,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+,,1/1/35,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/36,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/36,blend_limit_fraction,1
+Coal,Coal,1/1/36,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/36,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/36,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/36,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/36,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/36,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/36,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/36,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/36,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/36,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/36,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/36,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/36,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/36,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/36,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/36,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/36,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/36,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/36,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/36,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/36,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/36,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/36,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/36,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/36,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/36,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/36,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/36,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/36,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/36,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/36,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/36,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/36,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/36,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/36,blend_limit_fraction,0
+Waste,Waste,1/1/36,blend_limit_fraction,0
+Waxes,Waxes,1/1/36,blend_limit_fraction,0
+Wood,Wood,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+,,1/1/36,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/37,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/37,blend_limit_fraction,1
+Coal,Coal,1/1/37,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/37,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/37,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/37,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/37,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/37,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/37,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/37,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/37,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/37,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/37,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/37,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/37,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/37,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/37,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/37,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/37,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/37,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/37,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/37,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/37,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/37,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/37,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/37,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/37,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/37,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/37,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/37,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/37,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/37,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/37,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/37,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/37,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/37,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/37,blend_limit_fraction,0
+Waste,Waste,1/1/37,blend_limit_fraction,0
+Waxes,Waxes,1/1/37,blend_limit_fraction,0
+Wood,Wood,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+,,1/1/37,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/38,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/38,blend_limit_fraction,1
+Coal,Coal,1/1/38,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/38,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/38,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/38,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/38,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/38,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/38,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/38,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/38,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/38,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/38,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/38,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/38,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/38,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/38,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/38,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/38,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/38,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/38,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/38,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/38,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/38,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/38,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/38,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/38,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/38,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/38,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/38,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/38,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/38,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/38,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/38,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/38,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/38,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/38,blend_limit_fraction,0
+Waste,Waste,1/1/38,blend_limit_fraction,0
+Waxes,Waxes,1/1/38,blend_limit_fraction,0
+Wood,Wood,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+,,1/1/38,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/39,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/39,blend_limit_fraction,1
+Coal,Coal,1/1/39,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/39,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/39,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/39,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/39,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/39,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/39,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/39,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/39,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/39,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/39,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/39,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/39,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/39,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/39,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/39,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/39,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/39,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/39,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/39,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/39,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/39,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/39,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/39,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/39,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/39,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/39,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/39,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/39,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/39,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/39,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/39,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/39,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/39,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/39,blend_limit_fraction,0
+Waste,Waste,1/1/39,blend_limit_fraction,0
+Waxes,Waxes,1/1/39,blend_limit_fraction,0
+Wood,Wood,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+,,1/1/39,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/40,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/40,blend_limit_fraction,1
+Coal,Coal,1/1/40,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/40,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/40,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/40,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/40,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/40,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/40,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/40,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/40,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/40,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/40,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/40,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/40,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/40,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/40,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/40,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/40,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/40,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/40,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/40,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/40,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/40,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/40,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/40,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/40,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/40,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/40,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/40,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/40,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/40,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/40,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/40,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/40,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/40,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/40,blend_limit_fraction,0
+Waste,Waste,1/1/40,blend_limit_fraction,0
+Waxes,Waxes,1/1/40,blend_limit_fraction,0
+Wood,Wood,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+,,1/1/40,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/41,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/41,blend_limit_fraction,1
+Coal,Coal,1/1/41,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/41,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/41,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/41,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/41,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/41,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/41,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/41,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/41,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/41,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/41,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/41,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/41,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/41,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/41,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/41,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/41,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/41,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/41,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/41,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/41,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/41,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/41,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/41,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/41,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/41,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/41,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/41,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/41,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/41,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/41,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/41,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/41,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/41,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/41,blend_limit_fraction,0
+Waste,Waste,1/1/41,blend_limit_fraction,0
+Waxes,Waxes,1/1/41,blend_limit_fraction,0
+Wood,Wood,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+,,1/1/41,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/42,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/42,blend_limit_fraction,1
+Coal,Coal,1/1/42,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/42,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/42,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/42,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/42,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/42,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/42,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/42,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/42,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/42,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/42,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/42,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/42,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/42,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/42,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/42,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/42,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/42,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/42,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/42,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/42,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/42,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/42,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/42,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/42,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/42,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/42,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/42,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/42,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/42,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/42,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/42,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/42,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/42,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/42,blend_limit_fraction,0
+Waste,Waste,1/1/42,blend_limit_fraction,0
+Waxes,Waxes,1/1/42,blend_limit_fraction,0
+Wood,Wood,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+,,1/1/42,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/43,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/43,blend_limit_fraction,1
+Coal,Coal,1/1/43,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/43,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/43,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/43,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/43,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/43,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/43,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/43,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/43,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/43,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/43,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/43,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/43,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/43,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/43,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/43,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/43,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/43,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/43,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/43,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/43,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/43,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/43,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/43,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/43,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/43,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/43,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/43,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/43,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/43,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/43,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/43,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/43,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/43,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/43,blend_limit_fraction,0
+Waste,Waste,1/1/43,blend_limit_fraction,0
+Waxes,Waxes,1/1/43,blend_limit_fraction,0
+Wood,Wood,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+,,1/1/43,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/44,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/44,blend_limit_fraction,1
+Coal,Coal,1/1/44,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/44,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/44,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/44,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/44,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/44,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/44,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/44,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/44,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/44,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/44,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/44,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/44,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/44,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/44,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/44,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/44,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/44,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/44,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/44,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/44,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/44,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/44,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/44,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/44,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/44,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/44,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/44,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/44,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/44,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/44,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/44,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/44,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/44,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/44,blend_limit_fraction,0
+Waste,Waste,1/1/44,blend_limit_fraction,0
+Waxes,Waxes,1/1/44,blend_limit_fraction,0
+Wood,Wood,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+,,1/1/44,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/45,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/45,blend_limit_fraction,1
+Coal,Coal,1/1/45,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/45,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/45,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/45,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/45,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/45,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/45,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/45,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/45,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/45,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/45,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/45,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/45,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/45,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/45,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/45,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/45,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/45,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/45,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/45,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/45,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/45,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/45,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/45,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/45,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/45,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/45,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/45,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/45,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/45,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/45,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/45,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/45,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/45,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/45,blend_limit_fraction,0
+Waste,Waste,1/1/45,blend_limit_fraction,0
+Waxes,Waxes,1/1/45,blend_limit_fraction,0
+Wood,Wood,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+,,1/1/45,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/46,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/46,blend_limit_fraction,1
+Coal,Coal,1/1/46,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/46,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/46,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/46,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/46,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/46,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/46,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/46,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/46,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/46,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/46,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/46,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/46,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/46,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/46,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/46,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/46,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/46,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/46,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/46,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/46,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/46,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/46,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/46,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/46,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/46,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/46,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/46,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/46,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/46,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/46,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/46,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/46,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/46,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/46,blend_limit_fraction,0
+Waste,Waste,1/1/46,blend_limit_fraction,0
+Waxes,Waxes,1/1/46,blend_limit_fraction,0
+Wood,Wood,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+,,1/1/46,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/47,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/47,blend_limit_fraction,1
+Coal,Coal,1/1/47,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/47,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/47,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/47,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/47,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/47,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/47,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/47,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/47,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/47,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/47,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/47,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/47,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/47,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/47,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/47,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/47,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/47,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/47,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/47,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/47,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/47,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/47,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/47,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/47,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/47,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/47,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/47,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/47,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/47,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/47,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/47,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/47,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/47,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/47,blend_limit_fraction,0
+Waste,Waste,1/1/47,blend_limit_fraction,0
+Waxes,Waxes,1/1/47,blend_limit_fraction,0
+Wood,Wood,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+,,1/1/47,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/48,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/48,blend_limit_fraction,1
+Coal,Coal,1/1/48,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/48,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/48,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/48,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/48,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/48,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/48,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/48,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/48,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/48,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/48,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/48,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/48,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/48,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/48,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/48,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/48,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/48,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/48,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/48,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/48,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/48,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/48,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/48,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/48,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/48,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/48,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/48,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/48,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/48,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/48,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/48,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/48,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/48,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/48,blend_limit_fraction,0
+Waste,Waste,1/1/48,blend_limit_fraction,0
+Waxes,Waxes,1/1/48,blend_limit_fraction,0
+Wood,Wood,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+,,1/1/48,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/49,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/49,blend_limit_fraction,1
+Coal,Coal,1/1/49,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/49,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/49,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/49,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/49,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/49,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/49,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/49,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/49,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/49,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/49,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/49,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/49,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/49,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/49,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/49,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/49,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/49,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/49,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/49,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/49,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/49,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/49,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/49,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/49,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/49,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/49,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/49,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/49,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/49,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/49,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/49,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/49,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/49,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/49,blend_limit_fraction,0
+Waste,Waste,1/1/49,blend_limit_fraction,0
+Waxes,Waxes,1/1/49,blend_limit_fraction,0
+Wood,Wood,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+,,1/1/49,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/50,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/50,blend_limit_fraction,1
+Coal,Coal,1/1/50,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/50,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/50,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/50,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/50,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/50,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/50,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/50,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/50,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/50,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/50,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/50,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/50,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/50,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/50,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/50,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/50,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/50,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/50,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/50,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/50,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/50,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/50,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/50,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/50,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/50,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/50,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/50,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/50,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/50,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/50,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/50,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/50,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/50,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/50,blend_limit_fraction,0
+Waste,Waste,1/1/50,blend_limit_fraction,0
+Waxes,Waxes,1/1/50,blend_limit_fraction,0
+Wood,Wood,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+,,1/1/50,blend_limit_fraction,0
+Asphalt and Road Oil,Asphalt and Road Oil,1/1/51,blend_limit_fraction,1
+Aviation Gasoline,Aviation Gasoline,1/1/51,blend_limit_fraction,1
+Coal,Coal,1/1/51,blend_limit_fraction,1
+Coking Coal,Coking Coal,1/1/51,blend_limit_fraction,1
+Fossil Distillate,Distillate,1/1/51,blend_limit_fraction,1
+Renewable Distillate,Distillate,1/1/51,blend_limit_fraction,1
+Synthetic Distillate,Distillate,1/1/51,blend_limit_fraction,1
+Grid Electricity,Electricity,1/1/51,blend_limit_fraction,1
+Ethanol,Gasoline,1/1/51,blend_limit_fraction,1
+Fossil Gasoline,Gasoline,1/1/51,blend_limit_fraction,1
+Renewable Gasoline,Gasoline,1/1/51,blend_limit_fraction,1
+Synthetic Gasoline,Gasoline,1/1/51,blend_limit_fraction,1
+Electrolytic Hydrogen,Hydrogen,1/1/51,blend_limit_fraction,1
+BECCS Hydrogen,Hydrogen,1/1/51,blend_limit_fraction,1
+SMR Hydrogen,Hydrogen,1/1/51,blend_limit_fraction,1
+Fossil Jet Kerosene,Jet Kerosene,1/1/51,blend_limit_fraction,1
+Renewable Jet Kerosene,Jet Kerosene,1/1/51,blend_limit_fraction,1
+Synthetic Jet Kerosene,Jet Kerosene,1/1/51,blend_limit_fraction,1
+Kerosene,Kerosene,1/1/51,blend_limit_fraction,1
+Fossil LPG,LPG,1/1/51,blend_limit_fraction,1
+Renewable LPG,LPG,1/1/51,blend_limit_fraction,1
+Synthetic LPG,LPG,1/1/51,blend_limit_fraction,1
+LPG Feedstocks,LPG Feedstocks,1/1/51,blend_limit_fraction,1
+Lubricants,Lubricants,1/1/51,blend_limit_fraction,1
+Misc Petroleum Products,Misc Petroleum Products,1/1/51,blend_limit_fraction,1
+Naphtha Feedstocks,Naphtha Feedstocks,1/1/51,blend_limit_fraction,1
+Fossil Natural Gas,Natural Gas,1/1/51,blend_limit_fraction,1
+Renewable Natural Gas,Natural Gas,1/1/51,blend_limit_fraction,1
+Synthetic Natural Gas,Natural Gas,1/1/51,blend_limit_fraction,1
+Natural Gas Feedstocks,Natural Gas Feedstocks,1/1/51,blend_limit_fraction,1
+Other Oils Feedstocks,Other Oils Feedstocks,1/1/51,blend_limit_fraction,1
+Petroleum Coke,Petroleum Coke,1/1/51,blend_limit_fraction,1
+Residual Fuel Oil,Residual Fuel Oil,1/1/51,blend_limit_fraction,0
+Special Naphthas,Special Naphthas,1/1/51,blend_limit_fraction,0
+Still Gas,Still Gas,1/1/51,blend_limit_fraction,0
+Still Gas Feedstocks,Still Gas Feedstocks,1/1/51,blend_limit_fraction,0
+Unfinished Oils,Unfinished Oils,1/1/51,blend_limit_fraction,0
+Waste,Waste,1/1/51,blend_limit_fraction,0
+Waxes,Waxes,1/1/51,blend_limit_fraction,0
+Wood,Wood,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0
+,,1/1/51,blend_limit_fraction,0

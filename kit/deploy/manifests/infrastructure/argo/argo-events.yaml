@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: argo-events
+spec:
+  chart:
+    spec:
+      chart: argo-events
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: argo-charts
+      version: 2.2.0
+  interval: 60s

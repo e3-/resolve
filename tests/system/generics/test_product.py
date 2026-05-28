@@ -3,12 +3,12 @@ import pint
 import pytest
 from pydantic import ValidationError
 
-from new_modeling_toolkit.core.temporal import timeseries as ts
-from new_modeling_toolkit.system import Demand
-from new_modeling_toolkit.system import Electricity
-from new_modeling_toolkit.system import Plant
-from new_modeling_toolkit.system.generics.product import Product
-from new_modeling_toolkit.system.pollution.pollutant import Pollutant
+from resolve.core.temporal import timeseries as ts
+from resolve.system import Demand
+from resolve.system import Electricity
+from resolve.system import Plant
+from resolve.system.generics.product import Product
+from resolve.system.pollution.pollutant import Pollutant
 from tests.system.component_test_template import ComponentTestTemplate
 
 

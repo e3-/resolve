@@ -1,0 +1,27 @@
+linkage,component_1,component_2,component_3
+SectorCandidateFuelBlending,Negative Emissions Technology,Fossil Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Negative Emissions Technology,Renewable Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Negative Emissions Technology,Synthetic Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Negative Emissions Technology,Grid Electricity,Electricity
+SectorCandidateFuelBlending,Residential,Grid Electricity,Electricity
+SectorCandidateFuelBlending,Residential,Fossil Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Residential,Renewable Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Residential,Synthetic Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Commercial,Ethanol,Gasoline
+SectorCandidateFuelBlending,Commercial,Fossil Gasoline,Gasoline
+SectorCandidateFuelBlending,Commercial,Renewable Gasoline,Gasoline
+SectorCandidateFuelBlending,Commercial,Synthetic Gasoline,Gasoline
+SectorCandidateFuelBlending,Commercial,Fossil Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Commercial,Renewable Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Commercial,Synthetic Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Transportation,Grid Electricity,Electricity
+SectorCandidateFuelBlending,Transportation,Fossil Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Transportation,Renewable Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Transportation,Synthetic Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Industry,Ethanol,Gasoline
+SectorCandidateFuelBlending,Industry,Fossil Gasoline,Gasoline
+SectorCandidateFuelBlending,Industry,Renewable Gasoline,Gasoline
+SectorCandidateFuelBlending,Industry,Synthetic Gasoline,Gasoline
+SectorCandidateFuelBlending,Industry,Fossil Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Industry,Renewable Natural Gas,Natural Gas
+SectorCandidateFuelBlending,Industry,Synthetic Natural Gas,Natural Gas

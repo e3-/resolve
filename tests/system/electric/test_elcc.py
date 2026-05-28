@@ -1,6 +1,6 @@
 import pandas as pd
 
-from new_modeling_toolkit.system.electric.elcc import ELCCSurface
+from resolve.system.electric.elcc import ELCCSurface
 from tests.system.component_test_template import ComponentTestTemplate
 
 

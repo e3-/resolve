@@ -1,0 +1,6 @@
+timestamp,attribute,value,scenario
+None,mean_time_to_repair,24,
+1/1/2050 0:00,planned_installed_capacity,3350,
+1/1/2020 0:00,provide_power_potential_profile,1,
+None,random_seed,11,
+1/1/2020 0:00,stochastic_outage_rate,0.05,

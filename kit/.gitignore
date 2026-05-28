@@ -1,0 +1,120 @@
+!data/interim/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+tests/**/.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Logs
+logs/
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# DotEnv configuration
+.env
+
+# Database
+*.db
+*.rdb
+
+# Pycharm
+.idea
+
+# VS Code
+.vscode/
+
+# Spyder
+.spyproject/
+
+# Jupyter NB Checkpoints
+.ipynb_checkpoints/
+.ipynb
+
+# Terminals (?)
+.lnk
+
+# exclude data from source control by default
+data/
+data-benchmark/
+
+# exclude resolve processed data
+data-test/processed/resolve/rescaled*profiles/
+
+# Mac OS-specific storage files
+.DS_Store
+*/.DS_Store
+
+# vim
+*.swp
+*.swo
+
+# Mypy cache
+.mypy_cache/
+kit/__pycache__/__init__.cpython-39.pyc
+kit/common/.DS_Store
+reports/**/*
+gurobi.lic
+
+reclaim/outputs_clean/*
+reclaim/outputs_raw/*
+kit/reclaim/ERA5_cleaned/*
+kit/reclaim/ERA5_extracted/*
+kit/reclaim/ERA5_raw/*
+kit/visualization/profile_benchmarking/*
+kit/recap/Neural Network Setup/*
+
+kit/*.png
+/kit/visualization/profile_benchmarking/
+
+.nmt.config.json
+/analysis/

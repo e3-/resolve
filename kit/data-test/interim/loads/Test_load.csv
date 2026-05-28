@@ -1,0 +1,6 @@
+timestamp,attribute,value,scenario
+1/1/2030 0:00,annual_energy_forecast,5000000,
+1/1/2030 0:00,annual_peak_forecast,600,
+None,profile,./data-test/profiles/Test_load.csv,
+None,scale_by_capacity,FALSE,
+None,scale_by_energy,TRUE,

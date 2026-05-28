@@ -1,0 +1,4 @@
+timestamp,attribute,value
+None,system,test
+None,production_simulation_mode,TRUE
+None,portfolio_build_results_dir,test-manual-rep-periods/2023-11-20 10-49-28

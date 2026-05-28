@@ -1,0 +1,40 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "enabled": true,
+  "extends": [
+    "config:recommended",
+    "github>e3-/kit//.github/renovate/private-python-git-deps"
+  ],
+  "enabledManagers": [
+    "custom.regex"
+  ],
+  "schedule": [
+    "at any time"
+  ],
+  "dependencyDashboard": false,
+  "labels": [
+    "dependencies",
+    "renovate"
+  ],
+  "ignorePresets": [
+    ":prHourlyLimit2"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "matchPackageNames": [
+        "e3-/data-utils"
+      ],
+      "enabled": true,
+      "schedule": [
+        "at any time"
+      ],
+      "description": "Allow Renovate to update this repo's private Python git dependencies"
+    }
+  ]
+}

@@ -3,12 +3,12 @@ import copy
 import pandas as pd
 import pytest
 
-from new_modeling_toolkit.core.model import ModelTemplate
-from new_modeling_toolkit.core.temporal import timeseries as ts
-from new_modeling_toolkit.system import Asset
-from new_modeling_toolkit.system import FuelStorage
-from new_modeling_toolkit.system.fuel.fuel_storage import FuelStorageGroup
-from new_modeling_toolkit.system.fuel.fuel_storage import StorageDurationConstraint
+from resolve.core.model import ModelTemplate
+from resolve.core.temporal import timeseries as ts
+from resolve.system import Asset
+from resolve.system import FuelStorage
+from resolve.system.fuel.fuel_storage import FuelStorageGroup
+from resolve.system.fuel.fuel_storage import StorageDurationConstraint
 from tests.system.fuel.test_fuel_production_plant import TestFuelProductionPlant
 from tests.system.fuel.test_fuel_production_plant import TestFuelProductionPlantGroup
 

@@ -1,0 +1,27 @@
+linkage,component_from,component_to
+CandidateFuelToFinalFuel,Grid Electricity,Electricity
+CandidateFuelToFinalFuel,Fossil Gasoline,Gasoline
+CandidateFuelToFinalFuel,Renewable Gasoline,Gasoline
+CandidateFuelToFinalFuel,Synthetic Gasoline,Gasoline
+CandidateFuelToFinalFuel,Fossil Natural Gas,Natural Gas
+CandidateFuelToFinalFuel,Renewable Natural Gas,Natural Gas
+CandidateFuelToFinalFuel,Synthetic Natural Gas,Natural Gas
+CandidateFuelToPollutant,Grid Electricity,CO2e
+CandidateFuelToPollutant,Fossil Gasoline,CO2
+CandidateFuelToPollutant,Renewable Gasoline,CO2
+CandidateFuelToPollutant,Synthetic Gasoline,CO2
+CandidateFuelToPollutant,Fossil Gasoline,CH4
+CandidateFuelToPollutant,Renewable Gasoline,CH4
+CandidateFuelToPollutant,Synthetic Gasoline,CH4
+CandidateFuelToPollutant,Fossil Gasoline,N2O
+CandidateFuelToPollutant,Renewable Gasoline,N2O
+CandidateFuelToPollutant,Synthetic Gasoline,N2O
+CandidateFuelToPollutant,Fossil Natural Gas,CO2
+CandidateFuelToPollutant,Renewable Natural Gas,CO2
+CandidateFuelToPollutant,Synthetic Natural Gas,CO2
+CandidateFuelToPollutant,Fossil Natural Gas,CH4
+CandidateFuelToPollutant,Renewable Natural Gas,CH4
+CandidateFuelToPollutant,Synthetic Natural Gas,CH4
+CandidateFuelToPollutant,Fossil Natural Gas,N2O
+CandidateFuelToPollutant,Renewable Natural Gas,N2O
+CandidateFuelToPollutant,Synthetic Natural Gas,N2O

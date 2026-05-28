@@ -1,15 +1,15 @@
 import pandas as pd
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.core.linkage import AnnualEnergyStandardContribution
-from new_modeling_toolkit.core.linkage import EmissionsContribution
-from new_modeling_toolkit.core.linkage import ReliabilityContribution
-from new_modeling_toolkit.core.linkage import ResourceToReserve
-from new_modeling_toolkit.core.linkage import ResourceToZone
-from new_modeling_toolkit.system.electric.reserve import Reserve
-from new_modeling_toolkit.system.electric.resources import GenericResource
-from new_modeling_toolkit.system.electric.resources.generic import GenericResourceGroup
+import resolve.core.temporal.timeseries as ts
+from resolve.core.linkage import AnnualEnergyStandardContribution
+from resolve.core.linkage import EmissionsContribution
+from resolve.core.linkage import ReliabilityContribution
+from resolve.core.linkage import ResourceToReserve
+from resolve.core.linkage import ResourceToZone
+from resolve.system.electric.reserve import Reserve
+from resolve.system.electric.resources import GenericResource
+from resolve.system.electric.resources.generic import GenericResourceGroup
 from tests.system import test_asset
 
 
@@ -311,25 +311,25 @@ class TestGenericResource(test_asset.TestAsset):
         modeled_year, dispatch_window_id, timestamp = first_index
 
         block.operational_capacity[modeled_year] = 200
+        power_output_min = block.power_output_min[modeled_year, dispatch_window_id, timestamp].expr()
 
         block.power_output[modeled_year, dispatch_window_id, timestamp].fix(120.0)
         block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(30.0)
-        assert (
-            block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].body()
-            == -90  # 30 - 120
-        )
+        assert block.total_down_reserves_max_constraint[
+            modeled_year, dispatch_window_id, timestamp
+        ].body() == pytest.approx(30.0 - (120.0 - power_output_min))
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].expr()
 
         block.power_output[modeled_year, dispatch_window_id, timestamp].fix(120.0)
         block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(150.0)
-        assert (
-            block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].body() == 30
-        )  # 150 - 120
+        assert block.total_down_reserves_max_constraint[
+            modeled_year, dispatch_window_id, timestamp
+        ].body() == pytest.approx(150.0 - (120.0 - power_output_min))
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
         assert not block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].expr()
 
-        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(0.0)
+        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(power_output_min)
         block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(0.0)
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].body() == 0
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
@@ -342,20 +342,22 @@ class TestGenericResource(test_asset.TestAsset):
         constraint_index_1 = year, model.WEATHER_YEARS.first()
 
         block.operational_capacity[year] = 100
+        annual_budget_limit = block.annual_energy_budget_MWh[constraint_index_1].expr() + 1
 
-        # fractional budget is equal to 750 MWh for 100 MW of capacity (plus one for tolerance)
-        # test that it passes if annual mwh is less than budget
+        # Test that it passes if annual MWh is less than the budget plus tolerance
         assert block.annual_energy_budget_constraint[constraint_index_1].body() == pytest.approx(
-            (2.5 * 0.6 * 365) - 751
+            block.power_output_annual[year].expr() - annual_budget_limit
         )
 
         assert block.annual_energy_budget_constraint[constraint_index_1].upper() == pytest.approx(0)
 
         assert block.annual_energy_budget_constraint[constraint_index_1].expr()
 
-        # test that it fails if annual mwh is less than budget
+        # Test that it fails if annual MWh exceeds the budget plus tolerance
         block.power_output[year, model.DISPATCH_WINDOWS_AND_TIMESTAMPS.nextw(first_index[1:], 2)].fix(5)
-        assert block.annual_energy_budget_constraint[constraint_index_1].body() == pytest.approx((6 * 0.6 * 365) - 751)
+        assert block.annual_energy_budget_constraint[constraint_index_1].body() == pytest.approx(
+            block.power_output_annual[year].expr() - annual_budget_limit
+        )
 
         assert block.annual_energy_budget_constraint[constraint_index_1].upper() == pytest.approx(0)
 
@@ -415,11 +417,17 @@ class TestGenericResource(test_asset.TestAsset):
         resource = make_component_with_block_copy()
         block = resource.formulation_block
         modeled_year, dispatch_window, timestamp = first_index
+        later_modeled_year = pd.Timestamp("2035-01-01 00:00")
+        later_index = (later_modeled_year, dispatch_window, timestamp)
 
-        assert resource.variable_cost_power_output.data.at[timestamp] == 5
+        assert resource.variable_cost_power_output.data.at[timestamp.replace(year=modeled_year.year)] == 5
+        assert resource.variable_cost_power_output.data.at[timestamp.replace(year=later_modeled_year.year)] == 10
 
         block.power_output[first_index].fix(50)
         assert block.power_output_variable_cost[first_index].expr() == 250
+
+        block.power_output[later_index].fix(50)
+        assert block.power_output_variable_cost[later_index].expr() == 500
 
     def test_production_tax_credit(self, make_component_with_block_copy, first_index):
         resource = make_component_with_block_copy()
@@ -452,8 +460,8 @@ class TestGenericResource(test_asset.TestAsset):
             pd.Timestamp("2045-01-01 00:00"),
         ]:
             assert block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0))
             )
 
         assert block.annual_total_operational_cost

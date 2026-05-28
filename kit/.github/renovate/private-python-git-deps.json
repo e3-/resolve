@@ -1,0 +1,47 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update private GitHub git-tag Python direct dependencies in pyproject.toml",
+      "managerFilePatterns": [
+        "/(^|/)pyproject\\.toml$/"
+      ],
+      "matchStrings": [
+        "\"(?<depName>[A-Za-z0-9_.-]+)(?<extras>\\[[^\\]]+\\])? @ git\\+https://github\\.com/(?<packageName>e3-/[A-Za-z0-9_.-]+)\\.git@(?<currentValue>v?\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "semver",
+      "autoReplaceStringTemplate": "\"{{{depName}}}{{{extras}}} @ git+https://github.com/{{{packageName}}}.git@{{{newValue}}}\""
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "matchPackageNames": [
+        "/^e3-\\/[A-Za-z0-9_.-]+$/"
+      ],
+      "groupName": "private Python git dependencies",
+      "semanticCommitType": "build",
+      "commitMessageTopic": "{{depName}}",
+      "commitMessageExtra": "to {{newVersion}}"
+    },
+    {
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "matchPackageNames": [
+        "/^e3-\\/[A-Za-z0-9_.-]+$/"
+      ],
+      "enabled": false
+    }
+  ]
+}

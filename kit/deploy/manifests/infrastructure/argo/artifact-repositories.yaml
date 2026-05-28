@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+
+metadata:
+  name: artifact-repositories
+
+  annotations:
+    workflows.argoproj.io/default-artifact-repository: default-artifact-repository
+
+data:
+  default-artifact-repository: |
+    s3:
+      bucket: ${E3_PROJECT_DATA_BUCKET}
+      endpoint: s3.amazonaws.com
+      keyFormat: "runs/{{workflow.parameters.run}}/logs/{{pod.name}}"
+      region: us-west-2
+      useSDKCreds: true

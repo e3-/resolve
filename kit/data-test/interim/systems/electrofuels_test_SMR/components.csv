@@ -1,0 +1,10 @@
+component,instance
+FuelConversionPlant,SMR
+FuelZone,CA_South
+FuelZone,CA_North
+FuelStorage,Hydrogen_Storage
+FuelTransportation,Hydrogen_Pipeline
+Zone,CAISO
+CandidateFuel,Hydrogen
+FinalFuel,Hydrogen_Demand
+CandidateFuel,Natural_Gas

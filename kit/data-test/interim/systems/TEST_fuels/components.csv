@@ -1,0 +1,19 @@
+component,instance
+CandidateFuel,Grid Electricity
+CandidateFuel,Fossil Gasoline
+CandidateFuel,Renewable Gasoline
+CandidateFuel,Synthetic Gasoline
+CandidateFuel,Fossil Natural Gas
+CandidateFuel,Renewable Natural Gas
+CandidateFuel,Synthetic Natural Gas
+Pollutant,CH4
+Pollutant,CO2
+Pollutant,CO2e
+FinalFuel,Electricity
+FinalFuel,Gasoline
+FinalFuel,Natural Gas
+Sector,Residential
+Sector,Commercial
+Sector,Transportation
+Sector,Industry
+Sector,Negative Emissions Technology

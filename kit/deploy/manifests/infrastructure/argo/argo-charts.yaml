@@ -1,0 +1,7 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: argo-charts
+spec:
+  interval: 60s
+  url: https://argoproj.github.io/argo-helm

@@ -1,13 +1,13 @@
 import pytest
 
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridSolarResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridSolarResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridStorageResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridStorageResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridVariableResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridVariableResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridWindResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridWindResourceGroup
+from resolve.system.electric.resources.hybrid import HybridSolarResource
+from resolve.system.electric.resources.hybrid import HybridSolarResourceGroup
+from resolve.system.electric.resources.hybrid import HybridStorageResource
+from resolve.system.electric.resources.hybrid import HybridStorageResourceGroup
+from resolve.system.electric.resources.hybrid import HybridVariableResource
+from resolve.system.electric.resources.hybrid import HybridVariableResourceGroup
+from resolve.system.electric.resources.hybrid import HybridWindResource
+from resolve.system.electric.resources.hybrid import HybridWindResourceGroup
 from tests.system.electric.resources import test_storage
 from tests.system.electric.resources import test_variable
 from tests.system.electric.resources.test_storage import TestStorageResourceGroup

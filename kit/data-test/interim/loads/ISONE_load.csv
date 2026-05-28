@@ -1,0 +1,6 @@
+timestamp,attribute,value,scenario
+1/1/2050 0:00,annual_energy_forecast,252832600,
+None,profile,./data-test/profiles/load_isone_sys2050.csv,
+None,scale_by_capacity,FALSE,
+None,scale_by_energy,TRUE,
+None,td_losses_adjustment,1,

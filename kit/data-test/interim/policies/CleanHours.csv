@@ -1,0 +1,4 @@
+timestamp,attribute,value
+2030-01-01 00:00:00,target,6000
+None,target_basis,hours
+None,target_units,absolute

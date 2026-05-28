@@ -1,0 +1,50 @@
+name: Run Test Suite
+
+on:
+  workflow_call:
+    inputs:
+      environment_file:
+        description: "Conda environment file to use"
+        required: false
+        default: environment-ci.yml
+        type: string
+
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest #note this is not the right size for recap or resolve test suites
+    env:
+      ENV_NAME: e3-ci
+    steps:
+      - name: Get Token
+        id: app_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ vars.GH_APPLICATION_ID }}
+          application_private_key: ${{ secrets.GH_APPLICATION_KEY }}
+          organization: ${{ github.repository_owner }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Configure git to use GH token for private deps
+        run: |
+          git config --global url."https://x-access-token:${{ steps.app_token.outputs.token }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Create NMT environment (Miniconda)
+        run: |
+          conda env create -q -f ${{ inputs.environment_file || 'environment-ci.yml' }} -n $ENV_NAME
+
+      - name: Run pytest
+        run: |
+          conda run -n $ENV_NAME --no-capture-output pytest -n logical tests/
+

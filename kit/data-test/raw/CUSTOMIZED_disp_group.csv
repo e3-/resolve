@@ -1,0 +1,14 @@
+resource,dispatch_group
+flex_load,FlexLoad
+gas_CT,Thermal
+gas_CCGT,Thermal
+nuclear,Nuclear
+solar,Solar
+solar_BTM,Solar
+wind,LBW
+offshore_wind,OSW
+hydro,Hydro
+shed_dr,DR
+storage_4hr,Storage
+storage_12hr,Storage
+storage_100hr,Storage

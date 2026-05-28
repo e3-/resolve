@@ -1,6 +1,6 @@
 import pytest
 
-from new_modeling_toolkit.system.electric.resources.variable.wind import WindResource
+from resolve.system.electric.resources.variable.wind import WindResource
 from tests.system.electric.resources import test_variable
 
 class TestWindResource(test_variable.TestVariableResource):

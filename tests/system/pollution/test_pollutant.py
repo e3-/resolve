@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from new_modeling_toolkit.core.temporal import timeseries as ts
-from new_modeling_toolkit.system import Pollutant
+from resolve.core.temporal import timeseries as ts
+from resolve.system import Pollutant
 from tests.system.component_test_template import ComponentTestTemplate
 from tests.system.generics.test_product import TestProduct
 

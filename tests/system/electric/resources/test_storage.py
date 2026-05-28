@@ -3,10 +3,10 @@ import copy
 import pandas as pd
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.system.electric.resources import StorageResource
-from new_modeling_toolkit.system.electric.resources.storage import StorageDurationConstraint
-from new_modeling_toolkit.system.electric.resources.storage import StorageResourceGroup
+import resolve.core.temporal.timeseries as ts
+from resolve.system.electric.resources import StorageResource
+from resolve.system.electric.resources.storage import StorageDurationConstraint
+from resolve.system.electric.resources.storage import StorageResourceGroup
 from tests.system.electric.resources import test_generic
 
 
@@ -942,12 +942,18 @@ class TestStorageResource(test_generic.TestGenericResource):
         resource = make_component_with_block_copy()
         block = resource.formulation_block
         modeled_year, dispatch_window, timestamp = first_index
+        later_modeled_year = pd.Timestamp("2035-01-01 00:00")
+        later_index = (later_modeled_year, dispatch_window, timestamp)
 
-        assert resource.variable_cost_power_input.data.at[timestamp] == 1
+        assert resource.variable_cost_power_input.data.at[timestamp.replace(year=modeled_year.year)] == 1
+        assert resource.variable_cost_power_input.data.at[timestamp.replace(year=later_modeled_year.year)] == 2
 
         block.power_output[first_index].fix(100)
         block.power_input[first_index].fix(50)
         assert block.power_input_variable_cost[first_index].expr() == 50
+
+        block.power_input[later_index].fix(50)
+        assert block.power_input_variable_cost[later_index].expr() == 100
 
     def test_annual_total_operational_cost(self, make_component_with_block_copy):
         resource = make_component_with_block_copy()
@@ -970,8 +976,8 @@ class TestStorageResource(test_generic.TestGenericResource):
             pd.Timestamp("2045-01-01 00:00"),
         ]:
             assert block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0) + 5 * (1 + 1 + 1))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0) + 5 * (1 + 1 + 1))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0) + 5 * (2 + 2 + 2))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0) + 5 * (2 + 2 + 2))
             )
 
         assert block.annual_total_operational_cost

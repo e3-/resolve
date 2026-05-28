@@ -1,7 +1,7 @@
 import pytest
 
-from new_modeling_toolkit.system.pollution.negative_emissions_technology import NegativeEmissionsTechnology
-from new_modeling_toolkit.system.pollution.negative_emissions_technology import NegativeEmissionsTechnologyGroup
+from resolve.system.pollution.negative_emissions_technology import NegativeEmissionsTechnology
+from resolve.system.pollution.negative_emissions_technology import NegativeEmissionsTechnologyGroup
 from tests.system.generics.test_plant import TestPlant
 from tests.system.generics.test_plant import TestPlantGroup
 

@@ -1,0 +1,218 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+
+metadata:
+  name: resolve
+  generateName: resolve-
+
+spec:
+  archiveLogs: true
+
+  entrypoint: resolve
+  serviceAccountName: argo-workflow
+
+  arguments:
+    parameters:
+      - name: project
+        value: ${E3_PROJECT}
+      - name: bucket
+        value: ${E3_PROJECT_DATA_BUCKET}
+
+      - name: owner
+
+      - name: data
+      - name: run
+
+      - name: cases
+
+      - name: extras
+        value: ''
+      - name: raw
+        value: 'false'
+      - name: solver
+        value: cbc
+
+  activeDeadlineSeconds: 172800 # 48h
+  ttlStrategy:
+    secondsAfterSuccess: 259200 # 72h
+    secondsAfterFailure: 864000 # 10d
+
+  nodeSelector:
+    kubernetes.io/arch: amd64
+    enkap/function: workload-node
+
+  podGC:
+    strategy: OnPodSuccess
+
+  podMetadata:
+    labels:
+      app.kubernetes.io/name: resolve
+      app.kubernetes.io/instance: "{{workflow.name}}"
+      app.kubernetes.io/part-of: nmt
+      app.kubernetes.io/managed-by: argo-workflows
+
+      beta.ethree.com/project: "{{workflow.parameters.project}}"
+      beta.ethree.com/owner: "{{workflow.parameters.owner}}"
+
+      beta.nmt.ethree.com/model: resolve
+      beta.nmt.ethree.com/run: "{{workflow.parameters.run}}"
+
+  workflowMetadata:
+    labels:
+      app.kubernetes.io/name: resolve
+      app.kubernetes.io/part-of: nmt
+
+  templates:
+    - name: resolve
+      steps:
+        - - name: sync-shared-profiles
+            template: s3-cp
+            arguments:
+              parameters:
+                - name: source
+                  value: "s3://{{workflow.parameters.bucket}}/inputs/data/profiles"
+                - name: target
+                  value: "s3://{{workflow.parameters.bucket}}/runs/{{workflow.parameters.run}}/inputs/{{workflow.parameters.data}}/profiles"
+
+        - - name: run-batch
+            template: run-case
+            arguments:
+              parameters:
+                - name: case
+                  value: "{{item}}"
+            withParam: "{{workflow.parameters.cases}}"
+
+    - name: s3-cp
+      inputs:
+        parameters:
+          - name: source
+          - name: target
+      activeDeadlineSeconds: 1800
+      container:
+        image: public.ecr.aws/aws-cli/aws-cli
+
+        args:
+          - s3
+          - cp
+          - --no-progress
+          - --recursive
+          - "{{inputs.parameters.source}}"
+          - "{{inputs.parameters.target}}"
+
+        resources:
+          limits:
+            cpu: 300m
+            memory: 192Mi
+          requests:
+            cpu: 200m
+            memory: 144Mi
+
+    - name: run-case
+      inputs:
+        parameters:
+          - name: case
+
+      metadata:
+        labels:
+          beta.nmt.ethree.com/case: "{{inputs.parameters.case}}"
+
+      activeDeadlineSeconds: 86400 # 24h
+
+      containerSet:
+        containers:
+          - name: sync-inputs
+            image: public.ecr.aws/aws-cli/aws-cli
+            args:
+              - s3
+              - cp
+              - --no-progress
+              - --recursive
+              - --exclude='settings/*'
+              - --exclude='settings/resolve/{{inputs.parameters.case}}/*'
+              - "s3://{{workflow.parameters.bucket}}/runs/{{workflow.parameters.run}}/inputs/{{workflow.parameters.data}}"
+              - "/opt/e3/nmt/{{workflow.parameters.data}}/"
+            resources:
+              limits:
+                cpu: 300m
+                memory: 512Mi
+              requests:
+                cpu: 200m
+                memory: 256Mi
+
+          - name: main
+            image: 876451484466.dkr.ecr.us-west-2.amazonaws.com/e3/nmt:main
+            imagePullPolicy: Always
+            command: ["conda", "run", "-n", "nmt", "--no-capture-output", "nmt"]
+            args:
+              - resolve
+              - --log-json
+              - "--data-folder={{workflow.parameters.data}}"
+              - "--extras={{workflow.parameters.extras}}"
+              - "{{=sprig.lower(workflow.parameters.raw) in ['true', 'yes'] ? '--raw-results' : '--no-raw-results'}}"
+              - "--solver-name={{workflow.parameters.solver}}"
+              - "{{inputs.parameters.case}}"
+            dependencies:
+              - sync-inputs
+            continueOn:
+              failed: true
+            resources:
+              limits:
+                cpu: 2000m
+                memory: 120Gi
+              requests:
+                cpu: 2000m
+                memory: 120Gi
+            volumeMounts:
+              - name: gurobi
+                mountPath: /opt/gurobi/
+
+          - name: sync-run-outputs
+            image: public.ecr.aws/aws-cli/aws-cli
+            args:
+              - s3
+              - cp
+              - --no-progress
+              - --recursive
+              - "/opt/e3/nmt/reports"
+              - "s3://{{workflow.parameters.bucket}}/runs/{{workflow.parameters.run}}/outputs/reports"
+            dependencies:
+              - main
+            resources:
+              limits:
+                cpu: 300m
+                memory: 192Mi
+              requests:
+                cpu: 200m
+                memory: 144Mi
+
+        volumeMounts:
+          - mountPath: "/opt/e3/nmt/{{workflow.parameters.data}}"
+            name: inputs
+          - mountPath: "/opt/e3/nmt/reports"
+            name: outputs
+
+      outputs:
+        artifacts:
+          - name: "reports"
+            archive:
+              zip: {}
+            path: "/opt/e3/nmt/reports"
+            s3:
+              key: "runs/{{workflow.parameters.run}}/reports/{{workflow.parameters.project}}.{{workflow.parameters.run}}.{{inputs.parameters.case}}.reports.zip"
+
+      # synchronization:
+      #   semaphore:
+      #     configMapKeyRef:
+      #       name: resolve
+      #       key: parallel-execution-limit
+
+      volumes:
+        - name: inputs
+          emptyDir:
+            sizeLimit: 20Gi
+        - name: outputs
+          emptyDir:
+            sizeLimit: 20Gi
+        - name: gurobi
+          secret:
+            secretName: gurobi

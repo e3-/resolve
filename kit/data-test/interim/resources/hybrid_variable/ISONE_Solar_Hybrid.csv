@@ -1,0 +1,6 @@
+timestamp,attribute,value,scenario
+None,mean_time_to_repair,0,
+1/1/2050 0:00,planned_installed_capacity,5000,
+None,provide_power_potential_profile,.\data-test\profiles\MA_Utility_solar.csv,
+None,random_seed,3,
+1/1/2020 0:00,stochastic_outage_rate,0,

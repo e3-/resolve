@@ -2,8 +2,8 @@ import copy
 
 import pytest
 
-from new_modeling_toolkit.system import Electricity
-from new_modeling_toolkit.system.electric.zone import Zone
+from resolve.system import Electricity
+from resolve.system.electric.zone import Zone
 from tests.system.component_test_template import ComponentTestTemplate
 
 

@@ -1,0 +1,127 @@
+name: Build Anyscale Image
+
+on:
+  workflow_call:
+    inputs:
+      model:
+        description: "Which image to publish (recap or resolve)"
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  image-build:
+    name: Build Image(s)
+    runs-on: ubuntu-latest
+    steps:
+
+      # We need to put this first, before actions/checkout
+      - name: Get git sha
+        id: get-git-sha
+        env:
+          # I don't know why 'after' is needed here instead of 'sha' but it emprically works
+          GIT_SHA: ${{ github.event.after }}
+        run: |
+          echo "git_sha=$GIT_SHA"
+          echo "git_sha=$GIT_SHA" >> $GITHUB_OUTPUT
+
+      - name: Get Token
+        id: app_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ secrets.GH_APPLICATION_ID }}
+          application_private_key: ${{ secrets.GH_APPLICATION_KEY }}
+          organization: ${{ github.repository_owner }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::876451484466:role/e3x/github-actions/e3x-github-actions-default
+          # All of Anyscale's AWS resources are in us-east-1
+          aws-region: us-east-1
+
+      - id: login-ecr
+        name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - id: workspace
+        name: Compute name of the Workspace
+        env:
+          _REF: "${{ github.head_ref || github.ref_name }}"
+        run:
+          echo name=${_REF//\//-} >> $GITHUB_OUTPUT
+
+      - name: Determine tag
+        id: determine-tag
+        env:
+          EVENT_REF: ${{ github.event.ref }}
+        run: |
+          echo "event name = ${{ github.event_name }}"
+          echo "event ref  = $EVENT_REF"
+          echo "event action = ${{ github.event.action }}"
+          echo "event base ref = ${{ github.event.base_ref }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            TAG=$(echo "${{ github.head_ref }}" | sed 's/anyscale\///' | sed 's/enkap\///' | tr / -)
+          elif [ "${{ github.event_name }}" = "push" ] && [[ "$EVENT_REF" == refs/heads/* ]] && [[ "$EVENT_REF" == *anyscale* ]]; then
+            TAG=$(echo "$EVENT_REF" | sed 's/refs\/heads\/anyscale\///' | tr / -)
+          elif [ "${{ github.event_name }}" = "push" ] && [[ "$EVENT_REF" == refs/heads/* ]] && [[ "$EVENT_REF" == *enkap* ]]; then
+            TAG=$(echo "$EVENT_REF" | sed 's/refs\/heads\/enkap\///' | tr / -)
+          elif [ "${{ github.event_name }}" = "push" ] && [[ "$EVENT_REF" == refs/heads/main ]]; then
+            TAG=main
+          elif [ "${{ github.event_name }}" = "push" ] && [[ "$EVENT_REF" == refs/tags/* ]]; then
+            TAG=$(echo "$EVENT_REF" | sed 's/refs\/tags\///' | tr / -)
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG=$(echo "$EVENT_REF" | sed 's/refs\/heads\///' | tr / -)
+          else
+            echo "Unsupported event type or ref for tagging the image."
+            exit 1
+          fi
+          TAG="${TAG}-anyscale"
+          echo $TAG
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - id: model
+        name: Determine model (recap/resolve)
+        run: |
+          MODEL="${{ inputs.model || github.event.inputs.model }}"
+          echo "model=$MODEL" >> $GITHUB_OUTPUT
+
+      - id: git-origin-url
+        name: Get Git origin URL
+        run: |
+          ORIGIN_URL=$(git remote get-url origin)
+          echo "origin_url=$ORIGIN_URL"
+          echo "origin_url=$ORIGIN_URL" >> $GITHUB_OUTPUT
+
+      - id: current-time
+        name: Get current time
+        run: |
+          CURRENT_TIME=$(date -Iseconds)
+          echo "build_time=$CURRENT_TIME" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          file: docker/Dockerfile
+          platforms: linux/amd64
+          tags: "${{ steps.login-ecr.outputs.registry }}/e3/${{ steps.model.outputs.model }}:${{ steps.determine-tag.outputs.tag }}"
+          secrets: |
+            DATADOG_API_KEY_ANYSCALE=${{ secrets.DATADOG_API_KEY_ANYSCALE }}
+            GIT_AUTH_TOKEN=${{ steps.app_token.outputs.token }}
+          build-args: |
+            BUILD_DATE=${{ steps.current-time.outputs.build_time }}
+            GIT_REF=${{ steps.get-git-sha.outputs.git_sha }}
+            GIT_URL=${{ steps.git-origin-url.outputs.origin_url }}

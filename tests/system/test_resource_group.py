@@ -396,7 +396,7 @@ class TestResourceGroup:
         )
 
         load_calendar = pd.Series(
-            index=pd.date_range(start="2010-01-01 00:00", end="2010-12-31 23:00", freq="H"), data=1
+            index=pd.date_range(start="2010-01-01 00:00", end="2010-12-31 23:00", freq="h"), data=1
         )
         modeled_year = 2030
         day_window_variable_draws = 15

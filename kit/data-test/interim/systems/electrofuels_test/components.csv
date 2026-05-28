@@ -1,0 +1,10 @@
+component,instance
+Electrolyzer,Electrolyzer_1
+FuelZone,CA_South
+FuelZone,CA_North
+FuelStorage,Hydrogen_Storage
+FuelTransportation,Hydrogen_Pipeline
+Zone,CAISO
+Resource,Electrofuels_Wind
+CandidateFuel,Hydrogen
+FinalFuel,Hydrogen_Demand

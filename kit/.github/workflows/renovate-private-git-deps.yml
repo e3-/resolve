@@ -1,0 +1,82 @@
+name: Renovate for Private Dependencies
+
+on:
+  workflow_call:
+    inputs:
+      app-id:
+        description: "GitHub App ID used to mint the Renovate token"
+        required: false
+        type: string
+      configuration-file:
+        description: "Renovate configuration file to run"
+        required: false
+        default: renovate.json
+        type: string
+      log-level:
+        description: "Renovate log level"
+        required: false
+        default: debug
+        type: string
+    secrets:
+      app_private_key:
+        description: "GitHub App private key used to mint the Renovate token"
+        required: false
+
+  workflow_dispatch:
+    inputs:
+      app-id:
+        description: "GitHub App ID used to mint the Renovate token"
+        required: false
+        type: string
+      configuration-file:
+        description: "Renovate configuration file to run"
+        required: false
+        default: renovate.json
+        type: string
+      log-level:
+        description: "Renovate log level"
+        required: false
+        default: debug
+        type: string
+  schedule:
+    - cron: "0 13 * * 1"
+
+permissions:
+  contents: read
+
+env:
+  # peter-murray/workflow-application-token-action@v4 still declares Node.js 20;
+  # opt into Node.js 24 now to avoid GitHub Actions deprecation warnings.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: renovate-private-git-deps-${{ github.repository }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout config
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+      - name: Get GitHub App token
+        id: app_token
+        uses: peter-murray/workflow-application-token-action@v4
+        with:
+          application_id: ${{ inputs.app-id || vars.GH_APPLICATION_ID_RENOVATE }}
+          application_private_key: ${{ secrets.app_private_key || secrets.GH_APPLICATION_KEY_RENOVATE }}
+          organization: ${{ github.repository_owner }}
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@v46.1.14
+        with:
+          configurationFile: ${{ inputs.configuration-file || 'renovate.json' }}
+          token: ${{ steps.app_token.outputs.token }}
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          RENOVATE_PLATFORM: github
+          RENOVATE_ONBOARDING: "false"
+          LOG_LEVEL: ${{ inputs.log-level || 'debug' }}
+          RENOVATE_RECREATE_WHEN: always

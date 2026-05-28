@@ -1,7 +1,7 @@
 import pytest
 
-from new_modeling_toolkit.system.fuel.fuel_production_plant import FuelProductionPlant
-from new_modeling_toolkit.system.fuel.fuel_production_plant import FuelProductionPlantGroup
+from resolve.system.fuel.fuel_production_plant import FuelProductionPlant
+from resolve.system.fuel.fuel_production_plant import FuelProductionPlantGroup
 from tests.system.generics.test_plant import TestPlant
 from tests.system.generics.test_plant import TestPlantGroup
 

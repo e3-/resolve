@@ -1,0 +1,5 @@
+timestamp,attribute,value,scenario
+None,mean_time_to_repair,0,
+1/1/2030 0:00,planned_installed_capacity,100,
+None,provide_power_potential_profile,.\data-test\profiles\CA_Wind_for_CA.csv,
+None,random_seed,4,

@@ -1,4 +1,4 @@
-from new_modeling_toolkit.system.fuel.electrolyzer import Electrolyzer
+from resolve.system.fuel.electrolyzer import Electrolyzer
 from tests.system.fuel.test_fuel_production_plant import TestFuelProductionPlant
 from tests.system.fuel.test_fuel_production_plant import TestFuelProductionPlantGroup
 

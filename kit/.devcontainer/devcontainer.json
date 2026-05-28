@@ -1,0 +1,38 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.187.0/containers/kubernetes-helm-minikube
+{
+    "build": {
+        "context": "..",
+        "dockerfile": "Dockerfile"
+    },
+    // Add the IDs of extensions you want installed when the container is created.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "/opt/conda/envs/kit-dev/bin/python"
+			},
+            "extensions": [
+                "ms-azuretools.vscode-docker",
+                "mhutchie.git-graph",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.isort",
+                "ms-python.pylint",
+                "ms-python.mypy-type-checker",
+                "ms-python.flake8",
+                "ms-toolsai.jupyter"
+            ]
+        }
+    },
+	"remoteEnv": {
+		"DOCKER_CONFIG": "/home/vscode/.docker"
+	},
+    // Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "bash .devcontainer/scripts/post_create.sh",
+    "onCreateCommand": "bash .devcontainer/scripts/on_create.sh",
+    "postAttachCommand": "bash .devcontainer/scripts/post_attach.sh",
+
+    "remoteUser": "vscode",
+    "features": {}
+}
