@@ -92,15 +92,23 @@ jobs:
 
       - name: Extract CHANGELOG additions
         env:
-          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ steps.release.outputs.pr_number }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
           VERSION: ${{ steps.release.outputs.version }}
         run: |
           set -euo pipefail
 
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" --paginate \
-            --jq '.[] | select(.filename == "CHANGELOG.md") | .patch // empty' \
-            > changelog.patch
+          if ! git rev-parse -q --verify "${TARGET_SHA}^{commit}" > /dev/null; then
+            echo "::error::Could not find release commit ${TARGET_SHA} in the local checkout."
+            exit 1
+          fi
+
+          if ! git rev-parse -q --verify "${TARGET_SHA}^1" > /dev/null; then
+            echo "::error::Release commit ${TARGET_SHA} does not have a first parent to diff against."
+            exit 1
+          fi
+
+          git diff --unified=0 "${TARGET_SHA}^1" "${TARGET_SHA}" -- CHANGELOG.md > changelog.patch
 
           if [[ ! -s changelog.patch ]]; then
             echo "::error::CHANGELOG.md was not changed by PR #${PR_NUMBER}."
