@@ -1,0 +1,163 @@
+name: Release on sync PR
+
+on:
+  pull_request:
+    types:
+      - closed
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Merged "Release:" PR number to publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true && startsWith(github.event.pull_request.title, 'Release:')) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Resolve release inputs
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER_INPUT: ${{ github.event.inputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            PR_NUMBER="${PR_NUMBER_INPUT}"
+
+            if [[ -z "${PR_NUMBER}" ]]; then
+              echo "::error::pr_number is required for manual releases."
+              exit 1
+            fi
+
+            mapfile -t PR_DATA < <(
+              gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" \
+                --jq '.title, (.merged | tostring), (.merge_commit_sha // "")'
+            )
+
+            PR_TITLE="${PR_DATA[0]}"
+            PR_MERGED="${PR_DATA[1]}"
+            TARGET_SHA="${PR_DATA[2]}"
+          else
+            PR_NUMBER="$(jq -r '.pull_request.number' "${GITHUB_EVENT_PATH}")"
+            PR_TITLE="$(jq -r '.pull_request.title' "${GITHUB_EVENT_PATH}")"
+            PR_MERGED="$(jq -r '.pull_request.merged' "${GITHUB_EVENT_PATH}")"
+            TARGET_SHA="$(jq -r '.pull_request.merge_commit_sha // empty' "${GITHUB_EVENT_PATH}")"
+          fi
+
+          if [[ "${PR_MERGED}" != "true" ]]; then
+            echo "::error::PR #${PR_NUMBER} has not been merged."
+            exit 1
+          fi
+
+          if [[ "${PR_TITLE}" != Release:* ]]; then
+            echo "::error::PR #${PR_NUMBER} title must start with 'Release:'. Found: ${PR_TITLE}"
+            exit 1
+          fi
+
+          if [[ -z "${TARGET_SHA}" ]]; then
+            echo "::error::Could not determine the merge commit SHA for PR #${PR_NUMBER}."
+            exit 1
+          fi
+
+          if [[ "${PR_TITLE}" =~ (^|[[:space:]])v?([0-9]+[.][0-9]+[.][0-9]+([-.+][0-9A-Za-z][0-9A-Za-z.-]*)?)($|[[:space:]]) ]]; then
+            VERSION="${BASH_REMATCH[2]}"
+          else
+            echo "::error::Could not find a version like v4.4.0 in PR title: ${PR_TITLE}"
+            exit 1
+          fi
+
+          TAG="v${VERSION}"
+
+          {
+            echo "pr_number=${PR_NUMBER}"
+            echo "target_sha=${TARGET_SHA}"
+            echo "version=${VERSION}"
+            echo "tag=${TAG}"
+          } >> "${GITHUB_OUTPUT}"
+
+      - name: Extract CHANGELOG additions
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.release.outputs.pr_number }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" --paginate \
+            --jq '.[] | select(.filename == "CHANGELOG.md") | .patch // empty' \
+            > changelog.patch
+
+          if [[ ! -s changelog.patch ]]; then
+            echo "::error::CHANGELOG.md was not changed by PR #${PR_NUMBER}."
+            exit 1
+          fi
+
+          awk '
+            /^@@ / {
+              in_hunk = 1
+              next
+            }
+            in_hunk && /^\+/ && !/^\+\+\+ / {
+              sub(/^\+/, "")
+              print
+            }
+          ' changelog.patch > release-notes.md
+
+          if ! grep -q '[^[:space:]]' release-notes.md; then
+            echo "::error::No added CHANGELOG.md lines were found for PR #${PR_NUMBER}."
+            exit 1
+          fi
+
+          if ! grep -Fq "## ${VERSION}" release-notes.md && ! grep -Fq "## v${VERSION}" release-notes.md; then
+            echo "::error::The CHANGELOG.md additions do not include a heading for ${VERSION}."
+            echo "Release notes found:"
+            cat release-notes.md
+            exit 1
+          fi
+
+          cat release-notes.md
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+
+          git fetch --tags --force
+
+          if git rev-parse -q --verify "refs/tags/${TAG}" > /dev/null; then
+            TAG_TARGET="$(git rev-list -n 1 "${TAG}")"
+
+            if [[ "${TAG_TARGET}" != "${TARGET_SHA}" ]]; then
+              echo "::error::Tag ${TAG} already exists at ${TAG_TARGET}, not ${TARGET_SHA}."
+              exit 1
+            fi
+          fi
+
+          if gh release view "${TAG}" > /dev/null 2>&1; then
+            gh release edit "${TAG}" \
+              --title "${TAG}" \
+              --notes-file release-notes.md
+          else
+            gh release create "${TAG}" \
+              --target "${TARGET_SHA}" \
+              --title "${TAG}" \
+              --notes-file release-notes.md
+          fi
