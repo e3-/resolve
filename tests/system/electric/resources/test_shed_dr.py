@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 from pyomo.environ import value
 
-from new_modeling_toolkit.system.electric.resources.shed_dr import ShedDrResource
+from resolve.system.electric.resources.shed_dr import ShedDrResource
 from tests.system.electric.resources import test_unit_commitment
 from tests.system.electric.resources.test_thermal import TestThermalResourceUnitCommitmentSingleUnit
 

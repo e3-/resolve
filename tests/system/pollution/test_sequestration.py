@@ -1,8 +1,8 @@
 import pytest
 
-from new_modeling_toolkit.system.generics.process import SequestrationProcess
-from new_modeling_toolkit.system.pollution.sequestration import Sequestration
-from new_modeling_toolkit.system.pollution.sequestration import SequestrationGroup
+from resolve.system.generics.process import SequestrationProcess
+from resolve.system.pollution.sequestration import Sequestration
+from resolve.system.pollution.sequestration import SequestrationGroup
 from tests.system.generics.test_plant import TestPlant
 from tests.system.generics.test_plant import TestPlantGroup
 

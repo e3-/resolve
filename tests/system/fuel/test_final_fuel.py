@@ -2,8 +2,8 @@ import copy
 
 import pytest
 
-from new_modeling_toolkit.system import System
-from new_modeling_toolkit.system.fuel.candidate_fuel import CandidateFuel
+from resolve.system import System
+from resolve.system.fuel.candidate_fuel import CandidateFuel
 from tests.system.component_test_template import ComponentTestTemplate
 
 

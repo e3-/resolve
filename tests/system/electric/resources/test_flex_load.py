@@ -1,9 +1,9 @@
 import pandas as pd
 import pytest
 
-from new_modeling_toolkit.core.temporal.settings import DispatchWindowEdgeEffects
-from new_modeling_toolkit.system.electric.resources.flex_load import FlexLoadResource
-from new_modeling_toolkit.system.electric.resources.flex_load import FlexLoadResourceGroup
+from resolve.core.temporal.settings import DispatchWindowEdgeEffects
+from resolve.system.electric.resources.flex_load import FlexLoadResource
+from resolve.system.electric.resources.flex_load import FlexLoadResourceGroup
 from tests.system.electric.resources import test_shed_dr
 from tests.system.electric.resources import test_storage
 from tests.system.electric.resources import test_unit_commitment

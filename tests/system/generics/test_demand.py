@@ -3,8 +3,8 @@ import copy
 import pandas as pd
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.system import Demand
+import resolve.core.temporal.timeseries as ts
+from resolve.system import Demand
 from tests.system.component_test_template import ComponentTestTemplate
 
 

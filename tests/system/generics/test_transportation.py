@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from new_modeling_toolkit.system.generics.transportation import Transportation
+from resolve.system.generics.transportation import Transportation
 from tests.system.test_asset import TestAsset
 
 

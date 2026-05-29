@@ -1,5 +1,5 @@
-from new_modeling_toolkit.system.electric.tx_path import TxPath
-from new_modeling_toolkit.system.electric.tx_path import TxPathGroup
+from resolve.system.electric.tx_path import TxPath
+from resolve.system.electric.tx_path import TxPathGroup
 from tests.system import test_asset
 
 

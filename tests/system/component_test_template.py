@@ -3,8 +3,8 @@ from typing import Type
 
 import pytest
 
-from new_modeling_toolkit.core.component import Component
-from new_modeling_toolkit.core.model import ModelTemplate
+from resolve.core.component import Component
+from resolve.core.model import ModelTemplate
 
 
 class ComponentTestTemplate:

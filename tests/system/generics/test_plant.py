@@ -4,11 +4,11 @@ import pandas as pd
 import pyomo.environ as pyo
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.system.generics.generic_linkages import FromZoneToPlant
-from new_modeling_toolkit.system.generics.plant import Plant
-from new_modeling_toolkit.system.generics.plant import PlantGroup
-from new_modeling_toolkit.system.generics.process import Process
+import resolve.core.temporal.timeseries as ts
+from resolve.system.generics.generic_linkages import FromZoneToPlant
+from resolve.system.generics.plant import Plant
+from resolve.system.generics.plant import PlantGroup
+from resolve.system.generics.process import Process
 from tests.system.test_asset import TestAsset
 from tests.system.test_asset import TestAssetGroup
 

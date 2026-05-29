@@ -5,113 +5,112 @@ import pandas as pd
 import pyomo.environ as pyo
 import pytest
 
-import new_modeling_toolkit.core.temporal.timeseries as ts
-from new_modeling_toolkit.core.component import Component
-from new_modeling_toolkit.core.custom_constraint import CustomConstraintLHS
-from new_modeling_toolkit.core.custom_constraint import CustomConstraintRHS
-from new_modeling_toolkit.core.linkage import AllToPolicy
-from new_modeling_toolkit.core.linkage import AnnualEnergyStandardContribution
-from new_modeling_toolkit.core.linkage import AssetToAssetGroup
-from new_modeling_toolkit.core.linkage import AssetToELCC
-from new_modeling_toolkit.core.linkage import AssetToZone
-from new_modeling_toolkit.core.linkage import CandidateFuelToResource
-from new_modeling_toolkit.core.linkage import ELCCFacetToSurface
-from new_modeling_toolkit.core.linkage import ERMContribution
-from new_modeling_toolkit.core.linkage import HybridStorageResourceToHybridVariableResource
-from new_modeling_toolkit.core.linkage import LoadToReserve
-from new_modeling_toolkit.core.linkage import LoadToZone
-from new_modeling_toolkit.core.linkage import ReserveToZone
-from new_modeling_toolkit.core.linkage import ResourceToReserve
-from new_modeling_toolkit.core.linkage import ResourceToZone
-from new_modeling_toolkit.core.linkage import ZoneToTransmissionPath
-from new_modeling_toolkit.core.model import ModelTemplate
-from new_modeling_toolkit.core.temporal.settings import DispatchWindowEdgeEffects
-from new_modeling_toolkit.core.temporal.settings import TemporalSettings
-from new_modeling_toolkit.core.three_way_linkage import CustomConstraintLinkage
-from new_modeling_toolkit.core.utils.pyomo_utils import convert_pyomo_object_to_dataframe
-from new_modeling_toolkit.core.utils.util import DirStructure
-from new_modeling_toolkit.resolve.model_formulation import ResolveModel
-from new_modeling_toolkit.system import GenericResourceGroup
-from new_modeling_toolkit.system import Pollutant
-from new_modeling_toolkit.system import System
-from new_modeling_toolkit.system.asset import Asset
-from new_modeling_toolkit.system.asset import AssetGroup
-from new_modeling_toolkit.system.electric.elcc import ELCCFacet
-from new_modeling_toolkit.system.electric.elcc import ELCCSurface
-from new_modeling_toolkit.system.electric.load_component import Load
-from new_modeling_toolkit.system.electric.reserve import Reserve
-from new_modeling_toolkit.system.electric.reserve import ReserveDirection
-from new_modeling_toolkit.system.electric.resources import GenericResource
-from new_modeling_toolkit.system.electric.resources import ThermalResource
-from new_modeling_toolkit.system.electric.resources.flex_load import FlexLoadResource
-from new_modeling_toolkit.system.electric.resources.flex_load import FlexLoadResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridSolarResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridSolarResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridStorageResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridStorageResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridVariableResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridVariableResourceGroup
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridWindResource
-from new_modeling_toolkit.system.electric.resources.hybrid import HybridWindResourceGroup
-from new_modeling_toolkit.system.electric.resources.hydro import HydroResource
-from new_modeling_toolkit.system.electric.resources.hydro import HydroResourceGroup
-from new_modeling_toolkit.system.electric.resources.shed_dr import ShedDrResource
-from new_modeling_toolkit.system.electric.resources.shed_dr import ShedDrResourceGroup
-from new_modeling_toolkit.system.electric.resources.storage import StorageDurationConstraint
-from new_modeling_toolkit.system.electric.resources.storage import StorageResource
-from new_modeling_toolkit.system.electric.resources.storage import StorageResourceGroup
-from new_modeling_toolkit.system.electric.resources.thermal import ThermalResourceGroup
-from new_modeling_toolkit.system.electric.resources.thermal import ThermalUnitCommitmentResource
-from new_modeling_toolkit.system.electric.resources.variable.solar import SolarResource
-from new_modeling_toolkit.system.electric.resources.variable.solar import SolarResourceGroup
-from new_modeling_toolkit.system.electric.resources.variable.wind import WindResource
-from new_modeling_toolkit.system.electric.resources.variable.wind import WindResourceGroup
-from new_modeling_toolkit.system.electric.tx_path import TxPath
-from new_modeling_toolkit.system.electric.tx_path import TxPathGroup
-from new_modeling_toolkit.system.electric.zone import Zone
-from new_modeling_toolkit.system.fuel.candidate_fuel import CandidateFuel
-from new_modeling_toolkit.system.fuel.electrolyzer import Electrolyzer
-from new_modeling_toolkit.system.fuel.electrolyzer import ElectrolyzerGroup
-from new_modeling_toolkit.system.fuel.fuel_production_plant import FuelProductionPlant
-from new_modeling_toolkit.system.fuel.fuel_production_plant import FuelProductionPlantGroup
-from new_modeling_toolkit.system.fuel.fuel_storage import FuelStorage
-from new_modeling_toolkit.system.fuel.fuel_storage import FuelStorageGroup
-from new_modeling_toolkit.system.generics.demand import Demand
-from new_modeling_toolkit.system.generics.energy import _EnergyCarrier
-from new_modeling_toolkit.system.generics.energy import Electricity
-from new_modeling_toolkit.system.generics.energy import EnergyDemand
-from new_modeling_toolkit.system.generics.generic_linkages import DemandToProduct
-from new_modeling_toolkit.system.generics.generic_linkages import FromZoneToDemand
-from new_modeling_toolkit.system.generics.generic_linkages import FromZoneToFuelProductionPlant
-from new_modeling_toolkit.system.generics.generic_linkages import FromZoneToFuelStorage
-from new_modeling_toolkit.system.generics.generic_linkages import FromZoneToPlant
-from new_modeling_toolkit.system.generics.generic_linkages import FromZoneToTransportation
-from new_modeling_toolkit.system.generics.generic_linkages import ProductToTransportation
-from new_modeling_toolkit.system.generics.generic_linkages import ToZoneToDemand
-from new_modeling_toolkit.system.generics.generic_linkages import ToZoneToFuelProductionPlant
-from new_modeling_toolkit.system.generics.generic_linkages import ToZoneToFuelStorage
-from new_modeling_toolkit.system.generics.generic_linkages import ToZoneToPlant
-from new_modeling_toolkit.system.generics.generic_linkages import ToZoneToTransportation
-from new_modeling_toolkit.system.generics.generic_linkages import ZoneToProduct
-from new_modeling_toolkit.system.generics.plant import Plant
-from new_modeling_toolkit.system.generics.plant import PlantGroup
-from new_modeling_toolkit.system.generics.process import ChargeProcess
-from new_modeling_toolkit.system.generics.process import Process
-from new_modeling_toolkit.system.generics.process import SequestrationProcess
-from new_modeling_toolkit.system.generics.product import Product
-from new_modeling_toolkit.system.generics.transportation import Transportation
-from new_modeling_toolkit.system.policy import AnnualEmissionsPolicy
-from new_modeling_toolkit.system.policy import AnnualEnergyStandard
-from new_modeling_toolkit.system.policy import EnergyReserveMargin
-from new_modeling_toolkit.system.policy import HourlyEnergyStandard
-from new_modeling_toolkit.system.policy import PlanningReserveMargin
-from new_modeling_toolkit.system.pollution.negative_emissions_technology import NegativeEmissionsTechnology
-from new_modeling_toolkit.system.pollution.negative_emissions_technology import NegativeEmissionsTechnologyGroup
-from new_modeling_toolkit.system.pollution.sequestration import Sequestration
-from new_modeling_toolkit.system.pollution.sequestration import SequestrationGroup
+import resolve.core.temporal.timeseries as ts
+from resolve.core.component import Component
+from resolve.core.custom_constraint import CustomConstraintLHS
+from resolve.core.custom_constraint import CustomConstraintRHS
+from resolve.core.linkage import AllToPolicy
+from resolve.core.linkage import AnnualEnergyStandardContribution
+from resolve.core.linkage import AssetToAssetGroup
+from resolve.core.linkage import AssetToELCC
+from resolve.core.linkage import AssetToZone
+from resolve.core.linkage import CandidateFuelToResource
+from resolve.core.linkage import ELCCFacetToSurface
+from resolve.core.linkage import ERMContribution
+from resolve.core.linkage import HybridStorageResourceToHybridVariableResource
+from resolve.core.linkage import LoadToReserve
+from resolve.core.linkage import LoadToZone
+from resolve.core.linkage import ReserveToZone
+from resolve.core.linkage import ResourceToReserve
+from resolve.core.linkage import ResourceToZone
+from resolve.core.linkage import ZoneToTransmissionPath
+from resolve.core.model import ModelTemplate
+from resolve.core.temporal.settings import DispatchWindowEdgeEffects
+from resolve.core.temporal.settings import TemporalSettings
+from resolve.core.three_way_linkage import CustomConstraintLinkage
+from resolve.core.utils.pyomo_utils import convert_pyomo_object_to_dataframe
+from resolve.core.utils.util import DirStructure
+from resolve.resolve.model_formulation import ResolveModel
+from resolve.system import GenericResourceGroup
+from resolve.system import Pollutant
+from resolve.system import System
+from resolve.system.asset import Asset
+from resolve.system.asset import AssetGroup
+from resolve.system.electric.elcc import ELCCFacet
+from resolve.system.electric.elcc import ELCCSurface
+from resolve.system.electric.load_component import Load
+from resolve.system.electric.reserve import Reserve
+from resolve.system.electric.reserve import ReserveDirection
+from resolve.system.electric.resources import GenericResource
+from resolve.system.electric.resources import ThermalResource
+from resolve.system.electric.resources.flex_load import FlexLoadResource
+from resolve.system.electric.resources.flex_load import FlexLoadResourceGroup
+from resolve.system.electric.resources.hybrid import HybridSolarResource
+from resolve.system.electric.resources.hybrid import HybridSolarResourceGroup
+from resolve.system.electric.resources.hybrid import HybridStorageResource
+from resolve.system.electric.resources.hybrid import HybridStorageResourceGroup
+from resolve.system.electric.resources.hybrid import HybridVariableResource
+from resolve.system.electric.resources.hybrid import HybridVariableResourceGroup
+from resolve.system.electric.resources.hybrid import HybridWindResource
+from resolve.system.electric.resources.hybrid import HybridWindResourceGroup
+from resolve.system.electric.resources.hydro import HydroResource
+from resolve.system.electric.resources.hydro import HydroResourceGroup
+from resolve.system.electric.resources.shed_dr import ShedDrResource
+from resolve.system.electric.resources.shed_dr import ShedDrResourceGroup
+from resolve.system.electric.resources.storage import StorageDurationConstraint
+from resolve.system.electric.resources.storage import StorageResource
+from resolve.system.electric.resources.storage import StorageResourceGroup
+from resolve.system.electric.resources.thermal import ThermalResourceGroup
+from resolve.system.electric.resources.thermal import ThermalUnitCommitmentResource
+from resolve.system.electric.resources.variable.solar import SolarResource
+from resolve.system.electric.resources.variable.solar import SolarResourceGroup
+from resolve.system.electric.resources.variable.wind import WindResource
+from resolve.system.electric.resources.variable.wind import WindResourceGroup
+from resolve.system.electric.tx_path import TxPath
+from resolve.system.electric.tx_path import TxPathGroup
+from resolve.system.electric.zone import Zone
+from resolve.system.fuel.candidate_fuel import CandidateFuel
+from resolve.system.fuel.electrolyzer import Electrolyzer
+from resolve.system.fuel.electrolyzer import ElectrolyzerGroup
+from resolve.system.fuel.fuel_production_plant import FuelProductionPlant
+from resolve.system.fuel.fuel_production_plant import FuelProductionPlantGroup
+from resolve.system.fuel.fuel_storage import FuelStorage
+from resolve.system.fuel.fuel_storage import FuelStorageGroup
+from resolve.system.generics.demand import Demand
+from resolve.system.generics.energy import _EnergyCarrier
+from resolve.system.generics.energy import Electricity
+from resolve.system.generics.energy import EnergyDemand
+from resolve.system.generics.generic_linkages import DemandToProduct
+from resolve.system.generics.generic_linkages import FromZoneToDemand
+from resolve.system.generics.generic_linkages import FromZoneToFuelProductionPlant
+from resolve.system.generics.generic_linkages import FromZoneToFuelStorage
+from resolve.system.generics.generic_linkages import FromZoneToPlant
+from resolve.system.generics.generic_linkages import FromZoneToTransportation
+from resolve.system.generics.generic_linkages import ProductToTransportation
+from resolve.system.generics.generic_linkages import ToZoneToDemand
+from resolve.system.generics.generic_linkages import ToZoneToFuelProductionPlant
+from resolve.system.generics.generic_linkages import ToZoneToFuelStorage
+from resolve.system.generics.generic_linkages import ToZoneToPlant
+from resolve.system.generics.generic_linkages import ToZoneToTransportation
+from resolve.system.generics.generic_linkages import ZoneToProduct
+from resolve.system.generics.plant import Plant
+from resolve.system.generics.plant import PlantGroup
+from resolve.system.generics.process import ChargeProcess
+from resolve.system.generics.process import Process
+from resolve.system.generics.process import SequestrationProcess
+from resolve.system.generics.product import Product
+from resolve.system.generics.transportation import Transportation
+from resolve.system.policy import AnnualEmissionsPolicy
+from resolve.system.policy import AnnualEnergyStandard
+from resolve.system.policy import EnergyReserveMargin
+from resolve.system.policy import HourlyEnergyStandard
+from resolve.system.policy import PlanningReserveMargin
+from resolve.system.pollution.negative_emissions_technology import NegativeEmissionsTechnology
+from resolve.system.pollution.negative_emissions_technology import NegativeEmissionsTechnologyGroup
+from resolve.system.pollution.sequestration import Sequestration
+from resolve.system.pollution.sequestration import SequestrationGroup
 
 collect_ignore = [
-    "resolve/test_run_opt.py",
     "system/test_system.py",
     "system/electric/resources/test_unit_commitment.py",
     "system/electric/resources/test_variable.py",
@@ -174,7 +173,7 @@ def test_temporal_settings_full_day(dir_structure):
 
 @pytest.fixture(scope="session")
 def test_excel_api():
-    from new_modeling_toolkit.core.utils.xlwings import ExcelApiCalls
+    from resolve.core.utils.xlwings import ExcelApiCalls
 
     return ExcelApiCalls()
 
@@ -182,7 +181,7 @@ def test_excel_api():
 @pytest.fixture(scope="session")
 def test_model_template(test_excel_api):
     if test_excel_api.platform in ["Darwin", "Windows"]:
-        from new_modeling_toolkit.core.excel import ScenarioTool
+        from resolve.core.excel import ScenarioTool
 
         return ScenarioTool(book="../E3 Model Template.xlsm")
 
@@ -485,19 +484,27 @@ def test_generic_resource(test_asset: Asset):
             data=pd.Series(
                 index=pd.DatetimeIndex(
                     [
-                        "2010-01-01 00:00",
-                        "2010-06-21 01:00",
-                        "2010-06-21 02:00",
-                        "2012-02-15 12:00",
-                        "2012-02-15 13:00",
-                        "2012-02-15 14:00",
+                        f"{year}-{timestamp}"
+                        for year, _ in [(2025, 1), (2030, 1), (2035, 2), (2045, 2)]
+                        for timestamp in [
+                            "01-01 00:00",
+                            "02-15 12:00",
+                            "02-15 13:00",
+                            "02-15 14:00",
+                            "06-21 00:00",
+                            "06-21 01:00",
+                            "06-21 02:00",
+                        ]
                     ],
                     name="timestamp",
                 ),
-                data=[5.0, 2.5, 6.0, -10.0, 1.0, 3.0],
+                data=[
+                    value * multiplier
+                    for _, multiplier in [(2025, 1), (2030, 1), (2035, 2), (2045, 2)]
+                    for value in [5.0, -10.0, 1.0, 3.0, 5.0, 2.5, 6.0]
+                ],
                 name="value",
             ),
-            weather_year=True,
         ),
         production_tax_credit=2,
         ptc_term=10,
@@ -752,8 +759,28 @@ def test_thermal_unit_commitment_resource(test_generic_resource: GenericResource
         min_stable_level=0.5,
         min_up_time=3,
         min_down_time=3,
-        start_cost=5,
-        shutdown_cost=10,
+        start_cost=ts.NumericTimeseries(
+            name="start_cost",
+            data=pd.Series(
+                index=pd.DatetimeIndex(
+                    [f"{year}-01-01 00:00" for year in [2025, 2030, 2035, 2045]],
+                    name="timestamp",
+                ),
+                data=[5.0, 5.0, 10.0, 10.0],
+                name="value",
+            ),
+        ),
+        shutdown_cost=ts.NumericTimeseries(
+            name="shutdown_cost",
+            data=pd.Series(
+                index=pd.DatetimeIndex(
+                    [f"{year}-01-01 00:00" for year in [2025, 2030, 2035, 2045]],
+                    name="timestamp",
+                ),
+                data=[10.0, 10.0, 20.0, 20.0],
+                name="value",
+            ),
+        ),
         allow_inter_period_sharing=True,
         marginal_heat_rate=1,
         fuel_burn_intercept=1,
@@ -1070,20 +1097,12 @@ def test_storage_resource(test_generic_resource: GenericResource):
             name="variable_cost_power_input",
             data=pd.Series(
                 index=pd.DatetimeIndex(
-                    [
-                        "2010-01-01 00:00",
-                        "2010-06-21 01:00",
-                        "2010-06-21 02:00",
-                        "2012-02-15 12:00",
-                        "2012-02-15 13:00",
-                        "2012-02-15 14:00",
-                    ],
+                    [f"{year}-01-01 00:00" for year in [2025, 2030, 2035, 2045]],
                     name="timestamp",
                 ),
-                data=1.0,
+                data=[1.0, 1.0, 2.0, 2.0],
                 name="value",
             ),
-            weather_year=True,
         ),
     )
     return StorageResource(**init_kwargs)
@@ -1349,6 +1368,31 @@ def test_custom_constraint_lhs():
 
 
 @pytest.fixture(scope="session")
+def test_custom_constraint_lhs_erm(test_custom_constraint_lhs):
+    init_kwargs = test_custom_constraint_lhs.model_dump()
+    init_kwargs.update(
+        name="TestLHSERM",
+        pyomo_component_name="tx_path_contribution",
+        additional_index="TxPath",
+        modeled_year_hourly_multiplier=ts.NumericTimeseries(
+            name="modeled_year_hourly_multiplier",
+            data=pd.Series(
+                index=pd.DatetimeIndex(
+                    [
+                        "2025-01-01 00:00",
+                        "2030-01-01 00:00",
+                    ],
+                    name="timestamp",
+                ),
+                data=[2.5, 2.5],
+                name="value",
+            ),
+        ),
+    )
+    return CustomConstraintLHS(**init_kwargs)
+
+
+@pytest.fixture(scope="session")
 def test_custom_constraint_lhs_annual():
     return CustomConstraintLHS(
         name="TestLHSOperationalCapacity",
@@ -1408,6 +1452,29 @@ def test_custom_constraint_rhs():
             ),
         ),
     )
+
+
+@pytest.fixture(scope="session")
+def test_custom_constraint_rhs_erm(test_custom_constraint_rhs):
+    init_kwargs = test_custom_constraint_rhs.model_dump()
+    init_kwargs.update(
+        name="TestRHSERMHourly",
+        modeled_year_hourly_target=ts.NumericTimeseries(
+            name="modeled_year_hourly_target",
+            data=pd.Series(
+                index=pd.DatetimeIndex(
+                    [
+                        "2025-01-01 00:00",
+                        "2030-01-01 00:00",
+                    ],
+                    name="timestamp",
+                ),
+                data=[1.01, 1.01],
+                name="value",
+            ),
+        ),
+    )
+    return CustomConstraintRHS(**init_kwargs)
 
 
 @pytest.fixture(scope="session")
@@ -2355,6 +2422,7 @@ def test_asset_group():
         ),
     )
 
+
 @pytest.fixture(scope="session")
 def test_tx_path_group(test_asset_group, test_tx_path):
     init_kwargs = test_asset_group.model_dump(
@@ -2775,7 +2843,9 @@ def test_system(
     test_candidate_fuel_1,
     test_candidate_fuel_2,
     test_custom_constraint_lhs,
+    test_custom_constraint_lhs_erm,
     test_custom_constraint_rhs,
+    test_custom_constraint_rhs_erm,
     test_custom_constraint_rhs_annual,
     test_custom_constraint_lhs_annual,
     test_erm,
@@ -2845,8 +2915,10 @@ def test_system(
     test_candidate_fuel_1 = test_candidate_fuel_1.copy()
     test_candidate_fuel_2 = test_candidate_fuel_2.copy()
     test_custom_constraint_rhs = test_custom_constraint_rhs.copy()
+    test_custom_constraint_rhs_erm = test_custom_constraint_rhs_erm.copy()
     test_custom_constraint_rhs_annual = test_custom_constraint_rhs_annual.copy()
     test_custom_constraint_lhs = test_custom_constraint_lhs.copy()
+    test_custom_constraint_lhs_erm = test_custom_constraint_lhs_erm.copy()
     test_custom_constraint_lhs_annual = test_custom_constraint_lhs_annual.copy()
     test_erm = test_erm.copy()
 
@@ -2933,10 +3005,12 @@ def test_system(
         },
         custom_constraints_rhs={
             test_custom_constraint_rhs.name: test_custom_constraint_rhs,
+            test_custom_constraint_rhs_erm.name: test_custom_constraint_rhs_erm,
             test_custom_constraint_rhs_annual.name: test_custom_constraint_rhs_annual,
         },
         custom_constraints_lhs={
             test_custom_constraint_lhs.name: test_custom_constraint_lhs,
+            test_custom_constraint_lhs_erm.name: test_custom_constraint_lhs_erm,
             test_custom_constraint_lhs_annual.name: test_custom_constraint_lhs_annual,
         },
         linkages={
@@ -4196,6 +4270,16 @@ def test_system(
                     instance_1=test_custom_constraint_rhs_annual,
                     instance_2=test_custom_constraint_lhs_annual,
                     instance_3=test_thermal_resource,
+                ),
+                CustomConstraintLinkage(
+                    name=(
+                        test_custom_constraint_rhs_erm.name,
+                        test_custom_constraint_lhs_erm.name,
+                        test_hydro_resource.name,
+                    ),
+                    instance_1=test_custom_constraint_rhs_erm,
+                    instance_2=test_custom_constraint_lhs_erm,
+                    instance_3=test_erm,
                 ),
             ],
             "ChargeProcess": [

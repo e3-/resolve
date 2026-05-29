@@ -1,10 +1,10 @@
 import pytest
 
-from new_modeling_toolkit.system import Demand
-from new_modeling_toolkit.system import Plant
-from new_modeling_toolkit.system.generics.energy import _EnergyCarrier
-from new_modeling_toolkit.system.generics.energy import Electricity
-from new_modeling_toolkit.system.generics.energy import EnergyDemand
+from resolve.system import Demand
+from resolve.system import Plant
+from resolve.system.generics.energy import _EnergyCarrier
+from resolve.system.generics.energy import Electricity
+from resolve.system.generics.energy import EnergyDemand
 from tests.system.generics.test_demand import TestDemand
 from tests.system.generics.test_product import TestCommodityProduct
 from tests.system.generics.test_product import TestProduct

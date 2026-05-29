@@ -1,5 +1,5 @@
-from new_modeling_toolkit.system.electric.resources.variable.solar import SolarResource
-from new_modeling_toolkit.system.electric.resources.variable.solar import SolarResourceGroup
+from resolve.system.electric.resources.variable.solar import SolarResource
+from resolve.system.electric.resources.variable.solar import SolarResourceGroup
 from tests.system.electric.resources import test_variable
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from new_modeling_toolkit.system.electric.reserve import Reserve
+from resolve.system.electric.reserve import Reserve
 from tests.system.component_test_template import ComponentTestTemplate
 
 

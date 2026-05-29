@@ -5,11 +5,11 @@ import pandas as pd
 import pytest
 from pydantic import ValidationError
 
-from new_modeling_toolkit.core.model import ModelTemplate
-from new_modeling_toolkit.core.temporal import timeseries as ts
-from new_modeling_toolkit.core.temporal.settings import DispatchWindowEdgeEffects
-from new_modeling_toolkit.system.electric.resources import UnitCommitmentResource
-from new_modeling_toolkit.system.electric.resources.unit_commitment import UnitCommitmentResourceGroup
+from resolve.core.model import ModelTemplate
+from resolve.core.temporal import timeseries as ts
+from resolve.core.temporal.settings import DispatchWindowEdgeEffects
+from resolve.system.electric.resources import UnitCommitmentResource
+from resolve.system.electric.resources.unit_commitment import UnitCommitmentResourceGroup
 from tests.system.electric.resources import test_generic
 from tests.system.electric.resources.test_generic import TestGenericResourceGroup
 
@@ -87,6 +87,21 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         init_kwargs.update(potential=None)
         with pytest.raises(ValueError, match="Potential required for unit commitment"):
             UnitCommitmentResource(**init_kwargs)  # check that it fails build
+
+    @pytest.mark.parametrize("cost_attr", ["start_cost", "shutdown_cost"])
+    def test_start_and_shutdown_costs_must_be_nonnegative(self, test_thermal_unit_commitment_resource, cost_attr):
+        init_kwargs = test_thermal_unit_commitment_resource.model_dump()
+        init_kwargs[cost_attr] = ts.NumericTimeseries(
+            name=cost_attr,
+            data=pd.Series(
+                index=pd.DatetimeIndex(["2025-01-01 00:00"], name="timestamp"),
+                data=[-1.0],
+                name="value",
+            ),
+        )
+
+        with pytest.raises(ValidationError, match=f"Values for {cost_attr} must be non-negative"):
+            UnitCommitmentResource(**init_kwargs)
 
     def test_operational_attributes(self, make_component_copy):
         assert make_component_copy().operational_attributes == [
@@ -316,25 +331,25 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
 
         block.operational_capacity[modeled_year] = 200
         block.committed_units.fix(4)
+        power_output_min = block.power_output_min[modeled_year, dispatch_window_id, timestamp].expr()
 
         block.power_output[modeled_year, dispatch_window_id, timestamp].fix(120.0)
         block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(30.0)
-        assert (
-            block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].body()
-            == -90  # 30 - 120
-        )
-        assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
-        assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].expr()
-
-        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(120.0)
-        block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(150.0)
-        assert (
-            block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].body() == 30
-        )  # 150 - 120
+        assert block.total_down_reserves_max_constraint[
+            modeled_year, dispatch_window_id, timestamp
+        ].body() == pytest.approx(30.0 - (120.0 - power_output_min))
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
         assert not block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].expr()
 
-        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(0.0)
+        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(120.0)
+        block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(150.0)
+        assert block.total_down_reserves_max_constraint[
+            modeled_year, dispatch_window_id, timestamp
+        ].body() == pytest.approx(150.0 - (120.0 - power_output_min))
+        assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
+        assert not block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].expr()
+
+        block.power_output[modeled_year, dispatch_window_id, timestamp].fix(power_output_min)
         block.provide_reserve["TestRegulationDown", modeled_year, dispatch_window_id, timestamp].fix(0.0)
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].body() == 0
         assert block.total_down_reserves_max_constraint[modeled_year, dispatch_window_id, timestamp].upper() == 0
@@ -624,7 +639,6 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         min_down_body,
         expr,
     ):
-
         resource = make_component_with_block_copy_inter_period_sharing()
         resource_block = resource.formulation_block
         modeled_year = pd.Timestamp("2025-01-01")
@@ -677,8 +691,18 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     def test_start_cost_in_timepoint(self, make_component_with_block_copy, first_index, start_units, start_costs):
         resource = make_component_with_block_copy()
         resource_block = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+        later_modeled_year = pd.Timestamp("2035-01-01 00:00")
+        later_index = (later_modeled_year, dispatch_window, timestamp)
+
+        assert resource.start_cost.data.at[timestamp.replace(year=modeled_year.year)] == 5
+        assert resource.start_cost.data.at[timestamp.replace(year=later_modeled_year.year)] == 10
+
         resource_block.start_units[first_index].fix(start_units)
         assert resource_block.start_cost_in_timepoint[first_index].expr() == start_costs
+
+        resource_block.start_units[later_index].fix(start_units)
+        assert resource_block.start_cost_in_timepoint[later_index].expr() == 2 * start_costs
 
     @pytest.mark.parametrize(
         "shutdown_units, shutdown_costs",
@@ -689,8 +713,18 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
     ):
         resource = make_component_with_block_copy()
         resource_block = resource.formulation_block
+        modeled_year, dispatch_window, timestamp = first_index
+        later_modeled_year = pd.Timestamp("2035-01-01 00:00")
+        later_index = (later_modeled_year, dispatch_window, timestamp)
+
+        assert resource.shutdown_cost.data.at[timestamp.replace(year=modeled_year.year)] == 10
+        assert resource.shutdown_cost.data.at[timestamp.replace(year=later_modeled_year.year)] == 20
+
         resource_block.shutdown_units[first_index].fix(shutdown_units)
         assert resource_block.shutdown_cost_in_timepoint[first_index].expr() == shutdown_costs
+
+        resource_block.shutdown_units[later_index].fix(shutdown_units)
+        assert resource_block.shutdown_cost_in_timepoint[later_index].expr() == 2 * shutdown_costs
 
     @pytest.mark.parametrize(
         "start_units, shutdown_units, total_costs",
@@ -709,6 +743,14 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
         resource_block.shutdown_units[first_index].fix(shutdown_units)
         modeled_year, dispatch_window, timestamp = first_index
         assert resource_block.annual_start_and_shutdown_cost[modeled_year].expr() == total_costs
+
+        later_modeled_year = pd.Timestamp("2035-01-01 00:00")
+        later_index = (later_modeled_year, dispatch_window, timestamp)
+        resource_block.start_units.fix(0)
+        resource_block.start_units[later_index].fix(start_units)
+        resource_block.shutdown_units.fix(0)
+        resource_block.shutdown_units[later_index].fix(shutdown_units)
+        assert resource_block.annual_start_and_shutdown_cost[later_modeled_year].expr() == 2 * total_costs
 
     @pytest.mark.parametrize(
         "committed_units_first, committed_units_next, start_units_next, shutdown_units_next, commitment_tracking_upper, commitment_tracking_lower, commitment_tracking_body, expr",
@@ -974,8 +1016,8 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
             pd.Timestamp("2045-01-01 00:00"),
         ]:
             assert block.annual_total_operational_cost[year].expr() == (
-                0.6 * 365 * (10 * (5 + 2.5 + 6) - 10 * (0 + 0 + 0) + (10 * 2 * 3) + (5 * 4 * 3))
-                + 0.4 * 365 * (10 * (-10 + 1 + 3) - 10 * (0 + 0 + 0) + (10 * 2 * 3) + (5 * 4 * 3))
+                0.6 * 365 * (10 * (10 + 5 + 12) - 10 * (0 + 0 + 0) + (20 * 2 * 3) + (10 * 4 * 3))
+                + 0.4 * 365 * (10 * (-20 + 2 + 6) - 10 * (0 + 0 + 0) + (20 * 2 * 3) + (10 * 4 * 3))
             )
 
         assert block.annual_total_operational_cost
@@ -1019,7 +1061,6 @@ class TestUnitCommitmentResource(test_generic.TestGenericResource):
 
 
 class TestUnitCommitmentResourceGroup(TestGenericResourceGroup):
-
     def test_check_potential_required_validator(self, test_generic_resource_group):
         """
         Test that the `check_potential_required` validator enforces correct behavior

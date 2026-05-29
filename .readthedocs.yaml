@@ -7,9 +7,13 @@ formats:
   - pdf
 
 build:
-  os: "ubuntu-20.04"
+  os: "ubuntu-22.04"
   tools:
-    python: "mambaforge-4.10"
+    python: "3.11"
 
-conda:
-  environment: environment-dev.yml
+python:
+  install:
+    - method: pip
+      path: .
+      extra_requirements:
+        - dev

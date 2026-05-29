@@ -4,11 +4,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from new_modeling_toolkit.core.temporal import timeseries as ts
-from new_modeling_toolkit.system import GenericResource
-from new_modeling_toolkit.system.fuel.candidate_fuel import CandidateFuel
-from new_modeling_toolkit.system.generics.energy import _EnergyCarrier
-from new_modeling_toolkit.system.pollution.pollutant import Pollutant
+from resolve.core.temporal import timeseries as ts
+from resolve.system import GenericResource
+from resolve.system.fuel.candidate_fuel import CandidateFuel
+from resolve.system.generics.energy import _EnergyCarrier
+from resolve.system.pollution.pollutant import Pollutant
 from tests.system.generics.test_energy import TestCommodityEnergyCarrier
 from tests.system.generics.test_energy import TestEnergyCarrier
 
