@@ -97,22 +97,10 @@ data-test/processed/resolve/rescaled*profiles/
 
 # Mypy cache
 .mypy_cache/
-new_modeling_toolkit/__pycache__/__init__.cpython-39.pyc
-new_modeling_toolkit/common/.DS_Store
+resolve/__pycache__/__init__.cpython-39.pyc
 gurobi.lic
 
-reclaim/outputs_clean/*
-reclaim/outputs_raw/*
-new_modeling_toolkit/reclaim/ERA5_cleaned/*
-new_modeling_toolkit/reclaim/ERA5_extracted/*
-new_modeling_toolkit/reclaim/ERA5_raw/*
-new_modeling_toolkit/visualization/profile_benchmarking/*
-new_modeling_toolkit/recap/Neural Network Setup/*
-
-RECAP-2.0/code/cases_to_run.csv
-
 new_modeling_toolkit/*.png
-/new_modeling_toolkit/visualization/profile_benchmarking/
 
 .nmt.config.json
 /analysis/

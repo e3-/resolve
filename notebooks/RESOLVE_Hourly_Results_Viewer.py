@@ -16,7 +16,7 @@ from IPython.display import display
 from ipywidgets import Layout
 from loguru import logger
 
-from new_modeling_toolkit.resolve.hourly_results_processing import ResolveHourlyResultsViewer as RV
+from resolve.resolve.hourly_results_processing import ResolveHourlyResultsViewer as RV
 
 # %% [markdown]
 # ### Step 0. Define Excel Results Viewer Named Ranges (for aggregating and plotting hourly resource dispatch)
