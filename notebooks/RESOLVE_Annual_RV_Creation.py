@@ -16,7 +16,7 @@ from ipyfilechooser import FileChooser
 from IPython.display import display
 from ipywidgets import Layout
 
-from new_modeling_toolkit.resolve.annual_rv_export import AnnualResultsViewerExport
+from resolve.resolve.annual_rv_export import AnnualResultsViewerExport
 
 # %% [markdown]
 # ## Step 1: Select filepaths for Excel RV Template and your RESOLVE case results directory
