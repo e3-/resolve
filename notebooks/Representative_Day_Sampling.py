@@ -21,8 +21,8 @@ from loguru import logger
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
-from new_modeling_toolkit.core.utils.util import DirStructure
-from new_modeling_toolkit.resolve.day_sampling import DaySamplingSystem
+from resolve.core.utils.util import DirStructure
+from resolve.resolve.day_sampling import DaySamplingSystem
 
 # %% [markdown]
 # -----------------------
