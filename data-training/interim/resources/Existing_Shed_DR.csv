@@ -1,7 +1,7 @@
 attribute,timestamp,value,scenario
 resource_type,,Shed DR,Base
 can_retire,,False,Base
-variable_cost_power_output,,0.0,Base
+variable_cost_power_output,,0,Base
 planned_capacity,2025-01-01,10.0,Base
 planned_capacity,2026-01-01,10.0,Base
 planned_capacity,2027-01-01,10.0,Base

@@ -107,7 +107,7 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.append(str(Path().resolve()))
-from new_modeling_toolkit.resolve.repday_emd_assigner import RepdayToDayofyearEmdAssigner
+from resolve.resolve.repday_emd_assigner import RepdayToDayofyearEmdAssigner
 
 # %%
 # Establish file system context

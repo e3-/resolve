@@ -1,3 +1,173 @@
+## 4.4.2 (2026-06-04)
+
+### Fix
+
+- go back to -A for git add on public release (#105)
+
+## 4.4.1 (2026-06-04)
+
+### Fix
+
+- explicitly vendor kit without data-utils in public release (#104)
+
+## 4.4.0 (2026-05-29)
+
+### Feat
+
+- renovate auto bump private deps (#101)
+
+## 4.3.1 (2026-05-26)
+
+### Fix
+
+- update awscli version to resolve aws sso login failure (#98)
+
+## 4.3.0 (2026-05-26)
+
+### Feat
+
+- allow nominal dollar discounting with given inflation rate (#92)
+
+## 4.2.1 (2026-05-20)
+
+### Fix
+
+- non-curtailable hydro with annual budget (#97)
+
+## 4.2.0 (2026-05-06)
+
+### Feat
+
+- fuel-specific unit commitment for Thermal UC (#53)
+
+## 4.1.0 (2026-04-30)
+
+### Feat
+
+- UI updates (#91)
+
+## 4.0.2 (2026-04-07)
+
+### Fix
+
+- fix bump-version (#88)
+- fix dockerfile (#87)
+
+## 4.0.1 (2026-04-01)
+
+### Fix
+
+- update bump version (#82)
+
+## v4.0.0 (2026-03-26)
+
+### Feat
+
+- use kit datalake (#73)
+
+## 3.18.2 (2026-03-18)
+
+### Fix
+
+- Vendor datadog (#80)
+
+## 3.18.1 (2026-03-10)
+
+### Fix
+
+- Anyscale/fix anyscale version num (#76)
+
+## 3.18.0 (2026-03-06)
+
+### Feat
+
+- add datadog to docker image (#74)
+
+## 3.17.3 (2026-03-06)
+
+### Fix
+
+- remove ERM linkage from all groups in construct_vintages (#75)
+
+## 3.17.2 (2026-02-11)
+
+### Fix
+
+- Anyscale/add version tags (#65)
+
+## 3.17.1 (2026-02-03)
+
+### Fix
+
+- rtd build using tokens (#67)
+
+## 3.17.0 (2026-01-20)
+
+### Feat
+
+- Add version info to image (#64)
+
+## 3.16.2 (2026-01-15)
+
+### Fix
+
+- assign nullable boolean data type to include column before masking df (#63)
+
+## 3.16.1 (2026-01-13)
+
+### Fix
+
+- demo notebooks aligned to evolved data lake columns (#60)
+
+## 3.16.0 (2026-01-12)
+
+### Feat
+
+- ERM Custom Constraints (#41)
+
+## 3.15.0 (2026-01-10)
+
+### Feat
+
+- data-utils in RESOLVE (#17)
+
+## 3.14.3 (2025-12-22)
+
+### Fix
+
+- Install (not-really) optional kit dependency via SSH for anyscale (#57)
+
+## 3.14.2 (2025-12-12)
+
+### Fix
+
+- erm soc max constraint (#55)
+
+## 3.14.1 (2025-12-12)
+
+### Fix
+
+- trigger release for bump-version test
+
+## 3.14.0 (2025-12-12)
+
+### Feat
+
+- Add performance parameters for Ray (#48)
+- Resolve on Anyscale (#35)
+
+### Fix
+
+- Fix commitizen auth by using a personal access token for platform team member with bypass (#51)
+- fix docker config (#46)
+- import in RESOLVE_Annual_RV_Creation.py (#45)
+
+## v3.13.1 (2025-12-03)
+
+### Refactor
+
+- resolve/refactor/split (#8)
+
 ## 3.13.0 (2025-12-02)
 
 ### Feat
