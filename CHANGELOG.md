@@ -1,3 +1,9 @@
+## 4.4.3 (2026-06-09)
+
+### Fix
+
+- allow annual data columns in UI to go to year 2065 (#108)
+
 ## 4.4.2 (2026-06-04)
 
 ### Fix
