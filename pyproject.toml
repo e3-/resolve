@@ -1,7 +1,7 @@
 [project]
 name="resolve"
 description="E3's New Modeling Toolkit"
-version="4.4.2"
+version="4.4.3"
 authors=[
     { name = "Energy and Environmental Economics, Inc." }
 ]
