@@ -10,7 +10,9 @@ import numpy as np
 import pandas as pd
 import pydantic
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.custom_model import ModelType
 from kit.system.asset import BaseAsset
 from loguru import logger
 from pydantic import BeforeValidator
@@ -21,9 +23,6 @@ from typing_extensions import Annotated
 from resolve.core import linkage
 from resolve.core.component import Component
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
-from resolve.core.custom_model import ModelType
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.core.three_way_linkage import CustomConstraintLinkage
@@ -75,13 +74,11 @@ class Asset(BaseAsset, Component):
         alias="commission_date",
     )
 
-    integer_build_increment: Annotated[float | None, Metadata(category=FieldCategory.BUILD, units=units.megawatt)] = (
-        Field(
-            None,
-            ge=0,
-            description="If not None, consider integer (rather than linear) build decisions. If set equal to potential, this will force an all or nothing choice. Otherwise, this can be used to build certain increments of assets",
-            title="Integer Build Unit Size (MW)",
-        )
+    integer_build_increment: Annotated[float | None, Metadata(category=FieldCategory.BUILD, units="MW")] = Field(
+        None,
+        ge=0,
+        description="If not None, consider integer (rather than linear) build decisions. If set equal to potential, this will force an all or nothing choice. Otherwise, this can be used to build certain increments of assets",
+        title="Integer Build Unit Size (MW)",
     )
 
     @pydantic.field_validator("build_year", mode="before")
@@ -98,26 +95,24 @@ class Asset(BaseAsset, Component):
         description="Whether resource can be retired. By default, resources cannot be retired.",
     )
 
-    physical_lifetime: Annotated[int, Metadata(category=FieldCategory.BUILD, units=units.year)] = Field(
+    physical_lifetime: Annotated[int, Metadata(category=FieldCategory.BUILD, units="year")] = Field(
         100,
         description="Number of years after commission date that asset is operational.",
         ge=0,
     )
 
-    potential: Annotated[float | None, Metadata(category=FieldCategory.BUILD, units=units.megawatt)] = Field(
+    potential: Annotated[float | None, Metadata(category=FieldCategory.BUILD, units="MW")] = Field(
         default=np.inf, ge=0, title="Potential (MW)"
     )
-    planned_capacity: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units=units.megawatt)] = (
-        Field(
-            default_factory=ts.NumericTimeseries.zero,
-            title="Planned Capacity (MW)",
-            default_freq="YS",
-            up_method="ffill",
-            down_method="mean",
-            weather_year=False,
-        )
+    planned_capacity: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units="MW")] = Field(
+        default_factory=ts.NumericTimeseries.zero,
+        title="Planned Capacity (MW)",
+        default_freq="YS",
+        up_method="ffill",
+        down_method="mean",
+        weather_year=False,
     )
-    min_operational_capacity: Annotated[ts.NumericTimeseries | None, Metadata(units=units.MW)] = Field(
+    min_operational_capacity: Annotated[ts.NumericTimeseries | None, Metadata(units="MW")] = Field(
         default=None,
         default_freq="YS",
         weather_year=False,
@@ -157,7 +152,7 @@ class Asset(BaseAsset, Component):
         float,
         Metadata(
             category=FieldCategory.BUILD,
-            units=units.dollar / units.kW_year,
+            units="dollar / kW_year",
             excel_short_title="Capital Cost",
             warning_bounds=(0, 1_000),
         ),
@@ -166,7 +161,7 @@ class Asset(BaseAsset, Component):
         ts.NumericTimeseries,
         Metadata(
             category=FieldCategory.BUILD,
-            units=units.dollar / units.kW_year,
+            units="dollar / kW_year",
             excel_short_title="Fixed O&M",
             warning_bounds=(0, 100),
         ),
@@ -183,11 +178,9 @@ class Asset(BaseAsset, Component):
         description="Stochastic forced outage rate",
     )
 
-    mean_time_to_repair: Annotated[float | None, Metadata(category=FieldCategory.RELIABILITY, units=units.hour)] = (
-        Field(
-            None,
-            description="Mean time to repair",
-        )
+    mean_time_to_repair: Annotated[float | None, Metadata(category=FieldCategory.RELIABILITY, units="hour")] = Field(
+        None,
+        description="Mean time to repair",
     )
 
     random_seed: Annotated[int | None, Metadata(category=FieldCategory.RELIABILITY)] = Field(
@@ -763,7 +756,7 @@ class Asset(BaseAsset, Component):
         """Checks whether two Assets have equivalent "operational linkages."
 
         In order for two Assets to be "operationally equivalent," one condition is that any linkages which may impact
-         the operational decisions of the resource must also be equal. For example, if a Resource is linked to an
+        the operational decisions of the resource must also be equal. For example, if a Resource is linked to an
         AnnualEmissionsStandard, then its dispatch will be partially influenced by this emissions target, so the other
         Resource must also be linked to that policy.
 
@@ -985,7 +978,7 @@ class AssetGroup(Asset):
         down_method="first",
         default_freq="YS",
     )
-    potential: Annotated[ts.NumericTimeseries | None, Metadata(units=units.MW, show_year_headers=False)] = Field(
+    potential: Annotated[ts.NumericTimeseries | None, Metadata(units="MW", show_year_headers=False)] = Field(
         default=None,
         default_freq="YS",
         weather_year=False,
@@ -994,18 +987,16 @@ class AssetGroup(Asset):
         description="Build potential for planned and selected capacity by model year across all assets in the group",
         title="Potential (MW)",
     )
-    cumulative_potential: Annotated[ts.NumericTimeseries | None, Metadata(units=units.MW, show_year_headers=False)] = (
-        Field(
-            default=None,
-            default_freq="YS",
-            weather_year=False,
-            up_method="interpolate",
-            down_method="mean",
-            description="Cumulative build potential for planned and selected capacity by model year across all assets in the group",
-            title="Cumulative Build Potential (MW)",
-        )
+    cumulative_potential: Annotated[ts.NumericTimeseries | None, Metadata(units="MW", show_year_headers=False)] = Field(
+        default=None,
+        default_freq="YS",
+        weather_year=False,
+        up_method="interpolate",
+        down_method="mean",
+        description="Cumulative build potential for planned and selected capacity by model year across all assets in the group",
+        title="Cumulative Build Potential (MW)",
     )
-    min_cumulative_new_build: Annotated[ts.NumericTimeseries | None, Metadata(units=units.MW)] = Field(
+    min_cumulative_new_build: Annotated[ts.NumericTimeseries | None, Metadata(units="MW")] = Field(
         default=None,
         default_freq="YS",
         weather_year=False,

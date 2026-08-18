@@ -6,14 +6,14 @@ from hashlib import md5
 import pandas as pd
 from joblib import delayed
 from joblib import Parallel
+from kit.core.custom_model import ModelType
+from kit.core.utils.core_utils import convert_to_bool
 from loguru import logger
 from pyomo import environ as pyo
 from tqdm import tqdm
 
-from resolve.core.custom_model import ModelType
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal.settings import TemporalSettings
-from resolve.core.utils.core_utils import convert_to_bool
 from resolve.core.utils.pyomo_utils import convert_pyomo_object_to_dataframe
 from resolve.core.utils.util import DirStructure
 from resolve.system import ElectricResource
@@ -400,7 +400,6 @@ class ResolveModel(ModelTemplate):
                     cost_summary = pd.concat([cost_summary, costs_df], ignore_index=False)
                 else:
                     cost_summary = costs_df
-
 
             if slack_cost_summary.empty:
                 slack_cost_summary = slack_costs_df

@@ -3,13 +3,12 @@ from typing import ClassVar
 
 import numpy as np
 import pandas as pd
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from pydantic import Field
 from pyomo import environ as pyo
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.system import Asset
@@ -67,7 +66,7 @@ class Transportation(Asset):
 
     @property
     def capacity_unit(self):
-        return self.unit / units.hour
+        return f"{self.unit}/h"
 
     ###########
     # Methods #
@@ -136,9 +135,9 @@ class Transportation(Asset):
         self, model: "ModelTemplate", construct_costs: bool
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
         pyomo_components = super()._construct_investment_rules(model, construct_costs=construct_costs)
-        pyomo_components["selected_capacity"].doc = f"Selected Capacity ({self.capacity_unit:e3})"
-        pyomo_components["retired_capacity"].doc = f"Retired Capacity ({self.capacity_unit:e3})"
-        pyomo_components["operational_capacity"].doc = f"Operational Capacity ({self.capacity_unit:e3})"
+        pyomo_components["selected_capacity"].doc = f"Selected Capacity ({self.capacity_unit})"
+        pyomo_components["retired_capacity"].doc = f"Retired Capacity ({self.capacity_unit})"
+        pyomo_components["operational_capacity"].doc = f"Operational Capacity ({self.capacity_unit})"
 
         return pyomo_components
 
@@ -162,7 +161,7 @@ class Transportation(Asset):
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 within=pyo.NonNegativeReals,
-                doc=f"Transmit Product Forward by Product ({self.unit:e3} per hour)",
+                doc=f"Transmit Product Forward by Product ({self.unit} per hour)",
             )
         )
         """Amount of product transmitted from "to_zone" to "from_zone" in product units per hour in each modeled
@@ -173,7 +172,7 @@ class Transportation(Asset):
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 within=pyo.NonNegativeReals,
-                doc=f"Transmit Product Reverse by Product ({self.unit:e3} per hour)",
+                doc=f"Transmit Product Reverse by Product ({self.unit} per hour)",
             )
         )
         """Forward transportation is limited by operational capacity"""
@@ -211,7 +210,7 @@ class Transportation(Asset):
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 rule=self._net_transmit_product,
-                doc=f"Net Transmit by Product ({self.unit:e3} per hour)",
+                doc=f"Net Transmit by Product ({self.unit} per hour)",
             )
         )
 
@@ -261,34 +260,34 @@ class Transportation(Asset):
             self.formulation_block.PRODUCTS,
             self.formulation_block.model().MODELED_YEARS,
             rule=self._annual_gross_forward_flow_by_product,
-            doc=f"Gross Forward Flow by Product ({self.unit:e3})",
+            doc=f"Gross Forward Flow by Product ({self.unit})",
         )
         self.formulation_block.annual_gross_reverse_flow_by_product = pyo.Expression(
             self.formulation_block.PRODUCTS,
             self.formulation_block.model().MODELED_YEARS,
             rule=self._annual_gross_reverse_flow_by_product,
-            doc=f"Gross Reverse Flow by Product ({self.unit:e3})",
+            doc=f"Gross Reverse Flow by Product ({self.unit})",
         )
         self.formulation_block.annual_net_forward_flow_by_product = pyo.Expression(
             self.formulation_block.PRODUCTS,
             self.formulation_block.model().MODELED_YEARS,
             rule=self._annual_net_forward_flow_by_product,
-            doc=f"Net Forward Flow by Product ({self.unit:e3})",
+            doc=f"Net Forward Flow by Product ({self.unit})",
         )
         self.formulation_block.annual_gross_forward_flow = pyo.Expression(
             self.formulation_block.model().MODELED_YEARS,
             rule=self._annual_gross_forward_flow,
-            doc=f"Total Gross Forward Flow ({self.unit:e3})",
+            doc=f"Total Gross Forward Flow ({self.unit})",
         )
         self.formulation_block.annual_gross_reverse_flow = pyo.Expression(
             self.formulation_block.model().MODELED_YEARS,
             rule=self._annual_gross_reverse_flow,
-            doc=f"Total Gross Reverse Flow ({self.unit:e3})",
+            doc=f"Total Gross Reverse Flow ({self.unit})",
         )
         self.formulation_block.annual_net_forward_flow = pyo.Expression(
             self.formulation_block.model().MODELED_YEARS,
             rule=self._annual_net_forward_flow,
-            doc=f"Total Net Forward Flow ({self.unit:e3})",
+            doc=f"Total Net Forward Flow ({self.unit})",
         )
         self.formulation_block.annual_forward_hurdle_cost = pyo.Expression(
             self.formulation_block.model().MODELED_YEARS,

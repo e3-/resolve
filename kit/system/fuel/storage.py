@@ -12,6 +12,7 @@ from kit.core import linkage
 from kit.core.temporal import timeseries as ts
 
 
+# should inherit from plant.Plant
 class FuelStorage(plant.Plant):
     ######################
     # Mapping Attributes #

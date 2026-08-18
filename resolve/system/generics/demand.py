@@ -10,6 +10,9 @@ from typing import Union
 
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.utils.core_utils import timer
 from loguru import logger
 from pydantic import Field
 from pydantic import model_validator
@@ -17,12 +20,9 @@ from pydantic import model_validator
 from resolve.core import linkage
 from resolve.core.component import Component
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import TemporalSettings
-from resolve.core.utils.core_utils import timer
 from resolve.system.generics.generic_linkages import DemandToProduct
 from resolve.system.generics.generic_linkages import FromZoneToDemand
 from resolve.system.generics.generic_linkages import ToZoneToDemand
@@ -430,26 +430,26 @@ class Demand(Component):
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 within=pyo.NonNegativeReals,
-                doc=f"Hourly Consumption ({self.unit:e3} per hour)",
+                doc=f"Hourly Consumption ({self.unit} per hour)",
             ),
             demand=pyo.Expression(
                 INPUTS,
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 rule=self._demand,
-                doc=f"Hourly Demand ({self.unit:e3} per hour)",
+                doc=f"Hourly Demand ({self.unit} per hour)",
             ),
             rep_annual_energy=pyo.Expression(
-                model.MODELED_YEARS, rule=self._rep_annual_energy, doc=f"Representative Annual Energy ({self.unit:e3})"
+                model.MODELED_YEARS, rule=self._rep_annual_energy, doc=f"Representative Annual Energy ({self.unit})"
             ),
             annual_energy=pyo.Expression(
-                model.MODELED_YEARS, rule=self._annual_energy, doc=f"Average Annual Energy ({self.unit:e3})"
+                model.MODELED_YEARS, rule=self._annual_energy, doc=f"Average Annual Energy ({self.unit})"
             ),
             rep_annual_peak=pyo.Expression(
-                model.MODELED_YEARS, rule=self._rep_annual_peak, doc=f"Representative Annual Peak ({self.unit:e3})"
+                model.MODELED_YEARS, rule=self._rep_annual_peak, doc=f"Representative Annual Peak ({self.unit})"
             ),
             annual_peak=pyo.Expression(
-                model.MODELED_YEARS, rule=self._annual_peak, doc=f"Average Annual Peak ({self.unit:e3})"
+                model.MODELED_YEARS, rule=self._annual_peak, doc=f"Average Annual Peak ({self.unit})"
             ),
             consumption_must_equal_demand=pyo.Constraint(
                 INPUTS,
@@ -516,13 +516,13 @@ class Demand(Component):
             self.formulation_block.INPUTS,
             model.MODELED_YEARS,
             rule=self._annual_consumption,
-            doc=f"Annual Consumption ({self.unit:e3})",
+            doc=f"Annual Consumption ({self.unit})",
         )
         self.formulation_block.annual_demand = pyo.Expression(
             self.formulation_block.INPUTS,
             model.MODELED_YEARS,
             rule=self._annual_demand,
-            doc=f"Annual Demand ({self.unit:e3})",
+            doc=f"Annual Demand ({self.unit})",
         )
         if self.processes:
             self.formulation_block.annual_production = pyo.Expression(

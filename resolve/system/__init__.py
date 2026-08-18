@@ -23,6 +23,7 @@ import pydantic
 import pydantic_core
 from joblib import delayed
 from joblib import Parallel
+from kit.core.utils.core_utils import timer
 from loguru import logger
 from pydantic import Field
 from pydantic import ValidationError
@@ -38,7 +39,6 @@ from resolve.core.linkage import Linkage
 from resolve.core.temporal import timeseries as ts
 from resolve.core.three_way_linkage import CustomConstraintLinkage
 from resolve.core.three_way_linkage import ThreeWayLinkage
-from resolve.core.utils.core_utils import timer
 from resolve.core.utils.util import DirStructure
 from resolve.system.asset import Asset
 from resolve.system.asset import AssetGroup
