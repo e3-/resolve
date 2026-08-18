@@ -1,3 +1,129 @@
+## 4.10.1 (2026-08-18)
+
+### Fix
+
+- allow a single line kit declaration in public-release workflow (#137)
+
+## 4.10.0 (2026-08-17)
+
+### Feat
+
+- add plants to standard sheet mapping (#136)
+
+## 4.9.2 (2026-08-13)
+
+### Fix
+
+- ui macro imports for custom model (#133)
+
+## 4.9.1 (2026-08-13)
+
+### Fix
+
+- **deps**: Update kit to 5.10.1 (#135)
+
+## 4.9.0 (2026-07-31)
+
+### Feat
+
+- Add functionality to start submit-job as an app started via Anyscale … (#134)
+
+## 4.8.0 (2026-07-29)
+
+### Feat
+
+- add annual energy value output for electric resources (#132)
+
+## 4.7.0 (2026-07-29)
+
+### Feat
+
+- Adding expression for annual target PRM (#131)
+
+## 4.6.11 (2026-07-23)
+
+### Fix
+
+- Moving txpath expressions and fixing annual flow (#128)
+
+## 4.6.10 (2026-07-23)
+
+### Fix
+
+- Move annual production and consumption definitions so they can be used in CCs (#127)
+
+## 4.6.9 (2026-07-17)
+
+### Fix
+
+- Update kit to 5.9.5 (#121)
+
+## 4.6.8 (2026-07-15)
+
+### Fix
+
+- Anyscale/kit pyomo utils (#126)
+
+## 4.6.7 (2026-07-15)
+
+### Fix
+
+- Process conversion_rate docstring was backwards (#125)
+
+## 4.6.6 (2026-07-14)
+
+### Fix
+
+- Update pytest-sugar version to align with pytest 9.x (#124)
+
+## 4.6.5 (2026-07-10)
+
+### Refactor
+
+- migrate custom model over to kit (#118)
+
+## 4.6.4 (2026-07-07)
+
+### Refactor
+
+- split Component — extract from_csv mixin and move resample_ts_attributes (#116)
+
+## 4.6.3 (2026-07-02)
+
+### Refactor
+
+- Pandas utils to kit (#119)
+
+## 4.6.2 (2026-07-02)
+
+### Refactor
+
+- core_utils.py (#117)
+
+## 4.6.1 (2026-07-01)
+
+### Refactor
+
+- remove paralelization utils (dead code) (#115)
+
+## 4.6.0 (2026-06-26)
+
+### Feat
+
+- daily indexed custom constraints (#110)
+
+## 4.5.1 (2026-06-25)
+
+### Fix
+
+- Anyscale/fix reports symlink (#114)
+
+## 4.5.0 (2026-06-22)
+
+### Feat
+
+- resolve confluence docs (#107)
+
 ## 4.4.3 (2026-06-09)
 
 ### Fix

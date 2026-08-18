@@ -1,0 +1,15 @@
+name: resolve-docs
+
+channels:
+  - conda-forge
+  - gurobi
+
+dependencies:
+  - gurobi>=12.0.1
+  - pip=26.0.1
+  - python>=3.10,<3.12
+  - setuptools>69
+
+  - pip:
+      # Install current repo as editable package
+      - -e ".[docs,jupyter,ui,kit]"

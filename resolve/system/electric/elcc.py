@@ -94,7 +94,6 @@ class ELCCSurface(component.Component):
         pyomo_components.update(
             ELCC_MW=pyo.Var(
                 model.MODELED_YEARS,
-                units=pyo.units.MW,
                 within=pyo.NonNegativeReals,
                 doc="ELCC Surface Total Reliability Capacity (MW)",
             )

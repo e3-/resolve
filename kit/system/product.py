@@ -6,7 +6,7 @@ from pydantic import Field
 
 from kit.core import component
 from kit.core import dir_str
-from kit.core import temporal as ts
+from kit.core.temporal import timeseries as ts
 
 
 class Product(component.BaseComponent):

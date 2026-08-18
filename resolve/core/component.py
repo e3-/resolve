@@ -1,42 +1,30 @@
 from __future__ import annotations
 
-import copy
-import json
 import os
 import pathlib
 import textwrap
 import types
 from collections import OrderedDict
 from typing import Annotated
-from typing import Any
 from typing import ClassVar
-from typing import Dict
-from typing import List
-from typing import Optional
 from typing import TYPE_CHECKING
 from typing import TypeVar
-from typing import Union
 
 import pandas as pd
-import pint
 import pydantic
 import pyomo.environ as pyo
 from kit.core.component import BaseComponent
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.utils.pandas_utils import compare_dataframes
 from loguru import logger
 from pydantic import ConfigDict
 from pydantic import Field
 from tqdm.notebook import tqdm
 
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.from_csv_mix_in import FromCSVMixIn
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
-from resolve.core.temporal.timeseries import TimeseriesType
-from resolve.core.utils.core_utils import filter_not_none
-from resolve.core.utils.core_utils import map_dict
-from resolve.core.utils.pandas_utils import compare_dataframes
 from resolve.core.utils.pyomo_utils import convert_pyomo_object_to_dataframe
 from resolve.core.utils.xlwings import ExcelApiCalls
 
@@ -56,79 +44,11 @@ class LastUpdatedOrderedDict(OrderedDict):
         self.move_to_end(key)
 
 
-class VarContainer(FromCSVMixIn, arbitrary_types_allowed=True, populate_by_name=True):
-    min: None | float | ts.NumericTimeseries = pydantic.Field(default=None, union_mode="left_to_right")
-    max: None | float | ts.NumericTimeseries = pydantic.Field(default=None, union_mode="left_to_right")
-    value: None | float | ts.NumericTimeseries = pydantic.Field(default=None, union_mode="left_to_right")
-
-    @classmethod
-    def default_factory(cls, name: Union[str, tuple[str]]):
-        def factory(*args, **kwargs):
-            return cls(name=name, *args, **kwargs)
-
-        return factory
-
-    @classmethod
-    def _get_flexible_timeseries_attribute_names(cls) -> list[str]:
-        flexible_timeseries_attributes = []
-        for attr_name, field_info in cls.model_fields.items():
-            attr_field_types = cls.get_field_type(field_info=field_info)
-            if cls.field_is_timeseries(field_info=field_info) and (
-                len(set(attr_field_types) - set(ts.Timeseries.__subclasses__() + [ts.Timeseries, type(None)])) > 0
-            ):
-                flexible_timeseries_attributes.append(attr_name)
-
-        return flexible_timeseries_attributes
-
-    @classmethod
-    def _parse_flexible_timeseries_attributes(
-        cls, filename: pathlib.Path, input_df: pd.DataFrame, scenarios: list[str]
-    ):
-        flexible_ts_attribute_names = cls._get_flexible_timeseries_attribute_names()
-
-        flexible_ts_attrs = {}
-        for attr in flexible_ts_attribute_names:
-            input_df_slice = input_df.loc[input_df["attribute"] == attr].set_index(["timestamp"])
-            if len(input_df_slice) > 0:
-                input_df_slice = cls._filter_highest_scenario(
-                    filename=filename, input_df=input_df_slice, scenarios=scenarios
-                )
-                if len(input_df_slice) == 1:
-                    flexible_ts_attrs[attr] = input_df_slice.squeeze()
-                else:
-                    flexible_ts_attrs[attr] = {"name": attr, "data": input_df_slice.squeeze(axis=1).rename(attr)}
-
-        return flexible_ts_attrs
-
-    @classmethod
-    def _parse_attributes(cls, filename: pathlib.Path, input_df: pd.DataFrame, scenarios: list[str]) -> dict[str, Any]:
-        flexible_ts_attrs = cls._parse_flexible_timeseries_attributes(
-            filename=filename, input_df=input_df, scenarios=scenarios
-        )
-
-        attrs = {
-            **flexible_ts_attrs,
-            **super(VarContainer, cls)._parse_attributes(
-                filename=filename,
-                input_df=input_df.loc[~input_df["attribute"].isin(flexible_ts_attrs.keys())],
-                scenarios=scenarios,
-            ),
-        }
-
-        return attrs
-
-
-class ExpressionContainer(VarContainer):
-    """"""
-
-
 class Component(BaseComponent, FromCSVMixIn):
     __TABLE_COUNTER: ClassVar[int] = 1
     model_config = ConfigDict(protected_namespaces=())
 
-    attr_path: Optional[Union[str, pathlib.Path]] = Field(
-        pathlib.Path.cwd(), description="the path to the attributes file"
-    )
+    attr_path: str | pathlib.Path | None = Field(pathlib.Path.cwd(), description="the path to the attributes file")
     include: Annotated[bool, Metadata(category=FieldCategory.BUILD)] = Field(
         True, description="Include component in system."
     )
@@ -147,90 +67,18 @@ class Component(BaseComponent, FromCSVMixIn):
 
         return f"{self.__class__.__name__}: {str(self.name)}"
 
-    # TODO: Use method chaining to make this cleaner: https://stackoverflow.com/questions/49112201/python-class-methods-chaining
-
-    def _expose_linkage_component(self, linkage_name: str, linkage_key: str) -> "Component":
-        """
-        Return the linkage component
-
-        Args:
-            linkage_name: str of linkage name defined on System. Ex: "pollutants"
-            linkage_key: str. Name of specific linkage key in linkage dictionary. Ex: "Connecticut_Residential Single Family Space Heating"
-
-        Returns: linked component
-
-        """
-        linkage = getattr(self, linkage_name)[linkage_key].instance_to
-        # handle the case where the linkage_to returns the self object, and you actually want linkage_from
-        if linkage == self:
-            linkage = getattr(self, linkage_name)[linkage_key].instance_from
-        return linkage
-
-    def _return_linked_component(self, linkage_name: str) -> "Component":
-        """
-        For a 1:1 linkage, return the linked component.
-
-        Args:
-            linkage_name: str of linkage name. Ex: "sector"
-
-        Returns: linked component for 1:1 linkage
-
-        """
-        if getattr(self, linkage_name) is None or len(getattr(self, linkage_name)) == 0:
-            linkage = None
-        elif len(getattr(self, linkage_name)) > 1:
-            raise ValueError(f"Expecting only one linkage, multiple are present for {linkage_name}")
-        else:
-            linkage_key = list(getattr(self, linkage_name).keys())[0]
-            linkage = self._expose_linkage_component(linkage_name, linkage_key)
-
-        return linkage
-
-    def _return_linkage_list(self, linkage_name: str) -> list | None:
-        """
-        Loop through a dictionary of linkages and return a list of the linked component only.
-
-        Args:
-            linkage_name: str of name of the linkage on the component. Ex: "pollutants"
-
-        Returns: list of components
-
-        """
-        if getattr(self, linkage_name) is None or len(getattr(self, linkage_name)) == 0:
-            return None
-        else:
-            return [
-                self._expose_linkage_component(linkage_name, linkage_key) for linkage_key in getattr(self, linkage_name)
-            ]
-
-    def _return_linkage_dict(self, linkage_name: str) -> dict | None:
-        """
-        Loop through a dictionary of linkages and return a dict of the linked component only.
-
-        Args:
-            linkage_name: str of name of the linkage on the component. Ex: "pollutants"
-
-        Returns: dictionary of components. Key is the name of the linkage, value is the linked `to` or `from` component {str: component}
-
-        """
-        if getattr(self, linkage_name) is None or len(getattr(self, linkage_name)) == 0:
-            return None
-        else:
-            return {
-                linkage_key: self._expose_linkage_component(linkage_name, linkage_key)
-                for linkage_key in getattr(self, linkage_name)
-            }
-
     @property
-    def results_reporting_category(self):
+    def results_reporting_category(self) -> str:
+        """Category label used when organising exported results by component type."""
         return f"{self.__class__.__name__}"
 
     @property
-    def results_reporting_folder(self):
+    def results_reporting_folder(self) -> str:
+        """Subdirectory name used when writing results to disk; defaults to results_reporting_category."""
         return self.results_reporting_category
 
     @classmethod
-    def model_fields_by_category(cls) -> dict:
+    def model_fields_by_category(cls) -> dict[str | None, list[str]]:
         """Create a nested dictionary of model fields by category for  UI (if specified in `Metadata` annotation)."""
         fields = {}
         # Put linkages in their own category
@@ -273,13 +121,13 @@ class Component(BaseComponent, FromCSVMixIn):
         """Convert metadata for all component fields into a list of tuples.
 
         Used by `Component.to_excel()` to create header rows, in this order:
-        - Field category
-        - Field attribute (i.e., the name in the code)
-        - Defined units
-        - Lower bound warning
-        - Upper bound warning
-        - Field title (i.e., nicely formatted name), if timeseries
-        - The only actual Excel `Table` header row: Field title (if scalar) **OR** year + short title (if timeseries)
+            - Field category
+            - Field attribute (i.e., the name in the code)
+            - Defined units
+            - Lower bound warning
+            - Upper bound warning
+            - Field title (i.e., nicely formatted name), if timeseries
+            - The only actual Excel `Table` header row: Field title (if scalar) **OR** year + short title (if timeseries)
             - Excel `Table` headers must be unique, which is why for timeseries fields, I prepend a year
         """
         # Get metadata annotation
@@ -314,11 +162,7 @@ class Component(BaseComponent, FromCSVMixIn):
         else:
             category = None
 
-        # Get units (either a pint unit or a string, e.g., for bools, %)
-        if isinstance(metadata.units, pint.Unit) or isinstance(metadata.units, pint.Quantity):
-            units = f"{metadata.units:e3}"
-        else:
-            units = metadata.units
+        units = metadata.units
 
         # Get timeseries short title with years
         header_with_years = (
@@ -364,8 +208,8 @@ class Component(BaseComponent, FromCSVMixIn):
             )
 
     @classmethod
-    def get_metadata(cls, field_name: str):
-        """Get field's `Metadata()` from annotation (or return an default `Metadata()` instance."""
+    def get_metadata(cls, field_name: str) -> Metadata:
+        """Return the Metadata annotation for a field, or a default Metadata() if none is set."""
         if not cls.model_fields[field_name].metadata or not any(
             isinstance(metadata, Metadata) for metadata in cls.model_fields[field_name].metadata
         ):
@@ -575,66 +419,14 @@ class Component(BaseComponent, FromCSVMixIn):
                 df = pd.concat(dfs_to_concat, ignore_index=True)
         return df
 
-    # CURRENTLY UNUSED!!
-    @classmethod
-    def _get_pyomo_container_attributes(cls) -> dict[str, Union[VarContainer, ExpressionContainer]]:
-        """Returns a list of attributes of the Component that are of type VarContainer or ExpressionContainer.
-
-        Returns:
-            container_attributes: a list of attribute names of type VarContainer or ExpressionContainer
-        """
-        container_attributes = {}
-        for attr_name, field_info in cls.model_fields.items():
-            attr_field_types = cls.get_field_type(field_info=field_info)
-            if len({VarContainer, ExpressionContainer}.intersection(set(attr_field_types))) > 0:
-                assert (
-                    len(attr_field_types) == 1
-                ), "Union types using VarContainer or ExpressionContainer are not supported"
-                container_attributes[attr_name] = attr_field_types[0]
-
-        return container_attributes
-
-    # CURRENTLY UNUSED!!
-    @classmethod
-    def _parse_pyomo_container_attributes(
-        cls, *, filename: pathlib.Path, input_df: pd.DataFrame, scenarios: list
-    ) -> dict[str, Any]:
-        """Parses input data used to initialize attributes of type VarContainer or ExpressionContainer when creating a
-        Component from a CSV.
-
-        Args:
-            filename: path to the input CSV file
-            input_df: DataFrame representation of the input CSV file
-            scenarios: list of scenarios to filter
-
-        Returns:
-            container_attrs: dictionary of parsed container attributes
-        """
-        container_attribute_names_and_classes = cls._get_pyomo_container_attributes()
-
-        container_attrs = {}
-        for attr_name, container_class in container_attribute_names_and_classes.items():
-            input_df_container_subset = input_df.loc[
-                input_df.loc[:, "attribute"].isin([attr_name, f"{attr_name}_min", f"{attr_name}_max"]), :
-            ].copy()
-            input_df_container_subset.loc[:, "attribute"] = (
-                input_df_container_subset.loc[:, "attribute"]
-                .replace(f"{attr_name}_max", "max")
-                .replace(f"{attr_name}_min", "min")
-                .replace(attr_name, "value")
-            )
-
-            container_attrs[attr_name] = container_class.from_dataframe(
-                input_df=input_df_container_subset, attr_path=filename, scenarios=scenarios, data={}, name=attr_name
-            ).popitem()[1]
-
-        return container_attrs
-
     @pydantic.model_validator(mode="before")
-    def annual_input_validator(cls, values):
-        """
-        Checks that all timeseries data with down_method == 'annual' only has one input per year
-        and sets the datetime index to be January 1st at midnight
+    @classmethod
+    def annual_input_validator(cls, values: dict) -> dict:
+        """Validate that annual timeseries fields contain at most one value per year.
+
+        For any Timeseries field whose down_method is 'annual', this validator:
+        - Raises ValueError if more than one data point exists per calendar year.
+        - Re-indexes data points to January 1st midnight if they are not already aligned.
         """
         if not isinstance(values, dict):
             return values
@@ -659,9 +451,14 @@ class Component(BaseComponent, FromCSVMixIn):
                     values[value].data.index = new_index
         return values
 
+    # todo: is this used? if its helpful, move to kit
     @pydantic.model_validator(mode="after")
-    def warn_value_bounds(self):
-        """Raise a warning (instead of an error) for values that are out of a "reasonable" value range but not explicitly "wrong"."""
+    def warn_value_bounds(self) -> Component:
+        """Emit a logger warning for field values outside their declared reasonable bounds.
+
+        Does not raise; out-of-bounds values are still accepted so that users can override
+        defaults without the model refusing to instantiate.
+        """
         for field in self.model_fields_set:
             metadata = self.get_metadata(field_name=field)
             attr = getattr(self, field)
@@ -685,43 +482,6 @@ class Component(BaseComponent, FromCSVMixIn):
                         f"For {self.name}.{field}: {getattr(self, field):.4f} may be unreasonable: reasonable bounds are {lb, ub}"
                     )
         return self
-
-    @classmethod
-    def _parse_attributes(cls, filename: pathlib.Path, input_df: pd.DataFrame, scenarios: list[str]):
-        attrs = super(Component, cls)._parse_attributes(filename=filename, input_df=input_df, scenarios=scenarios)
-        attrs.update(**cls._parse_pyomo_container_attributes(filename=filename, input_df=input_df, scenarios=scenarios))
-
-        return attrs
-
-    @classmethod
-    def from_dir(cls, data_path: os.PathLike, scenarios: Optional[list] = None) -> dict[str, C]:
-        """Read instances from directory of instances with attribute.csv files.
-
-        Args:
-            data_path:
-
-        Returns:
-
-        """
-        # TODO: Figure out how to read in selected subfolders and not just all subfolders...
-        # TODO: Remove redundancy in component filepaths/names (i.e., [class]_inputs/[instance]/[class]_X_inputs.csv)
-        instances = {}
-        if not scenarios:
-            scenarios = []
-
-        for filename in sorted(pathlib.Path(data_path).glob("*.csv")):
-            vintages = cls.from_csv(filename=filename, scenarios=scenarios)
-            instances.update(vintages)
-
-        return instances
-
-    @classmethod
-    def from_json(cls, filepath: os.PathLike) -> C:
-        """Reads JSON file back to Component object."""
-
-        with open(filepath, "r") as json_file:
-            data = json.load(json_file)
-        return cls(**data)
 
     @classmethod
     def dfs_to_csv(
@@ -778,12 +538,9 @@ class Component(BaseComponent, FromCSVMixIn):
 
         progress_bar.close()
 
-    def revalidate(self):
-        """Abstract method to run additional validations after `Linkage.announce_linkage_to_instances`."""
-
     @property
-    def timeseries_attrs(self):
-        # find all timeseries attributes in instance
+    def timeseries_attrs(self) -> list[str]:
+        """Names of all fields on this instance whose type is a Timeseries subclass."""
         return [
             attr
             for attr, field_settings in self.model_fields.items()
@@ -792,6 +549,7 @@ class Component(BaseComponent, FromCSVMixIn):
 
     @classmethod
     def _linkage_attributes(cls) -> list[str]:
+        """Return field names whose annotation is a dict of Linkage (or subclass) instances."""
         from resolve.core.linkage import Linkage
 
         linkage_attrs = []
@@ -805,10 +563,12 @@ class Component(BaseComponent, FromCSVMixIn):
 
     @property
     def linkage_attributes(self) -> list[str]:
+        """Field names whose annotation is a dict of Linkage (or subclass) instances."""
         return self._linkage_attributes()
 
     @classmethod
     def _three_way_linkage_attributes(cls) -> list[str]:
+        """Return field names whose annotation is a dict of ThreeWayLinkage (or subclass) instances."""
         from resolve.core.three_way_linkage import ThreeWayLinkage
 
         linkage_attrs = []
@@ -820,314 +580,21 @@ class Component(BaseComponent, FromCSVMixIn):
 
         return linkage_attrs
 
+    # todo: linkage refactor
     @property
     def three_way_linkage_attributes(self) -> list[str]:
+        """Field names whose annotation is a dict of ThreeWayLinkage (or subclass) instances."""
         return self._three_way_linkage_attributes()
 
+    # todo: linkage refactor
     @property
     def non_linkage_attributes(self) -> list[str]:
+        """Field names that are neither Linkage nor ThreeWayLinkage fields."""
         return list(set(self.model_fields.keys()) - set(self.linkage_attributes + self.three_way_linkage_attributes))
 
-    def resample_ts_attributes(
-        self,
-        modeled_years: tuple[int, int],
-        weather_years: tuple[int, int],
-        resample_weather_year_attributes=True,
-        resample_non_weather_year_attributes=True,
-    ):
-        """Resample timeseries attributes to the default frequencies to make querying via `slice_by_timepoint` and
-        `slice_by_year` more consistent later.
-
-        1. Downsample data by comparing against a "correct index" with the correct default_freq
-        2. If data start year > modeled start year, fill timeseries backward
-        3. Create a temporary timestamp for the first hour of the year **after** the modeled end year
-           to make sure we have all the hours, minutes (e.g., 23:59:59) filled in in step (4)
-        4. Resample to fill in any data (particularly at end of timeseries) and drop temporary timestamp from (3)
-
-        """
-        model_year_start, model_year_end = modeled_years
-        weather_year_start, weather_year_end = weather_years
-
-        # find all timeseries attributes in instance
-        extrapolated = set()
-        for attr in self.timeseries_attrs:
-            # Don't try resampling empty ts data
-            temp = getattr(self, attr)
-            if temp is None:
-                continue
-
-            # Get the resampling settings from the pydantic.Field definition
-            field_settings = self.model_fields[attr].json_schema_extra
-
-            # There are now TWO ways to identify toggle timeseries types (hard-coded or via an attribute called `[attr]__type`)
-            is_weather_year = ("weather_year" in field_settings and field_settings["weather_year"]) or (
-                getattr(self, f"{attr}__type", None) == TimeseriesType.WEATHER_YEAR
-            )
-            temp.weather_year = is_weather_year  # TODO: This is a bandaid that sets the Timeseries instance attribute to True if the Field in the System is also True
-
-            # TODO 2023-07-17: These are sort of goofy...
-            do_not_resample_weather_year = is_weather_year and not resample_weather_year_attributes
-            do_not_resample_modeled_year = not is_weather_year and not resample_non_weather_year_attributes
-
-            # Skip this attribute if we're not resampling
-            if do_not_resample_modeled_year or do_not_resample_weather_year:
-                continue
-
-            # Get correct index: Resample data by comparing against a "correct index" with the correct default_freq
-            # if data is input in weather year, only resample to weather year boundaries
-            if is_weather_year:
-                year_start = weather_year_start
-                year_end = weather_year_end
-            else:
-                year_start = model_year_start
-                year_end = model_year_end
-            # Date range from correct start and end, at defined default frequency
-            correct_index = pd.date_range(
-                str(year_start), str(year_end + 1), freq=field_settings["default_freq"], inclusive="left"
-            )
-
-            # Change index year if the data has default year
-            if list(temp.data.index.year.unique()) == [
-                1900
-            ]:  # TODO: This doesn't seem like a good way to check if data is default
-                # default data, update index to be resampled
-                temp.data.index += pd.DateOffset(years=year_start - 1900)
-
-            # if all timestamp of the correct index are contained in the existing series, just need to resample down
-            overlapping_index = correct_index.isin(temp.data.index)
-            if (~overlapping_index).sum() == 0:
-                new_profile = temp.data.reindex(correct_index)
-                new_profile = ts.Timeseries.resample_down(
-                    new_profile,
-                    field_settings["default_freq"],
-                    field_settings["down_method"],
-                )
-                temp.data = new_profile.ffill()
-            # If the indexes do not overlap at all, throw an error
-            elif overlapping_index.sum() == 0:
-                raise ValueError(
-                    f"{self.name}: {temp.name} index does not overlap with target years: {year_start}: {year_end}"
-                )
-            # Resample up: Check if timeseries type is monthly, month-hour, or season-hour
-            # TODO: Is there a smart way for us to infer the timeseries __type to avoid a user input?
-            elif (
-                getattr(self, f"{attr}__type", None) == TimeseriesType.MONTH_HOUR
-                or getattr(self, f"{attr}__type", None) == TimeseriesType.SEASON_HOUR
-                or getattr(self, f"{attr}__type", None) == TimeseriesType.MONTHLY
-            ):
-                # TODO: Figure out a way to use the resample_up method on monthly or seasonal data?
-                temp.type = getattr(self, f"{attr}__type")  # Set timeseries attribute type
-                if field_settings["up_method"] != "ffill":
-                    logger.warning(
-                        "Monthly data upsampling is only supported for forward filling, not back filling or interpolation. "
-                        "All timestamps within a given month will be assigned the value given in that month."
-                    )
-                temp.resample_month_or_season_hour_to_hourly(correct_index=correct_index)
-            # Resample up: Data is not monthly, month-hour, or season-hour
-            else:
-                new_profile = temp.data.reindex(correct_index)
-                new_profile = ts.Timeseries.resample_up(
-                    new_profile,
-                    field_settings["up_method"],
-                )
-
-                # Because we have `validate_assignment` as True, every time we do ts.data = something,
-                # it will get re-validated, including if we're mid-operation (in this case, we've extended the indices
-                # but have yet to fill in the NaNs)
-                temp.data = new_profile.ffill()
-
-        # TODO: `extrapolated` doesn't seem to be updated anywhere
-        # If the `extrapolated` set of attrs is not empty, return them to `System` for warning
-        if extrapolated:
-            return {self.name: extrapolated}
-
-    @classmethod
-    def map_units(cls, row):
-        """Return original units for named attribute."""
-        try:
-            unit = cls.model_fields[row["attribute"]].json_schema_extra["units"]
-        except KeyError:
-            # Catch exception if unit is not defined for an attribute
-            logger.debug(
-                f"Unit for {row['attribute']} ({row['timestamp']}) not defined in code (see documentation for more details on units). Assuming dimensionless."
-            )
-            unit = 1 * units.dimensionless
-        return unit
-
-    @classmethod
-    def parse_user_unit(cls, row):
-        """Convert user-defined unit to pint `Unit` instance."""
-        try:
-            unit = units.Quantity(row["unit"])
-        except pint.UndefinedUnitError as e:
-            logger.warning(
-                f"Unit for {row['attribute']} ({row['timestamp']}) could not be parsed (see documentation for more details on units): {e}"
-            )
-            unit = units.Quantity("1 dimensionless")
-        return unit
-
-    @classmethod
-    def convert_units(cls, row):
-        """Convert units from user-defined `unit` to `defined_unit`."""
-        if row["unit"].units == units("dimensionless"):
-            return 1
-        else:
-            return (row["unit"] * row["defined_unit"]).magnitude
-
-    def extract_attribute_from_components(self, component_dict: Union[None, Dict[str, "Component"]], attribute: str):
-        """Takes a dictionary with Components as the values and returns the dictionary with the same keys, but with
-        the desired attribute extracted from the Components.
-
-        Args:
-            component_dict: dictionary of Components
-            attribute: attribute to extract from each Component
-
-        Returns:
-            component_attributes: dictionary containing the extracted attributes
-        """
-        if component_dict is None:
-            return None
-        else:
-            component_attributes = map_dict(dict_=component_dict, func=lambda component: getattr(component, attribute))
-
-            return component_attributes
-
-    def sum_attribute_from_components(
-        self,
-        component_dict: Union[None, Dict[str, "Component"]],
-        attribute: str,
-        timeseries: bool = False,
-        skip_none: bool = False,
-    ):
-        """Extracts an attribute from all Components in `component_dict` and sums them. If the attributes are
-        `Timeseries` objects, use `timeseries=True`. The `skip_none` argument will skip any Components for which the
-        desired attribute has no value.
-
-        Args:
-            component_dict: dictionary containing the Components (e.g. `System.resources`)
-            attribute: the desired attribute to sum
-            timeseries: whether or not the attribute is a timeseries
-            skip_none: whether or not to skip Components for which the attribute is None
-
-        Returns:
-            aggregate: the aggregated value across all Components
-        """
-
-        if component_dict is None:
-            return None
-        else:
-            component_attributes = self.extract_attribute_from_components(
-                component_dict=component_dict, attribute=attribute
-            )
-            if skip_none:
-                component_attributes = {key: value for key, value in component_attributes.items() if value is not None}
-                if len(component_attributes) == 0:
-                    return None
-
-            if timeseries:
-                component_attributes = map_dict(dict_=component_attributes, func=lambda x: x.data)
-                aggregate = ts.NumericTimeseries(name=attribute, data=sum(component_attributes.values()))
-            else:
-                aggregate = sum(component_attributes.values())
-
-            return aggregate
-
-    def sum_timeseries_attributes(
-        self, attributes: List[str], name: str, skip_none: bool = False
-    ) -> Union[None, ts.NumericTimeseries]:
-        """Sums multiple attributes of the instance which are `Timeseries` objects.
-
-        Args:
-            attributes: list of attributes to sum
-            name: name for the resulting `Timeseries`
-            skip_none: whether or not to skip attributes if they are `None`
-
-        Returns:
-            result: a `Timeseries` that is the sum of the input attributes
-        """
-        timeseries_attributes = [getattr(self, attribute) for attribute in attributes]
-
-        if skip_none:
-            timeseries_attributes = filter_not_none(timeseries_attributes)
-            if len(timeseries_attributes) == 0:
-                return None
-
-        result = ts.NumericTimeseries(name=name, data=sum([ts_.data for ts_ in timeseries_attributes]))
-
-        return result
-
-    def copy(
-        self,
-        exclude: Optional[list[str]] = None,
-        include_linkages: bool = False,
-        update: Optional[dict[str, Any]] = None,
-        new_class: Type | None = None,
-    ):
-        """Copy a component instance (and optionally convert it to a new component class type)."""
-        attrs_to_excl = self.linkage_attributes + self.three_way_linkage_attributes
-        if exclude is not None:
-            attrs_to_excl += exclude
-        attrs_to_excl = set(attrs_to_excl)
-        data = self.model_dump(exclude=set(attrs_to_excl))
-        if update is not None:
-            data.update(**update)
-        data = copy.deepcopy(data)
-        class_to_use = self.__class__ if new_class is None else new_class
-        copied = class_to_use.model_validate(data)
-
-        if update is not None and self.formulation_block is not None:
-            logger.warning(
-                f"Cannot duplicate formulation block for `{self.name}` because fields have been updated in the `copy()` "
-                f"method. Setting `formulation_block` to None on the copy."
-            )
-        elif self._formulation_block is not None:
-            copied._formulation_block = self.formulation_block.clone()
-
-        if include_linkages:
-            for linkage_attribute in copied._linkage_attributes():
-                curr_linkages = getattr(self, linkage_attribute)
-                for linkage in curr_linkages.values():
-                    # Warning: this creates a shallow copy of the linkage, meaning updating a linkage attribute on
-                    # the copied version will change the original attribute, and vice versa.
-                    linkage_copy = linkage.copy()
-                    if linkage_copy.instance_from is self:
-                        linkage_copy.instance_from = copied
-                        linkage_copy.name = (copied.name, linkage_copy.instance_to.name)
-                    elif linkage_copy.instance_to is self:
-                        linkage_copy.instance_to = copied
-                        linkage_copy.name = (linkage_copy.instance_from.name, copied.name)
-                    else:
-                        raise ValueError(
-                            f"When copying Component `{self.name} with linkages, the Component was not found in "
-                            f"`instance_from` or `instance_to` of the connected Linkage `{linkage.name}`"
-                        )
-                    linkage_copy.announce_linkage_to_instances()
-
-            for linkage_attribute in self.three_way_linkage_attributes:
-                curr_linkages = getattr(self, linkage_attribute)
-                for linkage in curr_linkages.values():
-                    linkage_copy = linkage.copy()
-                    if linkage_copy.instance_1 is self:
-                        linkage_copy.instance_1 = copied
-                        linkage_copy.name = (copied.name, linkage_copy.instance_2.name, linkage_copy.instance_3.name)
-                    elif linkage_copy.instance_2 is self:
-                        linkage_copy.instance_2 = copied
-                        linkage_copy.name = (linkage_copy.instance_1.name, copied.name, linkage_copy.instance_3.name)
-                    elif linkage_copy.instance_3 is self:
-                        linkage_copy.instance_3 = copied
-                        linkage_copy.name = (linkage_copy.instance_1.name, linkage_copy.instance_2.name, copied.name)
-                    else:
-                        raise ValueError(
-                            f"When copying Component `{self.name} with linkages, the Component was not found in "
-                            f"`instance_from` or `instance_to` of the connected Linkage `{linkage.name}`"
-                        )
-                    linkage_copy.announce_linkage_to_instances()
-
-        return copied
-
     @property
-    def formulation_block(self) -> Optional[pyo.Block]:
-        """The Pyomo Block for the Component"""
+    def formulation_block(self) -> pyo.Block | None:
+        """The Pyomo Block holding this component's decision variables, constraints, and expressions."""
         return self._formulation_block
 
     def construct_modeling_block(
@@ -1206,7 +673,7 @@ class Component(BaseComponent, FromCSVMixIn):
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
         """Defines the operations-related optimization formulation components (decision variables, expressions,
         constraints, etc.) for the Component. This method should be overridden by subclasses to define additional terms,
-        but make sure to call super()._construct_investment_rules (unless you are sure you don't need to).
+        but make sure to call super()._construct_operational_rules (unless you are sure you don't need to).
 
         Args:
             model: the Model containing the necessary temporal settings information needed to construct the rules
@@ -1249,11 +716,12 @@ class Component(BaseComponent, FromCSVMixIn):
             construct_costs: whether to construct cost-related terms
         """
 
-    def _order_annual_results_columns(self, column_order: list, annual_results: pd.DataFrame) -> list:
-        """The desired order of columns in the component's annual results summary
+    def _order_annual_results_columns(self, column_order: list[str], annual_results: pd.DataFrame) -> list[str]:
+        """Return column names in the preferred display order for the annual results summary.
 
         Args:
-            column_order: hard-coded order of annual result summary columns
+            column_order: preferred column order declared on the subclass as annual_results_column_order.
+            annual_results: the DataFrame whose columns will be reordered.
         """
         if hasattr(self, "annual_results_column_order"):
             ordered_columns = []
@@ -1272,9 +740,12 @@ class Component(BaseComponent, FromCSVMixIn):
         else:
             return annual_results.columns
 
-    def _build_year_based_annual_index(self) -> list:
-        """Helper method to get the model year index of a component with a build_year (Assets)
-        or earliest_build_year (AssetGroups)"""
+    def _build_year_based_annual_index(self) -> list[int]:
+        """Return the list of modeled years for which this component is active.
+
+        For Assets: years >= build_year. For AssetGroups: years >= earliest_build_year.
+        Falls back to all MODELED_YEARS if neither attribute is present.
+        """
         # If the Component does not have a build year, repeat the value for all modeled years
         if getattr(self, "build_year", None) is None:
             # If the Component is a group, it could have an earliest_build_year. Check for that
@@ -1299,21 +770,19 @@ class Component(BaseComponent, FromCSVMixIn):
         return index
 
     @staticmethod
-    def _pivot_result_df(data_frame: pd.DataFrame, index: list) -> pd.DataFrame:
-        """Helper method to reformat a data frame holding Pyomo component data"""
+    def _pivot_result_df(data_frame: pd.DataFrame, index: list[str]) -> pd.DataFrame:
+        """Pivot a Pyomo-component DataFrame so that non-timeseries index levels become columns."""
         pivoted_df = data_frame.reset_index().pivot(
             index=index, columns=[x for x in data_frame.index.names if x not in index]
         )
 
         return pivoted_df
 
-    def export_formulation_block_raw_results(self, output_dir: pathlib.Path):
-        """
-        Save raw pyomo components to csv.
+    def export_formulation_block_raw_results(self, output_dir: pathlib.Path) -> None:
+        """Write every active Pyomo component on the formulation block to a CSV file.
 
         Args:
-            output_dir: raw results directory
-
+            output_dir: root directory under which per-component subdirectories are created.
         """
         output_dir = output_dir.joinpath(self.results_reporting_folder, self.name)
         output_dir.mkdir(exist_ok=True, parents=True)
@@ -1487,7 +956,7 @@ class Component(BaseComponent, FromCSVMixIn):
         logger.debug(f"{self.__class__.__name__} {self.name}: Exporting Pyomo component results")
 
         def _create_non_indexed_component_df(
-            pyomo_component: Union[pyo.Param, pyo.Var, pyo.Expression, pyo.Set],
+            pyomo_component: pyo.Param | pyo.Var | pyo.Expression | pyo.Set,
         ) -> pd.DataFrame:
             """Helper method for creating a DataFrame from a non-indexed Pyomo component
 
@@ -1660,14 +1129,14 @@ class Component(BaseComponent, FromCSVMixIn):
         )
 
     def _add_zones_to_results_summary(self, results_df: pd.DataFrame) -> pd.DataFrame:
-        """Method for adding a Zone(s) column on annual, hourly, and chrono-indexed results"""
+        """Prepend a Zone(s) column to results_df if this component has a zones linkage."""
         if hasattr(self, "zones"):  # Only add the column if this component is linked to at least one zone
             zones = ",".join(map(str, self.zones.keys()))
             results_df.insert(0, "Zone(s)", zones)
         return results_df
 
     def _add_operational_group_to_results_summary(self, results_df: pd.DataFrame) -> pd.DataFrame:
-        """Method for adding a column that shows an asset's operational group on annual, hourly, and chrono-indexed results"""
+        """Prepend an Operational Group column to results_df if this component belongs to an operational group."""
         if (
             hasattr(self, "operational_group") and self.operational_group is not None
         ):  # Only add the column if this component is linked to at least one operational_group
@@ -1675,14 +1144,14 @@ class Component(BaseComponent, FromCSVMixIn):
         return results_df
 
     def _add_fuels_to_results_summary(self, results_df: pd.DataFrame) -> pd.DataFrame:
-        """Method for adding a Fuel(s) column as the first column on annual results"""
+        """Prepend a Fuel(s) column to results_df if this component has candidate fuel linkages."""
         if hasattr(self, "candidate_fuels"):  # Only add the column if this component is linked to at least one fuel
             fuels = ",".join(map(str, self.candidate_fuels.keys()))
             results_df.insert(0, "Fuel(s)", fuels)
         return results_df
 
-    def _append_dispatch_window_weights(self, df: pd.DataFrame):
-        # Append dispatch window weights to hourly results df
+    def _append_dispatch_window_weights(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Merge dispatch window weights onto df and append weight as an index level."""
         df = df.merge(
             self.formulation_block.model().temporal_settings.dispatch_window_weights,
             left_on=self.formulation_block.model().DISPATCH_WINDOWS.name,

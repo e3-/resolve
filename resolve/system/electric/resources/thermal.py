@@ -2,7 +2,8 @@ from typing import ClassVar
 
 import pandas as pd
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from kit.system.electric.resources.thermal import BaseThermalResource
 from kit.system.electric.resources.thermal import BaseThermalResourceGroup
 from kit.system.electric.resources.thermal import BaseThermalUnitCommitmentResource
@@ -12,8 +13,6 @@ from pydantic import Field
 from typing_extensions import Annotated
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.linkage import CandidateFuelToResource
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
 from resolve.system.electric.resources.generic import GenericResource
@@ -36,7 +35,7 @@ class ThermalResource(BaseThermalResource, GenericResource):
     ###################################
 
     fuel_burn_slope: Annotated[
-        float | None, Metadata(category=FieldCategory.OPERATIONS, units=units.MMBtu / units.MWh, warning_bounds=(0, 17))
+        float | None, Metadata(category=FieldCategory.OPERATIONS, units="MMBtu / MWh", warning_bounds=(0, 17))
     ] = Field(
         default=None,
         description="Fuel burn slope (MMBTU/MWh). Aka average heat rate. The average heat rate = average fuel "
@@ -111,7 +110,6 @@ class ThermalResource(BaseThermalResource, GenericResource):
                 candidate_fuels,
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                units=pyo.units.MBtu,
                 within=pyo.NonNegativeReals,
                 doc="Resource Fuel Consumption by Fuel (MMBtu/hr)",
             ),
@@ -165,7 +163,6 @@ class ThermalResource(BaseThermalResource, GenericResource):
                     candidate_fuels,
                     model.MODELED_YEARS,
                     model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                    units=pyo.units.MW,
                     within=pyo.NonNegativeReals,
                     doc="Resource Power Output by Fuel (MW)",
                 ),
@@ -400,7 +397,7 @@ class ThermalUnitCommitmentResource(BaseThermalUnitCommitmentResource, ThermalRe
     ###################################
 
     fuel_burn_slope: Annotated[
-        float | None, Metadata(category=FieldCategory.OPERATIONS, units=units.MMBtu / units.MWh, warning_bounds=(0, 17))
+        float | None, Metadata(category=FieldCategory.OPERATIONS, units="MMBtu / MWh", warning_bounds=(0, 17))
     ] = Field(
         default=None,
         description="The marginal heat rate represents the rate of change of fuel consumption with respect to the level of output. Mathematically, it is the derivative of the heat input function with respect to output level (m(x) = δy / δx). It tells us how much additional fuel is required to produce one more unit of output (megawatt hour). Required when resource is an operational group or does not belong to one.",
@@ -412,7 +409,7 @@ class ThermalUnitCommitmentResource(BaseThermalUnitCommitmentResource, ThermalRe
     # todo: this should be MMBTU/whatever frequency the model is in. Will the unit conversion handle that? Or is unit conversion a thing?
     fuel_burn_intercept: Annotated[
         float | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.MMBtu / units.hour, warning_bounds=(0, 1000)),
+        Metadata(category=FieldCategory.OPERATIONS, units="MMBtu / hour", warning_bounds=(0, 1000)),
     ] = Field(
         default=None,
         description="Fuel burn intercept per generating unit. Represents the minimum amount of fuel used when a unit is on. Required when resource is an operational group or does not belong to one.",

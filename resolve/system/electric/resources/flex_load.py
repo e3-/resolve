@@ -2,6 +2,8 @@ from typing import ClassVar
 
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from kit.system.electric.resources.flex_load import BaseFlexLoadResource
 from kit.system.electric.resources.flex_load import BaseFlexLoadResourceGroup
 from pydantic import Field
@@ -9,8 +11,6 @@ from pydantic import model_validator
 from typing_extensions import Annotated
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
 from resolve.system.electric.resources.shed_dr import ShedDrResource
 from resolve.system.electric.resources.shed_dr import ShedDrResourceGroup
@@ -21,6 +21,7 @@ from resolve.system.electric.resources.unit_commitment import UnitCommitmentMeth
 
 class FlexLoadResource(BaseFlexLoadResource, ShedDrResource, StorageResource):
     """A FlexLoad Resource is a resource that can adjust its power in response to electric system needs. Examples include water heaters and electric vehicle chargers."""
+
     SAVE_PATH: ClassVar[str] = "resources/shift"
 
     ###########################
@@ -337,6 +338,7 @@ class FlexLoadResource(BaseFlexLoadResource, ShedDrResource, StorageResource):
 
         the constraint is formulated as:
             Provide_Power_MW[t+n] <= sum(L[t+n] for n in range(2*n + 1)
+
         Again, note how it's constraining on t+n hour instead of the t hour
         """
         if (
@@ -538,9 +540,10 @@ class FlexLoadResource(BaseFlexLoadResource, ShedDrResource, StorageResource):
 
         - If committed_units = 1, the inequality reduces to:
             committed_capacity >= unit_size
-          enforcing that the full unit size is available.
+            enforcing that the full unit size is available.
+
         - If committed_units = 0, the RHS relaxes to a large negative value,
-          effectively removing the lower bound and allowing committed_capacity = 0.
+            effectively removing the lower bound and allowing committed_capacity = 0.
 
         Returns: pyomo.Constraint: power_input_committed_capacity >= unit_size - max_potential * (1 - power_input_committed_units)
         """

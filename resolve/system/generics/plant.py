@@ -6,7 +6,8 @@ from typing import Union
 
 import numpy as np
 import pandas as pd
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from loguru import logger
 from pydantic import computed_field
 from pydantic import Field
@@ -14,8 +15,6 @@ from pydantic import model_validator
 from pyomo import environ as pyo
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.timeseries import FractionalTimeseries
@@ -72,12 +71,12 @@ class Plant(Asset):
         return self.consumed_products | self.produced_products
 
     @property
-    def primary_product_unit(self):
+    def primary_product_unit(self) -> str:
         return self.products[self.primary_product].unit
 
     @property
-    def capacity_unit(self):
-        return self.primary_product_unit / units.hour
+    def capacity_unit(self) -> str:
+        return f"{self.primary_product_unit}/h"
 
     @property
     def primary_output_processes(self):
@@ -88,12 +87,12 @@ class Plant(Asset):
         # TODO: make dict rather than list for consistency
         return [process.output_capture_rate for process in self.primary_output_processes][0]
 
-    ramp_up_limit: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, units=1 / units.hour)] = Field(
+    ramp_up_limit: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, units="1 / hour")] = Field(
         default=1,
         description="Single-hour ramp up rate.",
         down_method="none",
     )
-    ramp_down_limit: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, units=1 / units.hour)] = Field(
+    ramp_down_limit: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, units="1 / hour")] = Field(
         default=1,
         description="Single-hour ramp down rate.",
         down_method="none",
@@ -147,7 +146,7 @@ class Plant(Asset):
     )
     ptc_term: Annotated[
         int | None,
-        Metadata(units=units.years, excel_short_title="PTC Term"),
+        Metadata(units="years", excel_short_title="PTC Term"),
     ] = Field(
         None,
         title=f"PTC Term",
@@ -256,9 +255,9 @@ class Plant(Asset):
         self, model: "ModelTemplate", construct_costs: bool
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
         pyomo_components = super()._construct_investment_rules(model, construct_costs=construct_costs)
-        pyomo_components["selected_capacity"].doc = f"Selected Capacity ({self.capacity_unit:e3})"
-        pyomo_components["retired_capacity"].doc = f"Retired Capacity ({self.capacity_unit:e3})"
-        pyomo_components["operational_capacity"].doc = f"Operational Capacity ({self.capacity_unit:e3})"
+        pyomo_components["selected_capacity"].doc = f"Selected Capacity ({self.capacity_unit})"
+        pyomo_components["retired_capacity"].doc = f"Retired Capacity ({self.capacity_unit})"
+        pyomo_components["operational_capacity"].doc = f"Operational Capacity ({self.capacity_unit})"
 
         return pyomo_components
 
@@ -277,7 +276,7 @@ class Plant(Asset):
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 within=pyo.NonNegativeReals,
                 initialize=0,
-                doc=f"Hourly Operation ({self.capacity_unit:e3})",
+                doc=f"Hourly Operation ({self.capacity_unit})",
             ),
             scaled_min_output_profile=pyo.Expression(
                 model.MODELED_YEARS,
@@ -302,6 +301,18 @@ class Plant(Asset):
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 rule=self._production,
                 doc=f"Hourly Production of Output Product (Product Units per hour)",
+            ),
+            annual_production=pyo.Expression(
+                OUTPUTS,
+                model.MODELED_YEARS,
+                rule=self._annual_production,
+                doc="Annual Product Production (Product Units)",
+            ),
+            annual_consumption=pyo.Expression(
+                INPUTS,
+                model.MODELED_YEARS,
+                rule=self._annual_consumption,
+                doc="Annual Product Consumption (Product Units)",
             ),
             consumed_product_capture=pyo.Expression(
                 INPUTS,
@@ -384,6 +395,7 @@ class Plant(Asset):
                     doc="Annual Total Operational Cost ($)",
                 ),
             )
+
         return pyomo_components
 
     def _construct_output_expressions(self, construct_costs: bool):
@@ -391,18 +403,6 @@ class Plant(Asset):
         model: ModelTemplate = self.formulation_block.model()
 
         if self.has_operational_rules:
-            self.formulation_block.annual_consumption = pyo.Expression(
-                self.formulation_block.INPUTS,
-                model.MODELED_YEARS,
-                rule=self._annual_consumption,
-                doc="Annual Product Consumption (Product Units)",
-            )
-            self.formulation_block.annual_production = pyo.Expression(
-                self.formulation_block.OUTPUTS,
-                model.MODELED_YEARS,
-                rule=self._annual_production,
-                doc="Annual Product Production (Product Units)",
-            )
             self.formulation_block.annual_consumed_product_capture = pyo.Expression(
                 self.formulation_block.INPUTS,
                 model.MODELED_YEARS,
@@ -586,13 +586,13 @@ class Plant(Asset):
             <= block.scaled_max_output_profile[modeled_year, dispatch_window, timestamp]
         )
 
-    def _annual_consumption(self, block, product, modeled_year):
-        model: ModelTemplate = block.model()
-        return model.sum_timepoint_component_slice_to_annual(block.consumption[product, modeled_year, :, :])
+    def _annual_production(self, block, output, modeled_year):
+        """Annual production of product."""
+        return block.model().sum_timepoint_component_slice_to_annual(block.production[output, modeled_year, :, :])
 
-    def _annual_production(self, block, product, modeled_year):
-        model: ModelTemplate = block.model()
-        return model.sum_timepoint_component_slice_to_annual(block.production[product, modeled_year, :, :])
+    def _annual_consumption(self, block, input, modeled_year):
+        """Annual production of product."""
+        return block.model().sum_timepoint_component_slice_to_annual(block.consumption[input, modeled_year, :, :])
 
     def _annual_consumed_product_capture(self, block, input, modeled_year):
         """Annual consumed product capture."""

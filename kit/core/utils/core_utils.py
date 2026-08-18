@@ -1,3 +1,4 @@
+import os
 import time
 from functools import partial
 from io import StringIO
@@ -8,6 +9,7 @@ from typing import Dict
 from typing import Iterable
 from typing import List
 
+import psutil
 from loguru import logger
 
 
@@ -64,7 +66,7 @@ def sum_not_none(values: Iterable) -> Any:
         values: values to sum
 
     Returns:
-        sum of values, without those that are None
+        Sum of values, without those that are None.
     """
     non_none_values = filter_not_none(values)
     if len(non_none_values) == 0:
@@ -78,15 +80,22 @@ def sum_not_none(values: Iterable) -> Any:
 def timer(func):
     """Simple timer decorator"""
 
-    def wrapper(*args, **kwargs):
+    def timer_wrapper(*args, **kwargs):
         start = time.time()
         value = func(*args, **kwargs)
         end = time.time()
-        logger.debug(f"{func.__name__!r} took {(end - start):.2f} seconds")
+        try:
+            prefix = f"{args[0].__class__.__name__}: {args[0].name}: "
+        except (IndexError, AttributeError):
+            try:
+                prefix = f"{args[0].__class__.__name__}: "
+            except (IndexError, AttributeError):
+                prefix = ""
+        logger.success(f"{prefix}{func.__name__!r} took {(end - start):.2f} seconds")
 
         return value
 
-    return wrapper
+    return timer_wrapper
 
 
 def cantor_pairing_function(a: int, b: int) -> int:
@@ -95,12 +104,15 @@ def cantor_pairing_function(a: int, b: int) -> int:
     Makes sure we have unique seeds for each combination of Monte Carlo Seed and Generator Seed
     """
     if a < 0 or b < 0:
-        raise ValueError("All arguments to `cantor_pairing_function()` must be non-negative integers")
+        raise ValueError(
+            "All arguments to `cantor_pairing_function()` must be non-negative integers"
+        )
 
     return int(0.5 * (a + b) * (a + b + 1) + b)
 
 
 def profile_time(function, *args, **kwargs):
+    """Decorator to profile the time taken by a function using line_profiler."""
     from line_profiler import LineProfiler
 
     def wrapper(*args, **kwargs):
@@ -118,6 +130,7 @@ def profile_time(function, *args, **kwargs):
 
 
 def profile_memory(function, *args, **kwargs):
+    """Decorator to profile memory usage of a function using memory_profiler."""
     from memory_profiler import profile
 
     def wrapper(*args, **kwargs):
@@ -129,7 +142,22 @@ def profile_memory(function, *args, **kwargs):
     return wrapper
 
 
-def convert_to_bool(v):
+def profile_memory_psutil(function):
+    """Decorator to profile memory usage of a function using psutil."""
+
+    def memory_wrapper(*args, **kwargs):
+        return_value = function(*args, **kwargs)
+        final_mem_usage = psutil.Process(os.getpid()).memory_info().rss / 1e6
+        logger.success(
+            f"Memory usage after {function.__name__} call: {final_mem_usage:.2f} MB"
+        )
+        return return_value
+
+    return memory_wrapper
+
+
+def convert_to_bool(v: Any) -> bool:
+    """Converts a value to a boolean."""
     if type(v) == bool:
         bool_value = v
     elif type(v) == str:

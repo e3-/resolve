@@ -6,22 +6,19 @@ from typing import ClassVar
 from typing import Union
 
 import pandas as pd
-import pint
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.utils.core_utils import convert_to_bool
 from loguru import logger
 from pydantic import Field
-from pydantic import field_validator
 from pydantic import model_validator
 
 from resolve.core.component import Component
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.core.three_way_linkage import CustomConstraintLinkage
-from resolve.core.utils.core_utils import convert_to_bool
 from resolve.system import Asset
 from resolve.system.generics.demand import Demand
 from resolve.system.generics.generic_linkages import DemandToProduct
@@ -90,7 +87,7 @@ class Product(Component):
         dict[str, CustomConstraintLinkage], Metadata(linkage_order=3, default_exclude=True)
     ] = {}
 
-    unit: pint.Unit
+    unit: str
 
     commodity: Annotated[bool, Metadata(category=FieldCategory.OPERATIONS)] = Field(
         False,
@@ -115,7 +112,7 @@ class Product(Component):
 
     monthly_price_multiplier: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(units=units.unitless, category=FieldCategory.OPERATIONS, excel_short_title="Multiplier"),
+        Metadata(units="unitless", category=FieldCategory.OPERATIONS, excel_short_title="Multiplier"),
     ] = Field(None, default_freq="MS", up_method="ffill", down_method="mean")
 
     annual_price: Annotated[
@@ -200,14 +197,6 @@ class Product(Component):
             for sequestration_process in self.processes.values()
             if isinstance(sequestration_process, SequestrationProcess)
         }
-
-    @field_validator("unit", mode="before")
-    @classmethod
-    def convert_unit_string(cls, unit: str | pint.Unit) -> pint.Unit:
-        if isinstance(unit, str):
-            return units.parse_units(unit)
-        else:
-            return unit
 
     @model_validator(mode="before")
     @classmethod
@@ -340,17 +329,17 @@ class Product(Component):
             annual_total_consumption=pyo.Expression(
                 model.MODELED_YEARS,
                 rule=self._annual_total_consumption,
-                doc=f"Annual consumption of product ({self.unit:e3})",
+                doc=f"Annual consumption of product ({self.unit})",
             ),
             annual_total_production=pyo.Expression(
                 model.MODELED_YEARS,
                 rule=self._annual_total_production,
-                doc=f"Annual production of product ({self.unit:e3})",
+                doc=f"Annual production of product ({self.unit})",
             ),
             annual_total_sequestration=pyo.Expression(
                 model.MODELED_YEARS,
                 rule=self._annual_total_sequestration,
-                doc=f"Annual sequestration of product ({self.unit:e3})",
+                doc=f"Annual sequestration of product ({self.unit})",
             ),
             consumption_availability_constraint=pyo.Constraint(
                 model.MODELED_YEARS,

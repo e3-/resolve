@@ -4,12 +4,11 @@ from typing import Annotated
 from typing import Any
 
 import pydantic
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from pydantic import Field
 from pydantic import model_validator
 
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.linkage import Linkage
 from resolve.core.linkage import LinkageRelationshipType
 from resolve.core.temporal import timeseries as ts
@@ -105,7 +104,7 @@ class ZoneToProduct(Linkage):
     # Penalties for Unmet Demand and Overproduction #
     #######################################
     penalty_unmet_demand: Annotated[
-        float, Metadata(category=FieldCategory.OPERATIONS, units=units.dollar / units.megawatt_hour)
+        float, Metadata(category=FieldCategory.OPERATIONS, units="dollar / megawatt_hour")
     ] = Field(
         10000,
         description="Modeled penalty for unmet demand.",
@@ -113,7 +112,7 @@ class ZoneToProduct(Linkage):
     )
 
     penalty_overproduction: Annotated[
-        float, Metadata(category=FieldCategory.OPERATIONS, units=units.dollar / units.megawatt_hour)
+        float, Metadata(category=FieldCategory.OPERATIONS, units="dollar / megawatt_hour")
     ] = Field(
         10000,
         description="Modeled penalty for overproduced product.",

@@ -7,7 +7,9 @@ from typing import Union
 
 import pandas as pd
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.utils.core_utils import timer
 from loguru import logger
 from pydantic import computed_field
 from pydantic import Field
@@ -16,12 +18,9 @@ from pydantic import model_validator
 from resolve.core import component
 from resolve.core import linkage
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import TemporalSettings
-from resolve.core.utils.core_utils import timer
 
 NUM_LEAP_YEAR_HOURS = 366 * 24
 NUM_NON_LEAP_YEAR_HOURS = 365 * 24
@@ -92,7 +91,7 @@ class Load(component.Component):
 
     annual_peak_forecast: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.megawatt, excel_short_title="Peak"),
+        Metadata(category=FieldCategory.OPERATIONS, units="MW", excel_short_title="Peak"),
     ] = Field(
         None,
         default_freq="YS",
@@ -102,7 +101,7 @@ class Load(component.Component):
     )
     annual_energy_forecast: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.megawatt * units.hour, excel_short_title="Forecast"),
+        Metadata(category=FieldCategory.OPERATIONS, units="MW * hour", excel_short_title="Forecast"),
     ] = Field(
         None,
         default_freq="YS",

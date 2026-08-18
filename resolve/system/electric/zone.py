@@ -5,13 +5,12 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from pydantic import Field
 
 from resolve.core import component
 from resolve.core import linkage
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelTemplate
 from resolve.core.three_way_linkage import CustomConstraintLinkage
 from resolve.system.electric.load_component import Load
@@ -78,15 +77,15 @@ class Zone(component.Component):
     #######################################
     # Overgen / Unserved Energy Penalties #
     #######################################
-    penalty_overgen: Annotated[
-        float, Metadata(category=FieldCategory.OPERATIONS, units=units.dollar / units.megawatt_hour)
-    ] = Field(
-        10000,
-        description="Modeled penalty for overgeneration.",
-        title=f"Over-Generation Penalty",
+    penalty_overgen: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, units="dollar / megawatt_hour")] = (
+        Field(
+            10000,
+            description="Modeled penalty for overgeneration.",
+            title=f"Over-Generation Penalty",
+        )
     )
     penalty_unserved_energy: Annotated[
-        float, Metadata(category=FieldCategory.OPERATIONS, units=units.dollar / units.megawatt_hour)
+        float, Metadata(category=FieldCategory.OPERATIONS, units="dollar / megawatt_hour")
     ] = Field(
         10000,
         description="Modeled penalty for unserved load.",

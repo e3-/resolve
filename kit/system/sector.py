@@ -16,7 +16,7 @@ class Sector(component.BaseComponent):
     stock_rollover_subsectors: dict[str, Linkage] = {}
     energy_demand_subsectors: dict[str, Linkage] = {}
     non_energy_subsectors: dict[str, Linkage] = {}
-    sector_candidate_fuel_blending: Optional[dict[tuple[str, str], ThreeWayLinkage]] = (
-        None
-    )
+    sector_candidate_fuel_blending: Optional[
+        dict[tuple[str, str], "ThreeWayLinkage"]
+    ] = None
     negative_emissions_technologies: dict[str, Linkage] = {}

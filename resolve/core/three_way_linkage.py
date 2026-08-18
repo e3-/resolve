@@ -6,11 +6,11 @@ from typing import Tuple
 
 import pandas as pd
 import pydantic
+from kit.core.utils.pandas_utils import compare_dataframes
 from loguru import logger
 
 from resolve.core import component
 from resolve.core.temporal import timeseries as ts
-from resolve.core.utils.pandas_utils import compare_dataframes
 from resolve.core.utils.pyomo_utils import get_index_labels
 from resolve.core.utils.xlwings import ExcelApiCalls
 
@@ -410,32 +410,41 @@ class CustomConstraintLinkage(ThreeWayLinkage):
         return {"MODELED_YEARS", "WEATHER_PERIODS", "WEATHER_TIMESTAMPS"}.issubset(self.variable_index)
 
     @property
-    def is_hourly(self):
-        """
-        Bool. Assumes a variable must be either hourly (by weather periods or dispatch windows) or annually indexed.
-        Returns: True if index includes hourly timestamps by dispatch windows.
+    def is_hourly(self) -> bool:
+        """Return whether the constrained Pyomo component is dispatch-window hourly-indexed.
 
+        Returns:
+            True if the component index includes modeled years, dispatch windows, and timestamps.
         """
         return {"MODELED_YEARS", "DISPATCH_WINDOWS", "TIMESTAMPS"}.issubset(self.variable_index)
 
     @property
-    def is_annual(self):
-        """
-        Bool. Assumes a variable must be either hourly or annually indexed.
-        Returns: True if variable index does not include any hourly timestamps.
+    def is_daily(self) -> bool:
+        """Return whether the constrained Pyomo component is daily-indexed.
 
+        Returns:
+            True if the component index includes modeled years and days.
         """
-        return not self.is_hourly and not self.is_erm_hourly
+        return {"MODELED_YEARS", "DAYS"}.issubset(self.variable_index)
 
-    def return_valid_index(self, index: Tuple[pd.Timestamp]):
+    @property
+    def is_annual(self) -> bool:
+        """Return whether the constrained Pyomo component is annual-indexed.
+
+        Returns:
+            True if the component index does not include hourly or daily timestamps.
         """
-        Return index of variable to constrain
+        return not self.is_hourly and not self.is_erm_hourly and not self.is_daily
+
+    def return_valid_index(self, index: Tuple[pd.Timestamp, ...]) -> Tuple[object, ...] | pd.Timestamp:
+        """Return the valid Pyomo index for the constrained component.
 
         Args:
-            index: [modeled_year] for annual only or [modeled_year, dispatch_window, timestamp] for hourly
+            index: Modeled year for annual constraints, modeled year plus dispatch window or weather period and
+                timestamp for hourly constraints, or modeled year plus day for daily constraints.
 
-        Returns: (additional index str, modeled year [,dispatch windows, timestamp if hourly constraint],)
-
+        Returns:
+            The component index, optionally prefixed with the LHS additional index.
         """
         if self.is_annual:
             # if constraint is annual only, use only model year to index the variable
@@ -452,7 +461,12 @@ class CustomConstraintLinkage(ThreeWayLinkage):
         else:
             return new_index
 
-    def validate_custom_constraint_linkage(self):
+    def validate_custom_constraint_linkage(self) -> None:
+        """Validate that this custom constraint linkage can be resolved.
+
+        Raises:
+            AssertionError: If the linked component, formulation block, Pyomo component, or index type is invalid.
+        """
         assert (
             self.linked_component is not None
         ), f"Linked component is None for {self.name}. Check your custom constraint setup."
@@ -463,5 +477,5 @@ class CustomConstraintLinkage(ThreeWayLinkage):
             getattr(self.linked_component.formulation_block, self.lhs_instance.pyomo_component_name, None) is not None
         ), f"{self.lhs_instance.pyomo_component_name} is not a valid variable name for {self.linked_component.name}"
         assert (
-            self.is_annual or self.is_hourly or self.is_erm_hourly
+            self.is_annual or self.is_hourly or self.is_erm_hourly or self.is_daily
         ), f"Error constructing {self.name}. Check your custom constraint setup."

@@ -5,8 +5,8 @@
 #
 # import pandas as pd
 #
-# from resolve.core.custom_model import FieldCategory
-# from resolve.core.custom_model import Metadata
+# from kit.core.custom_model import FieldCategory
+# from kit.core.custom_model import Metadata
 # from resolve.system.fuel import candidate_fuel
 # from resolve.system.fuel import final_fuel
 # from resolve.system.fuel.electrolyzer import Electrolyzer

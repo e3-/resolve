@@ -59,7 +59,7 @@ class Sequestration(Plant):
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
                 rule=self._produced_product_sequestered,
-                doc=f"Hourly Sequestration of Output Product (({self.capacity_unit:e3})",
+                doc=f"Hourly Sequestration of Output Product (({self.capacity_unit})",
             ),
             produced_product_release=pyomo_components["produced_product_release"],
         )
