@@ -5,14 +5,13 @@ from typing import ClassVar
 
 import pandas as pd
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from pydantic import Field
 
 from resolve.core import linkage
 from resolve.core.component import Component
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal import timeseries as ts
 from resolve.system.asset import AssetGroup
 
@@ -29,8 +28,8 @@ class CaisoTxConstraint(Component):
     prm_policies: Annotated[dict[str, linkage.ReliabilityContribution], Metadata(linkage_order="to")] = {}
 
     enable_hsn_constraint: bool
-    slack_penalty: Annotated[float, Metadata(units=units.dollar / units.megawatt)] = 10_000_000
-    hsn_headroom: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units=units.megawatt)] = Field(
+    slack_penalty: Annotated[float, Metadata(units="dollar / MW")] = 10_000_000
+    hsn_headroom: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units="MW")] = Field(
         default_factory=ts.NumericTimeseries.zero,
         title="HSN Headroom (MW)",
         default_freq="YS",
@@ -39,7 +38,7 @@ class CaisoTxConstraint(Component):
         weather_year=False,
     )
     enable_ssn_constraint: bool
-    ssn_headroom: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units=units.megawatt)] = Field(
+    ssn_headroom: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units="MW")] = Field(
         default_factory=ts.NumericTimeseries.zero,
         title="SSN Headroom (MW)",
         default_freq="YS",
@@ -48,15 +47,13 @@ class CaisoTxConstraint(Component):
         weather_year=False,
     )
     enable_eods_constraint: bool
-    eods_headroom: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units=units.megawatt)] = (
-        Field(
-            default_factory=ts.NumericTimeseries.zero,
-            title="EODS Off-Peak Headroom (MW)",
-            default_freq="YS",
-            up_method="ffill",
-            down_method="mean",
-            weather_year=False,
-        )
+    eods_headroom: Annotated[ts.NumericTimeseries, Metadata(category=FieldCategory.BUILD, units="MW")] = Field(
+        default_factory=ts.NumericTimeseries.zero,
+        title="EODS Off-Peak Headroom (MW)",
+        default_freq="YS",
+        up_method="ffill",
+        down_method="mean",
+        weather_year=False,
     )
 
     @property

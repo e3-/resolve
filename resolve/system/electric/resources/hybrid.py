@@ -2,11 +2,11 @@ from typing import Annotated
 from typing import ClassVar
 
 import pandas as pd
+from kit.core.custom_model import Metadata
 from pyomo import environ as pyo
 
 from resolve.core import linkage
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import Metadata
 from resolve.system.electric.reserve import ReserveDirection
 from resolve.system.electric.resources.storage import StorageResource
 from resolve.system.electric.resources.storage import StorageResourceGroup
@@ -61,6 +61,7 @@ class HybridWindResource(HybridVariableResource, WindResource):
 
 class HybridStorageResource(StorageResource):
     """A hybrid storage resource is a storage resource that is paired with a variable resource."""
+
     SAVE_PATH: ClassVar[str] = "resources/hybrid_storage"
 
     hybrid_variable_resources: Annotated[

@@ -3,7 +3,6 @@ from typing import Optional
 from typing import Union
 
 import pandas as pd
-from kit.core.custom_model import get_units
 from pydantic import Field
 from pydantic import model_validator
 
@@ -56,7 +55,7 @@ class FinalFuel(component.Component):
         default_freq="h",
         up_method="interpolate",
         down_method="sum",
-        units=get_units,
+        units="million_Btu",
         description="Annual fuel demand.",
     )
 
@@ -65,7 +64,7 @@ class FinalFuel(component.Component):
         default_freq="h",
         up_method="interpolate",
         down_method="sum",
-        units=get_units,
+        units="million_Btu",
         description="Annual fuel demand.",
     )
 
@@ -86,7 +85,7 @@ class FinalFuel(component.Component):
     fuel_is_electricity: bool = False
 
     fuel_price_per_mmbtu_override: Optional[ts.NumericTimeseries] = Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="USD / million_Btu"
     )
     fuel_is_using_emissions_trajectory_override: bool = False
 
@@ -95,7 +94,7 @@ class FinalFuel(component.Component):
         Loop through CandidateFuels linked to the FinalFuel. For each candidate fuel, calculate the energy demand.
         Then loop through each pollutant on each candidate fuel and calculate emissions by pollutant type.
         Results are temporarily saved on the linkages (ex: FinalFuelToCandidateFuel and CandidateFuelToPollutant).
-        After looping, results are then aggregated (by calling the `self._return_{result type}_by_candidate_fuel' functions) and saved permanently on the linked component.
+        After looping, results are then aggregated (by calling the `self._return_{result type}_by_candidate_fuel` functions) and saved permanently on the linked component.
         Another option is to save aggregated results on the 1:1 XToFinalFuel linkage because it will not be overwritten.
 
         Args:

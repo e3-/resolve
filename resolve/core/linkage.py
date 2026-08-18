@@ -12,17 +12,15 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import pydantic
-from kit.core.custom_model import get_units
-from kit.core.custom_model import units
+from kit.core.custom_model import Metadata
+from kit.core.utils.pandas_utils import compare_dataframes
 from loguru import logger
 from pydantic import Field
 from tqdm import tqdm
 from typing_extensions import Annotated
 
 from resolve.core.component import Component
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal import timeseries as ts
-from resolve.core.utils.pandas_utils import compare_dataframes
 from resolve.core.utils.xlwings import ExcelApiCalls
 
 
@@ -614,33 +612,33 @@ class CandidateFuelToPollutant(Linkage):
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("emission_factor"),
+        units="dimensionless",
     )
 
     gross_emission_factor: Optional[ts.NumericTimeseries] = pydantic.Field(
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("emission_factor"),
+        units="dimensionless",
     )
 
     upstream_emission_factor: Optional[ts.NumericTimeseries] = pydantic.Field(
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("emission_factor"),
+        units="dimensionless",
     )
 
     gross_emissions_trajectory_override: Optional[ts.NumericTimeseries] = pydantic.Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="dimensionless"
     )
 
     net_emissions_trajectory_override: Optional[ts.NumericTimeseries] = pydantic.Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="dimensionless"
     )
 
     upstream_emissions_trajectory_override: Optional[ts.NumericTimeseries] = pydantic.Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="dimensionless"
     )
 
     # attributes that will be set during stock rollover calculations
@@ -707,11 +705,11 @@ class BiomassResourceToCandidateFuel(Linkage):
     # INSTANCE FIELDS #
     ###################
     conversion_efficiency: ts.NumericTimeseries = pydantic.Field(
-        default_freq="YS", up_method="ffill", down_method="annual", units=get_units("conversion_efficiency")
+        default_freq="YS", up_method="ffill", down_method="annual", units="tonne / million_Btu"
     )
     # note this is the full cost per mmbtu of this fuel pathway
     conversion_cost: ts.NumericTimeseries = pydantic.Field(
-        default_freq="YS", up_method="interpolate", down_method="annual", units=get_units("conversion_cost")
+        default_freq="YS", up_method="interpolate", down_method="annual", units="USD / tonne"
     )
 
 
@@ -1134,20 +1132,20 @@ class AllToPolicy(_AllToPolicy):
 # Creating aliases for convenience
 class EmissionsContribution(_AllToPolicy):
     SAVE_PATH = "resource_fuel_emissions_contributions.csv"
-    multiplier: Annotated[
-        ts.NumericTimeseries | None, Metadata(excel_short_title="tonne/MWh", units=units.tonne / units.MWh)
-    ] = pydantic.Field(None, default_freq="YS", up_method="ffill", down_method="mean", title="Emissions Rate")
+    multiplier: Annotated[ts.NumericTimeseries | None, Metadata(excel_short_title="tonne/MWh", units="tonne / MWh")] = (
+        pydantic.Field(None, default_freq="YS", up_method="ffill", down_method="mean", title="Emissions Rate")
+    )
 
 
 class TxEmissionsContribution(EmissionsContribution):
     SAVE_PATH = "tx_emissions_contributions.csv"
     forward_dir_multiplier: Annotated[
-        ts.NumericTimeseries | None, Metadata(excel_short_title="Rate", units=units.tonne / units.MWh)
+        ts.NumericTimeseries | None, Metadata(excel_short_title="Rate", units="tonne / MWh")
     ] = pydantic.Field(
         None, default_freq="YS", up_method="ffill", down_method="sum", title="Forward Emissions Rate (per-MWh)"
     )
     reverse_dir_multiplier: Annotated[
-        ts.NumericTimeseries | None, Metadata(excel_short_title="Rate", units=units.tonne / units.MWh)
+        ts.NumericTimeseries | None, Metadata(excel_short_title="Rate", units="tonne / MWh")
     ] = pydantic.Field(
         None, default_freq="YS", up_method="ffill", down_method="sum", title="Reverse Emissions Rate (per-MWh)"
     )
@@ -1337,7 +1335,7 @@ class ResourceToPollutant(Linkage):
     SAVE_PATH = "resources_to_pollutants.csv"
 
     emission_factor: ts.NumericTimeseries = pydantic.Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="dimensionless"
     )
 
 
@@ -1358,8 +1356,8 @@ class TransmissionPathToPollutant(Linkage):
     SAVE_PATH = "tx_paths_to_pollutants.csv"
 
     forward_dir_multiplier: ts.NumericTimeseries = pydantic.Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="dimensionless"
     )
     reverse_dir_multiplier: ts.NumericTimeseries = pydantic.Field(
-        None, default_freq="YS", up_method="interpolate", down_method="annual", units=get_units
+        None, default_freq="YS", up_method="interpolate", down_method="annual", units="dimensionless"
     )

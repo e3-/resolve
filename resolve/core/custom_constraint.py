@@ -1,4 +1,5 @@
 from typing import Annotated
+from typing import Any
 from typing import ClassVar
 from typing import Optional
 from typing import Tuple
@@ -7,13 +8,13 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import Metadata
 from pydantic import ConfigDict
 from pydantic import Field
 
 from resolve.core import three_way_linkage
 from resolve.core.component import Component
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ConstraintOperator
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
@@ -36,6 +37,15 @@ class CustomConstraintRHS(Component):
         up_method="ffill",
         down_method="mean",
         weather_year=False,
+    )
+
+    weather_year_daily_target: ts.NumericTimeseries = Field(
+        default_factory=ts.NumericTimeseries.zero,
+        description="The right hand side daily target of the custom constraints as a float. Will be added to the annual target if applicable.",
+        default_freq="D",
+        up_method="ffill",
+        down_method="mean",
+        weather_year=True,
     )
 
     weather_year_hourly_target: ts.NumericTimeseries = Field(
@@ -87,6 +97,15 @@ class CustomConstraintRHS(Component):
         """
         return all(getattr(obj, "is_annual", False) for obj in self.custom_constraints.values())
 
+    @property
+    def is_daily(self) -> bool:
+        """Return whether the RHS should be built with daily indices.
+
+        Returns:
+            True if all linked custom constraint components are daily-indexed.
+        """
+        return all(getattr(obj, "is_daily", False) for obj in self.custom_constraints.values())
+
     def update_hourly_target_by_modeled_year(self, modeled_years: tuple[int, int], weather_years: tuple[int, int]):
         """Resample hourly modeled year target with simple extend years function"""
         if self.modeled_year_hourly_target.data.sum() != 0:
@@ -94,7 +113,13 @@ class CustomConstraintRHS(Component):
                 modeled_years, weather_years
             )
 
-    def revalidate(self):
+    def revalidate(self) -> None:
+        """Validate custom constraint linkages and index combinations.
+
+        Raises:
+            ValueError: If the RHS has no linked custom constraints or mixes daily with hourly indices.
+            NotImplementedError: If the RHS mixes dispatch-window hourly and ERM-hourly indices.
+        """
         super().revalidate()
         if self.custom_constraints == {}:
             raise ValueError(
@@ -104,6 +129,10 @@ class CustomConstraintRHS(Component):
             raise NotImplementedError(
                 f"CustomConstraintRHS `{self.name}` can only be linked to components hourly indexed by either weather "
                 f"periods or dispatch windows, but not both."
+            )
+        if self.is_erm_hourly + self.is_hourly + self.is_daily > 1:
+            raise ValueError(
+                f"CustomConstraintRHS `{self.name}` cannot be implemented using both hourly and daily indices"
             )
 
     def _construct_operational_rules(
@@ -126,6 +155,15 @@ class CustomConstraintRHS(Component):
                     model.MODELED_YEARS,
                     model.WEATHER_PERIODS_AND_WEATHER_TIMESTAMPS,
                     rule=self._custom_constraint_hourly,
+                )
+            )
+
+        elif self.is_daily:
+            pyomo_components.update(
+                custom_constraint=pyo.Constraint(
+                    model.MODELED_YEARS,
+                    model.DAYS,
+                    rule=self._custom_constraint_daily,
                 )
             )
 
@@ -181,6 +219,7 @@ class CustomConstraintRHS(Component):
                 rule=self._hourly_custom_constraint_dual,
                 doc="Hourly Unweighted Dual Value ($/Unit)",
             )
+
         elif self.is_annual:
             self.formulation_block.annual_custom_constraint_dual = pyo.Expression(
                 model.MODELED_YEARS,
@@ -188,39 +227,55 @@ class CustomConstraintRHS(Component):
                 doc="Annual Unweighted Dual Value ($/Unit)",
             )
 
-    def get_rhs_target(self, index: Tuple[pd.Timestamp]) -> float:
-        """
-        Return the custom constraint RHS target. All RHS have an annual target.
-        If the constraint is indexed hourly as well, add the annual target to the hourly target.
+        elif self.is_daily:
+            self.formulation_block.daily_custom_constraint_dual = pyo.Expression(
+                model.MODELED_YEARS,
+                model.DAYS,
+                rule=self._daily_custom_constraint_dual,
+                doc="Daily Unweighted Dual Value ($/Unit)",
+            )
+
+    def get_rhs_target(self, index: Tuple[pd.Timestamp, ...]) -> float:
+        """Return the custom constraint RHS target for an annual, hourly, or daily index.
+
         Args:
-            index: [modeled_year] for annual only or [modeled_year, dispatch_window, timestamp] for hourly or [modeled_year, weather_period, weather_timestamp] for ERM hourly
+            index: Modeled year for annual constraints, modeled year plus dispatch window or weather period and
+                timestamp for hourly constraints, or modeled year plus day for daily constraints.
 
-        Returns: annual target at model year timestamp + hourly target at weather year hour timestamp (if applicable)
-
+        Returns:
+            Annual target plus any applicable hourly or daily target adjustment.
         """
         modeled_year = index[0]
         rhs_target = self.annual_target.data.at[modeled_year]
-        if (self.is_hourly or self.is_erm_hourly) and self.weather_year_hourly_target is not None:
-            # add hourly target if applicable
-            timestamp = index[-1]
-            rhs_target += self.weather_year_hourly_target.data.at[timestamp]
 
-        if (self.is_hourly or self.is_erm_hourly) and self._hourly_target_by_modeled_year:
-            # add modeled year specific hourly target if applicable
-            timestamp = index[-1]
-            rhs_target += self._hourly_target_by_modeled_year[modeled_year.year].data.at[timestamp]
+        if self.is_hourly or self.is_erm_hourly:
+            if self.weather_year_hourly_target is not None:
+                # add hourly target if applicable
+                timestamp = index[-1]
+                rhs_target += self.weather_year_hourly_target.data.at[timestamp]
+
+            if self._hourly_target_by_modeled_year:
+                # add modeled year specific hourly target if applicable
+                timestamp = index[-1]
+                rhs_target += self._hourly_target_by_modeled_year[modeled_year.year].data.at[timestamp]
+
+        if self.is_daily and self.weather_year_daily_target is not None:
+            # add daily target if applicable
+            day = index[-1]
+            rhs_target += self.weather_year_daily_target.data.at[day]
 
         return rhs_target
 
-    def _construct_custom_constraint(self, block, index: Tuple[pd.Timestamp]):
-        """
+    def _construct_custom_constraint(self, block: pyo.Block, index: Tuple[pd.Timestamp, ...]) -> Any:
+        """Construct the custom constraint expression for a specific index.
 
         Args:
-            block: formulation block of the CustomConstraintRHS component
-            index: [modeled_year] for annual only, [modeled_year, dispatch_window, timestamp] for hourly, or [modeled_year, weather_period, weather_timestamp] for erm_hourly
+            block: Formulation block of the CustomConstraintRHS component.
+            index: Modeled year for annual constraints, modeled year plus dispatch window or weather period and
+                timestamp for hourly constraints, or modeled year plus day for daily constraints.
 
         Returns:
-
+            A Pyomo constraint expression, or ``pyo.Constraint.Skip`` if the constraint should not be built.
         """
 
         rhs = self.get_rhs_target(index)
@@ -236,7 +291,9 @@ class CustomConstraintRHS(Component):
 
         # iterate through each variable and its index combinations to be included
         for cc_linkage in self.custom_constraints.values():
-            lhs_multiplier = cc_linkage.lhs_instance.get_lhs_multiplier(index, (self.is_hourly or self.is_erm_hourly))
+            lhs_multiplier = cc_linkage.lhs_instance.get_lhs_multiplier(
+                index, (self.is_hourly or self.is_erm_hourly), self.is_daily
+            )
 
             # If index in pyomo_component index, add to LHS
             if cc_linkage.return_valid_index(index) in cc_linkage.pyomo_component.index_set():
@@ -301,6 +358,22 @@ class CustomConstraintRHS(Component):
 
         return self._construct_custom_constraint(block, index)
 
+    def _custom_constraint_daily(self, block: pyo.Block, modeled_year: pd.Timestamp, day: pd.Timestamp) -> Any:
+        """Build the daily custom constraint rule for Pyomo.
+
+        Args:
+            block: Formulation block of the CustomConstraintRHS component.
+            modeled_year: Modeled year for the constraint.
+            day: Weather-year day for the daily constraint.
+
+        Returns:
+            A Pyomo constraint expression, or ``pyo.Constraint.Skip`` if the constraint should not be built.
+        """
+
+        index = (modeled_year, day)
+
+        return self._construct_custom_constraint(block, index)
+
     def _hourly_slack_up_cost(self, block, modeled_year, dispatch_window, timestamp):
         return self.penalty * block.custom_constraint_slack_up[modeled_year, dispatch_window, timestamp]
 
@@ -357,6 +430,34 @@ class CustomConstraintRHS(Component):
 
         return dual / annual_discount_factor
 
+    def _daily_custom_constraint_dual(
+        self, block: pyo.Block, modeled_year: pd.Timestamp, day: pd.Timestamp
+    ) -> Optional[float]:
+        """Return the undiscounted daily custom constraint dual value.
+
+        Args:
+            block: Formulation block of the CustomConstraintRHS component.
+            modeled_year: Modeled year for the dual expression.
+            day: Weather-year day for the dual expression.
+
+        Returns:
+            Daily custom constraint dual value, or None if the constraint was skipped.
+        """
+
+        # Return None if constraint was not constructed for this index
+        if (modeled_year, day) not in block.custom_constraint:
+            return None
+
+        dual = block.custom_constraint[modeled_year, day].get_suffix_value("dual", default=np.nan)
+
+        model: ModelTemplate = block.model()
+        annual_discount_factor = model.temporal_settings.modeled_year_discount_factors.data.at[modeled_year]
+        num_days_in_modeled_year = model.num_days_per_modeled_year[modeled_year]
+
+        day_weight = model.temporal_settings.dispatch_window_weights.at[day]
+
+        return dual / annual_discount_factor / num_days_in_modeled_year / day_weight
+
 
 class CustomConstraintLHS(Component):
     """Note: stylistically, the team chose not to put any Pyomo blocks on linkages, so the workaround for
@@ -386,6 +487,15 @@ class CustomConstraintLHS(Component):
         weather_year=False,
     )
 
+    weather_year_daily_multiplier: Optional[ts.NumericTimeseries] = Field(
+        default_factory=ts.NumericTimeseries.one,
+        description="The left hand side instance daily multiplier of the instance pyomo component as a float. Will be multiplied with the annual multiplier if applicable.",
+        default_freq="D",
+        up_method="ffill",
+        down_method="mean",
+        weather_year=True,
+    )
+
     weather_year_hourly_multiplier: Optional[ts.NumericTimeseries] = Field(
         default_factory=ts.NumericTimeseries.one,
         description="The left hand side instance hourly multiplier of the instance pyomo component as a float. Will be multiplied with the annual multiplier if applicable.",
@@ -407,27 +517,41 @@ class CustomConstraintLHS(Component):
 
     pyomo_component_name: str = Field(description="The pyomo component name of the linked component to constrain.")
 
-    def get_lhs_multiplier(self, index: Tuple[pd.Timestamp], hourly: bool) -> float:
-        """
+    def get_lhs_multiplier(self, index: Tuple[pd.Timestamp, ...], hourly: bool, daily: bool) -> float:
+        """Return the LHS multiplier for the supplied custom constraint index.
 
         Args:
-            index:
-            hourly: bool, True if the RHS is hourly, include both annual and hourly multipliers
+            index: Modeled year for annual constraints, modeled year plus dispatch window or weather period and
+                timestamp for hourly constraints, or modeled year plus day for daily constraints.
+            hourly: Whether to include weather-year and modeled-year hourly multipliers.
+            daily: Whether to include the weather-year daily multiplier.
 
-        Returns: annual LHS component multiplier * hourly LHS component multiplier (if applicable)
-
+        Returns:
+            Annual multiplier multiplied by any applicable hourly or daily multiplier.
         """
         modeled_year_multiplier = self.modeled_year_multiplier.data.at[index[0]]
-        if hourly and self.weather_year_hourly_multiplier is not None:
-            weather_year_hourly_multiplier = self.weather_year_hourly_multiplier.data.at[index[-1]]
-        else:
-            weather_year_hourly_multiplier = 1.0
-        if hourly and self._hourly_multiplier_by_modeled_year:
-            modeled_year_hourly_multiplier = self._hourly_multiplier_by_modeled_year[index[0].year].data.at[index[-1]]
-        else:
-            modeled_year_hourly_multiplier = 1.0
+        if hourly:
+            if self.weather_year_hourly_multiplier is not None:
+                weather_year_hourly_multiplier = self.weather_year_hourly_multiplier.data.at[index[-1]]
+            else:
+                weather_year_hourly_multiplier = 1.0
+            if self._hourly_multiplier_by_modeled_year:
+                modeled_year_hourly_multiplier = self._hourly_multiplier_by_modeled_year[index[0].year].data.at[
+                    index[-1]
+                ]
+            else:
+                modeled_year_hourly_multiplier = 1.0
 
-        return modeled_year_multiplier * weather_year_hourly_multiplier * modeled_year_hourly_multiplier
+            return modeled_year_multiplier * weather_year_hourly_multiplier * modeled_year_hourly_multiplier
+
+        if daily:
+            weather_year_daily_multiplier = 1.0
+            if self.weather_year_daily_multiplier is not None:
+                weather_year_daily_multiplier = self.weather_year_daily_multiplier.data.at[index[-1]]
+
+            return modeled_year_multiplier * weather_year_daily_multiplier
+
+        return modeled_year_multiplier
 
     def update_hourly_multiplier_by_modeled_year(self, modeled_years: tuple[int, int], weather_years: tuple[int, int]):
         """Resample hourly modeled year multiplier with simple extend years function"""

@@ -2,15 +2,13 @@ from typing import Annotated
 from typing import ClassVar
 
 import pandas as pd
-import pint
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from pydantic import Field
 from typing_extensions import Literal
 from typing_extensions import Tuple
 
 from resolve.core import linkage
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal import timeseries as ts
 from resolve.system.generics.product import Product
 
@@ -38,8 +36,8 @@ class Pollutant(Product):
     ######################
     # Attributes #
     ######################
-    unit: pint.Unit = units.metric_ton
-    GWP: Annotated[float, Metadata(units=units.unitless, excel_short_title="Global Warming Potential")] = Field(
+    unit: str = "metric_ton"
+    GWP: Annotated[float, Metadata(units="unitless", excel_short_title="Global Warming Potential")] = Field(
         1, description="This input defines the CO2-equivalent global warming potential of this pollutant."
     )
 
@@ -47,7 +45,7 @@ class Pollutant(Product):
     #  fields, so that attributes don't have to be redefined when underlying field info need to change.
     availability: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(units=units.metric_ton, category=FieldCategory.OPERATIONS, excel_short_title="Availability"),
+        Metadata(units="metric_ton", category=FieldCategory.OPERATIONS, excel_short_title="Availability"),
     ] = Field(
         None,
         default_freq="YS",
@@ -58,14 +56,12 @@ class Pollutant(Product):
     )
     price_per_unit: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(units=units.dollar / units.metric_ton, category=FieldCategory.OPERATIONS, excel_short_title="Price"),
+        Metadata(units="dollar / metric_ton", category=FieldCategory.OPERATIONS, excel_short_title="Price"),
     ] = Field(None, default_freq="h", up_method="ffill", down_method="mean", weather_year=False)
 
     annual_price: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(
-            units=units.dollar / units.metric_ton, category=FieldCategory.OPERATIONS, excel_short_title="Annual Price"
-        ),
+        Metadata(units="dollar / metric_ton", category=FieldCategory.OPERATIONS, excel_short_title="Annual Price"),
     ] = Field(None, default_freq="YS", up_method="interpolate", down_method="sum")
 
     def _calc_emissions(

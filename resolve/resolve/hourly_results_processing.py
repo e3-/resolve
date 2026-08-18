@@ -264,7 +264,7 @@ class ResolveHourlyResultsViewer:
 
     def _get_components_summary(self, time_scheme: Literal["hourly", "chrono", "annual"]) -> pd.DataFrame:
         """Load CSV files from a Resolve case summary based on naming:
-            *hourly_results.csv OR *chrono_results.csv OR *annual_results.csv
+            ``*hourly_results.csv`` OR ``*chrono_results.csv`` OR ``*annual_results.csv``
 
         Args:
             time_scheme (Literal["hourly", "chrono", "annual"]): Which CSV files to load

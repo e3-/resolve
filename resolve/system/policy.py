@@ -7,6 +7,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import Metadata
 from loguru import logger
 from pydantic import Field
 from pydantic import model_validator
@@ -14,7 +15,6 @@ from pydantic import model_validator
 from resolve.core import component
 from resolve.core import linkage
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ConstraintOperator
 from resolve.core.temporal import timeseries as ts
 from resolve.core.three_way_linkage import CustomConstraintLinkage
@@ -179,6 +179,7 @@ class Policy(component.Component):
                 model.MODELED_YEARS, rule=self._policy_slack_cost, doc="Policy Slack Cost ($)"
             ),
             policy_lhs=pyo.Expression(model.MODELED_YEARS, rule=self._policy_lhs, doc="Achieved (Units)"),
+            policy_target_adjusted=pyo.Expression(model.MODELED_YEARS, rule=self._policy_target_adjusted),
             policy_constraint=pyo.Constraint(model.MODELED_YEARS, rule=self._policy_constraint),
         )
 
@@ -233,11 +234,20 @@ class Policy(component.Component):
     def _policy_lhs(self, block, modeled_year):
         raise NotImplementedError
 
+    def _policy_target_adjusted(self, block, modeled_year):
+        """Adjusted policy target for a given modeled year."""
+        if self.target is None or np.isnan(self.target.data.at[modeled_year]):
+            return pyo.Expression.Skip
+
+        return self.target.data.at[modeled_year] + self.target_adjustment.data.at[modeled_year]
+
     def _policy_constraint(self, block, modeled_year):
         if self.target is None or np.isnan(self.target.data.at[modeled_year]):
             return pyo.Constraint.Skip
 
-        policy_target_adjusted = self.target.data.at[modeled_year] + self.target_adjustment.data.at[modeled_year]
+        # Use the expression's underlying constant value so Pyomo preserves the
+        # target as the constraint bound instead of moving it into the body.
+        policy_target_adjusted = block.policy_target_adjusted[modeled_year].expr
 
         # Construct >=, ==, or <= constraints, as defined by user.
         return self.constraint_operator.operator(
@@ -1692,7 +1702,10 @@ class PlanningReserveMargin(Policy):
         # Constraints #
         ###############
 
-        pyomo_components.update(policy_constraint=pyo.Constraint(model.MODELED_YEARS, rule=self._policy_constraint))
+        pyomo_components.update(
+            policy_target_adjusted=pyo.Expression(model.MODELED_YEARS, rule=self._policy_target_adjusted),
+            policy_constraint=pyo.Constraint(model.MODELED_YEARS, rule=self._policy_constraint),
+        )
 
         if construct_costs:
             pyomo_components.update(

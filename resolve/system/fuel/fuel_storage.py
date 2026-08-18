@@ -5,14 +5,13 @@ from typing import ClassVar
 from typing import Union
 
 import pandas as pd
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.custom_model import ModelType
 from pydantic import Field
 from pyomo import environ as pyo
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
-from resolve.core.custom_model import ModelType
 from resolve.core.model import ModelTemplate
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
@@ -42,15 +41,15 @@ class FuelStorage(FuelProductionPlant):
         description="These three-way linkages define the input-output charging relationship on the fuel storage plant.",
     )
 
-    duration: Annotated[
-        float, Metadata(category=FieldCategory.OPERATIONS, show_year_headers=False, units=units.hour)
-    ] = Field(
-        description=(
-            "Operational time of the fuel storage at a specified operation level before it runs out of energy [hours]"
-        ),
-        alias="storage_duration",
-        title=f"Duration",
-        ge=0,
+    duration: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, show_year_headers=False, units="hour")] = (
+        Field(
+            description=(
+                "Operational time of the fuel storage at a specified operation level before it runs out of energy [hours]"
+            ),
+            alias="storage_duration",
+            title=f"Duration",
+            ge=0,
+        )
     )
 
     duration_constraint: Annotated[StorageDurationConstraint, Metadata(category=FieldCategory.OPERATIONS)] = Field(
@@ -61,7 +60,7 @@ class FuelStorage(FuelProductionPlant):
     # Cost Attributes #
     ###################
     annualized_storage_capital_cost: Annotated[
-        float, Metadata(units=units.dollar / units.MMBtu_year, category=FieldCategory.BUILD)
+        float, Metadata(units="dollar / MMBtu_year", category=FieldCategory.BUILD)
     ] = Field(
         default=0.0,
         description="$/MMBtu-yr. For new storage capacity, the annualized fixed cost of investment. "
@@ -69,7 +68,7 @@ class FuelStorage(FuelProductionPlant):
         title=f"Storage Levelized Fixed Cost",
     )
     annualized_storage_fixed_om_cost: Annotated[
-        ts.NumericTimeseries, Metadata(units=units.dollar / units.MMBtu_year, category=FieldCategory.BUILD)
+        ts.NumericTimeseries, Metadata(units="dollar / MMBtu_year", category=FieldCategory.BUILD)
     ] = Field(
         default_factory=ts.NumericTimeseries.zero,
         description="$/MMBtu-yr. For the planned portion of the resource's storage capacity, "
@@ -84,7 +83,7 @@ class FuelStorage(FuelProductionPlant):
         ts.NumericTimeseries,
         Metadata(
             category=FieldCategory.OPERATIONS,
-            units=units.dollar / units.MMBtu,
+            units="dollar / MMBtu",
             excel_short_title="VO&M In",
         ),
     ] = Field(
@@ -108,7 +107,7 @@ class FuelStorage(FuelProductionPlant):
     )
     min_input_profile: Annotated[
         ts.FractionalTimeseries,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.unitless, excel_short_title="Max Input Profile"),
+        Metadata(category=FieldCategory.OPERATIONS, units="unitless", excel_short_title="Max Input Profile"),
     ] = Field(
         default_factory=ts.FractionalTimeseries.zero,
         description="Fixed shape of storage's (e.g. flat shape for storage resources) min input.",
@@ -120,7 +119,7 @@ class FuelStorage(FuelProductionPlant):
     )
     max_input_profile: Annotated[
         ts.FractionalTimeseries,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.unitless, excel_short_title="Max Input Profile"),
+        Metadata(category=FieldCategory.OPERATIONS, units="unitless", excel_short_title="Max Input Profile"),
     ] = Field(
         default_factory=ts.FractionalTimeseries.one,
         description="Fixed shape of storage's (e.g. flat shape for storage resources) max input.",
@@ -485,6 +484,20 @@ class FuelStorage(FuelProductionPlant):
                 model.MODELED_YEARS,
                 model.CHRONO_PERIODS,
                 rule=self._soc_inter_tracking_constraint,
+            ),
+            # Re-declare annual production expression because hourly production
+            # is re-defined on FuelStorage
+            annual_production=pyo.Expression(
+                OUTPUTS,
+                model.MODELED_YEARS,
+                rule=self._annual_production,
+                doc=f"Annual Product Production (Product Units)",
+            ),
+            annual_consumption=pyo.Expression(
+                INPUTS,
+                model.MODELED_YEARS,
+                rule=self._annual_consumption,
+                doc="Annual Product Consumption (Product Units)",
             ),
         )
 

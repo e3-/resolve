@@ -13,6 +13,7 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import pytz
+from kit.core import custom_model
 from kit.core.temporal.timeseries import BaseBooleanTimeseries
 from loguru import logger
 from pydantic import field_serializer
@@ -20,7 +21,6 @@ from pydantic import field_validator
 from pydantic import model_validator
 from pydantic import PrivateAttr
 
-from resolve.core import custom_model
 from resolve.core import dir_str
 
 # TODO: is copy and csv really necessary here? Feels like a vestige
@@ -54,7 +54,7 @@ class TimeseriesType(enum.Enum):
         return f"<{self.__class__.__name__}.{self._name_}: {', '.join([repr(v) for v in self._all_values])}>"
 
 
-class NoDateTimeseries(custom_model.CustomModel):
+class NoDateTimeseries(custom_model.BaseCustomModel):
     #################
     # HIDDEN FIELDS #
     #################
@@ -74,7 +74,7 @@ class NoDateTimeseries(custom_model.CustomModel):
 
 
 # TODO: Consider adding attribute-based validation constraints (e.g., value bounds provided by user, or subclasses?)
-class Timeseries(custom_model.CustomModel):
+class Timeseries(custom_model.BaseCustomModel):
     #################
     # HIDDEN FIELDS #
     #################
@@ -129,9 +129,11 @@ class Timeseries(custom_model.CustomModel):
     @field_serializer("data", when_used="json")
     def serialize_pd_series(data: pd.Series):
         """
-        This is needed for loading system from json. Without this, the default is to shrink timeseries with repeated values to a single timestamp,
-        which does not translate correctly when resampling the timeseries attributes again because depending on the `up_method' it might try
-         to interpolate for example instead of forward fill
+        This is needed for loading system from json. Without this, the default is to shrink
+        timeseries with repeated values to a single timestamp,
+        which does not translate correctly when resampling the timeseries attributes again
+        because depending on the `up_method` it might try
+        to interpolate for example instead of forward fill
         """
         return {str(key): value for key, value in data.items()}
 
@@ -694,3 +696,108 @@ class FractionalTimeseries(Timeseries):
                 f"Values for timeseries '{values.data['name']}' not all fractional, see values: \n{df_slice}"
             )
         return data
+
+
+def resample_ts_attributes(
+    instance,
+    modeled_years: tuple[int, int],
+    weather_years: tuple[int, int],
+    resample_weather_year_attributes: bool = True,
+    resample_non_weather_year_attributes: bool = True,
+) -> dict | None:
+    """Resample timeseries attributes to the default frequencies to make querying via `slice_by_timepoint` and
+    `slice_by_year` more consistent later.
+
+    1. Downsample data by comparing against a "correct index" with the correct default_freq
+    2. If data start year > modeled start year, fill timeseries backward
+    3. Create a temporary timestamp for the first hour of the year **after** the modeled end year
+       to make sure we have all the hours, minutes (e.g., 23:59:59) filled in in step (4)
+    4. Resample to fill in any data (particularly at end of timeseries) and drop temporary timestamp from (3)
+    """
+    model_year_start, model_year_end = modeled_years
+    weather_year_start, weather_year_end = weather_years
+
+    # find all timeseries attributes in instance
+    extrapolated = set()
+    for attr in instance.timeseries_attrs:
+        temp = getattr(instance, attr)
+        if temp is None:
+            continue
+
+        field_settings = instance.model_fields[attr].json_schema_extra
+
+        # There are now TWO ways to identify toggle timeseries types (hard-coded or via an attribute called `[attr]__type`)
+        is_weather_year = ("weather_year" in field_settings and field_settings["weather_year"]) or (
+            getattr(instance, f"{attr}__type", None) == TimeseriesType.WEATHER_YEAR
+        )
+        temp.weather_year = is_weather_year  # TODO: This is a bandaid that sets the Timeseries instance attribute to True if the Field in the System is also True
+
+        # TODO 2023-07-17: These are sort of goofy...
+        do_not_resample_weather_year = is_weather_year and not resample_weather_year_attributes
+        do_not_resample_modeled_year = not is_weather_year and not resample_non_weather_year_attributes
+
+        # Skip this attribute if we're not resampling
+        if do_not_resample_modeled_year or do_not_resample_weather_year:
+            continue
+
+        year_start = weather_year_start if is_weather_year else model_year_start
+        year_end = weather_year_end if is_weather_year else model_year_end
+
+        correct_index = pd.date_range(
+            str(year_start), str(year_end + 1), freq=field_settings["default_freq"], inclusive="left"
+        )
+
+        # Change index year if the data has default year
+        if list(temp.data.index.year.unique()) == [
+            1900
+        ]:  # TODO: This doesn't seem like a good way to check if data is default
+            # default data, update index to be resampled
+            temp.data.index += pd.DateOffset(years=year_start - 1900)
+
+        # if all timestamp of the correct index are contained in the existing series, just need to resample down
+        overlapping_index = correct_index.isin(temp.data.index)
+        if (~overlapping_index).sum() == 0:
+            new_profile = temp.data.reindex(correct_index)
+            new_profile = Timeseries.resample_down(
+                new_profile,
+                field_settings["default_freq"],
+                field_settings["down_method"],
+            )
+            temp.data = new_profile.ffill()
+        # If the indexes do not overlap at all, throw an error
+        elif overlapping_index.sum() == 0:
+            raise ValueError(
+                f"{instance.name}: {temp.name} index does not overlap with target years: {year_start}: {year_end}"
+            )
+        # Resample up: Check if timeseries type is monthly, month-hour, or season-hour
+        # TODO: Is there a smart way for us to infer the timeseries __type to avoid a user input?
+        elif (
+            getattr(instance, f"{attr}__type", None) == TimeseriesType.MONTH_HOUR
+            or getattr(instance, f"{attr}__type", None) == TimeseriesType.SEASON_HOUR
+            or getattr(instance, f"{attr}__type", None) == TimeseriesType.MONTHLY
+        ):
+            # TODO: Figure out a way to use the resample_up method on monthly or seasonal data?
+            temp.type = getattr(instance, f"{attr}__type")  # Set timeseries attribute type
+            if field_settings["up_method"] != "ffill":
+                logger.warning(
+                    "Monthly data upsampling is only supported for forward filling, not back filling or interpolation. "
+                    "All timestamps within a given month will be assigned the value given in that month."
+                )
+            temp.resample_month_or_season_hour_to_hourly(correct_index=correct_index)
+        # Resample up: Data is not monthly, month-hour, or season-hour
+        else:
+            new_profile = temp.data.reindex(correct_index)
+            new_profile = Timeseries.resample_up(
+                new_profile,
+                field_settings["up_method"],
+            )
+
+            # Because we have `validate_assignment` as True, every time we do ts.data = something,
+            # it will get re-validated, including if we're mid-operation (in this case, we've extended the indices
+            # but have yet to fill in the NaNs)
+            temp.data = new_profile.ffill()
+
+    # TODO: `extrapolated` doesn't seem to be updated anywhere
+    # If the `extrapolated` set of attrs is not empty, return them to `System` for warning
+    if extrapolated:
+        return {instance.name: extrapolated}

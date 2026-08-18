@@ -5,6 +5,8 @@ import kmedoids
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+from kit.core.custom_model import BaseCustomModel
+from kit.core.utils.core_utils import timer
 from loguru import logger
 from plotly.subplots import make_subplots
 from pydantic import Field
@@ -12,11 +14,8 @@ from pydantic import field_validator
 from pydantic import model_validator
 from sklearn.metrics.pairwise import euclidean_distances
 
-from resolve.core.custom_model import CustomModel
-from resolve.core.utils.core_utils import timer
 
-
-class Clusterer(CustomModel):
+class Clusterer(BaseCustomModel):
     timeseries: list[tuple[pd.Series, float, str]] = Field(
         description="List of tuples, where the tuple has three components: timeseries data (pd.Series), multiplier (float), and a unique identifying name (str)"
     )

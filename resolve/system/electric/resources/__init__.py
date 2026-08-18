@@ -3,12 +3,12 @@ import pathlib
 from typing import Annotated
 
 import pandas as pd
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from kit.system.electric import BaseElectricResource
 from kit.system.electric import BaseElectricResourceGroup
 from loguru import logger
 
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.system.electric.resources.flex_load import FlexLoadResource
 from resolve.system.electric.resources.flex_load import FlexLoadResourceGroup
 from resolve.system.electric.resources.generic import GenericResource

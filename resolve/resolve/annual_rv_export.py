@@ -163,6 +163,10 @@ class AnnualResultsViewerExport:
             "ELCCSurface Annual Results": "ELCC_MW",
             "Linkages Passthrough": "linkages",
             "Discount Factors": "Discount Factor",
+            "Fuel Plant Annual Results": "Plant Summary",
+            "Fuel Plant by Product Annual Results": "Plant by Product Summary",
+            "Fuel PlantGroup Annual Results": "Plant Group Summary",
+            "Fuel PlantGroup by Product Annual Results": "Plant Group by Product Summary",
         }
 
         # create text boxes for each standard sheet
@@ -217,6 +221,10 @@ class AnnualResultsViewerExport:
             "ELCCSurface Annual Results": "summary/ELCCSurface_annual_results_summary.csv",
             "Linkages Passthrough": "passthrough/linkages.csv",
             "Discount Factors": "temporal_settings/modeled_year_discount_factors.csv",
+            "Fuel Plant Annual Results": "summary/Plant_annual_results_summary.csv",
+            "Fuel Plant by Product Annual Results": "summary/Plant_annual_results_by_product_summary.csv",
+            "Fuel PlantGroup Annual Results": "summary/PlantGroup_annual_results_summary.csv",
+            "Fuel PlantGroup by Product Annual Results": "summary/PlantGroup_annual_results_by_product_summary.csv",
         }
         if names is None:  # This shouldn't happen, but just in case
             return []

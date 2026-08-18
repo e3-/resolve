@@ -2,16 +2,14 @@ from typing import ClassVar
 from typing import Union
 
 import pandas as pd
-import pint
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from loguru import logger
 from pydantic import Field
 from typing_extensions import Annotated
 
 from resolve.core import linkage
 from resolve.core import three_way_linkage
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal import timeseries as ts
 from resolve.system import Asset
 from resolve.system.electric.resources import ThermalResource
@@ -36,7 +34,7 @@ class CandidateFuel(_EnergyCarrier):
     """
 
     SAVE_PATH: ClassVar[str] = "candidate_fuels"
-    unit: pint.Unit | str = units.MMBtu
+    unit: str = "MMBtu"
 
     commodity: Annotated[bool, Metadata(category=FieldCategory.OPERATIONS)] = Field(
         True,
@@ -45,7 +43,7 @@ class CandidateFuel(_EnergyCarrier):
     )
     availability: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.MMBtu_per_year, excel_short_title="Availability"),
+        Metadata(category=FieldCategory.OPERATIONS, units="MMBtu / year", excel_short_title="Availability"),
     ] = Field(
         None,
         default_freq="YS",
@@ -88,7 +86,7 @@ class CandidateFuel(_EnergyCarrier):
 
     price_per_unit: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.dollar / units.MMBtu, excel_short_title="Price"),
+        Metadata(category=FieldCategory.OPERATIONS, units="dollar / MMBtu", excel_short_title="Price"),
     ] = Field(
         None, default_freq="h", up_method="ffill", down_method="mean", weather_year=False, alias="fuel_price_per_mmbtu"
     )
@@ -99,7 +97,7 @@ class CandidateFuel(_EnergyCarrier):
 
     annual_price: Annotated[
         ts.NumericTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.dollar / units.MMBtu, excel_short_title="Annual Price"),
+        Metadata(category=FieldCategory.OPERATIONS, units="dollar / MMBtu", excel_short_title="Annual Price"),
     ] = Field(None, default_freq="YS", up_method="interpolate", down_method="sum")
 
     @property

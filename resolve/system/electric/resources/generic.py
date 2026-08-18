@@ -1,4 +1,5 @@
 from typing import Annotated
+from typing import Any
 from typing import ClassVar
 from typing import Dict
 from typing import Optional
@@ -8,7 +9,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.custom_model import ModelType
 from kit.system.electric.resources.generic import BaseGenericResource
 from kit.system.electric.resources.generic import BaseGenericResourceGroup
 from pydantic import computed_field
@@ -19,9 +22,6 @@ from typing_extensions import Annotated
 
 from resolve.core import linkage
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
-from resolve.core.custom_model import ModelType
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
 from resolve.core.temporal.timeseries import TimeseriesType
@@ -106,6 +106,7 @@ class GenericResource(BaseGenericResource, Asset):
             "integer_build",
             "integer_build_increment",
             "annual_sync_cond_power_input",
+            "annual_energy_value",
         ]
 
     ############
@@ -139,7 +140,7 @@ class GenericResource(BaseGenericResource, Asset):
         ts.NumericTimeseries,
         Metadata(
             category=FieldCategory.OPERATIONS,
-            units=units.dollar / units.MWh,
+            units="dollar / MWh",
             excel_short_title="VO&M Out",
         ),
     ] = Field(
@@ -153,7 +154,7 @@ class GenericResource(BaseGenericResource, Asset):
     )
     production_tax_credit: Annotated[
         float | None,
-        Metadata(units=units.dollar / units.MWh, excel_short_title="PTC"),
+        Metadata(units="dollar / MWh", excel_short_title="PTC"),
     ] = Field(
         None,
         description="Production tax credit per MWh produced. If provided, must be used in conjunction with a PTC term.",
@@ -161,7 +162,7 @@ class GenericResource(BaseGenericResource, Asset):
     )
     ptc_term: Annotated[
         int | None,
-        Metadata(units=units.years, excel_short_title="PTC Term"),
+        Metadata(units="years", excel_short_title="PTC Term"),
     ] = Field(
         None,
         description="Number of years that the production tax credit applies, starting from the build year. If provided, must be used in conjunction with a production tax credit value.",
@@ -236,9 +237,7 @@ class GenericResource(BaseGenericResource, Asset):
     )  # TODO: Could we figure out a smart way to infer the __type based on the data?
     outage_profile: Annotated[
         ts.FractionalTimeseries,
-        Metadata(
-            category=FieldCategory.OPERATIONS, units=units.unitless, excel_short_title="Outage", default_exclude=True
-        ),
+        Metadata(category=FieldCategory.OPERATIONS, units="unitless", excel_short_title="Outage", default_exclude=True),
     ] = Field(
         default_factory=ts.FractionalTimeseries.one,
         description="Fixed profile of simulated outages, where a value of 1.0 represents availability of full nameplate "
@@ -256,7 +255,7 @@ class GenericResource(BaseGenericResource, Asset):
 
     energy_budget_daily: Annotated[
         ts.FractionalTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=1 / units.day, excel_short_title="Daily"),
+        Metadata(category=FieldCategory.OPERATIONS, units="1 / day", excel_short_title="Daily"),
     ] = Field(
         None,
         description="Daily fraction of energy capacity allowed for daily dispatch.",
@@ -269,7 +268,7 @@ class GenericResource(BaseGenericResource, Asset):
 
     energy_budget_monthly: Annotated[
         ts.FractionalTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=1 / units.month, excel_short_title="Monthly"),
+        Metadata(category=FieldCategory.OPERATIONS, units="1 / month", excel_short_title="Monthly"),
     ] = Field(
         None,
         description="Monthly fraction of energy capacity allowed for monthly dispatch]",
@@ -282,7 +281,7 @@ class GenericResource(BaseGenericResource, Asset):
 
     energy_budget_annual: Annotated[
         ts.FractionalTimeseries | None,
-        Metadata(category=FieldCategory.OPERATIONS, units=1 / units.year, excel_short_title="Annual"),
+        Metadata(category=FieldCategory.OPERATIONS, units="1 / year", excel_short_title="Annual"),
     ] = Field(
         None,
         description="Annual fraction of energy capacity allowed for annual dispatch.",
@@ -293,29 +292,27 @@ class GenericResource(BaseGenericResource, Asset):
         title=f"Annual Energy Budget",
     )
 
-    ramp_rate_1_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units=1 / units.hour)] = (
-        Field(
-            None,
-            description="Single-hour ramp rate. When used in conjunction with the other ramp rate limits (1-4 hour), a resource's dispatch will be constrained by all applicable ramp rate limits on a rolling basis.",
-            down_method="none",
-            title=f"Max 1-Hour Ramp Rate",
-        )
+    ramp_rate_1_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units="1 / hour")] = Field(
+        None,
+        description="Single-hour ramp rate. When used in conjunction with the other ramp rate limits (1-4 hour), a resource's dispatch will be constrained by all applicable ramp rate limits on a rolling basis.",
+        down_method="none",
+        title=f"Max 1-Hour Ramp Rate",
     )
-    ramp_rate_2_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units=1 / units.hour / 2)] = (
+    ramp_rate_2_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units="1 / hour / 2")] = (
         Field(
             None,
             description="Two-hour ramp rate. When used in conjunction with the other ramp rate limits (1-4 hour), a resource's dispatch will be constrained by all applicable ramp rate limits on a rolling basis.",
             title=f"Max 2-Hour Ramp Rate",
         )
     )
-    ramp_rate_3_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units=1 / units.hour / 3)] = (
+    ramp_rate_3_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units="1 / hour / 3")] = (
         Field(
             None,
             description="Three-hour ramp rate. When used in conjunction with the other ramp rate limits (1-4 hour), a resource's dispatch will be constrained by all applicable ramp rate limits on a rolling basis.",
             title=f"Max 3-Hour Ramp Rate",
         )
     )
-    ramp_rate_4_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units=1 / units.hour / 4)] = (
+    ramp_rate_4_hour: Annotated[float | None, Metadata(category=FieldCategory.OPERATIONS, units="1 / hour / 4")] = (
         Field(
             None,
             description="Four-hour ramp rate. When used in conjunction with the other ramp rate limits (1-4 hour), a resource's dispatch will be constrained by all applicable ramp rate limits on a rolling basis.",
@@ -659,6 +656,12 @@ class GenericResource(BaseGenericResource, Asset):
                     model.DAYS,
                     rule=self._energy_budget_daily_MWh,
                 ),
+                daily_energy_output=pyo.Expression(
+                    model.MODELED_YEARS,
+                    model.DAYS,
+                    rule=self._daily_energy_output,
+                    doc="Daily Energy Output (MWh)",
+                ),
                 daily_energy_budget_constraint=pyo.Constraint(
                     model.MODELED_YEARS,
                     model.DAYS,
@@ -744,6 +747,17 @@ class GenericResource(BaseGenericResource, Asset):
             )
 
         return pyomo_components
+
+    def _construct_output_expressions(self, construct_costs: bool):
+        super()._construct_output_expressions(construct_costs)
+        if construct_costs and self.has_operational_rules and len(self.zones) == 1:
+            zone = list(self.zones.values())[0].instance_to
+            if hasattr(zone.formulation_block, "hourly_energy_prices_weighted"):
+                self.formulation_block.annual_energy_value = pyo.Expression(
+                    self.formulation_block.model().MODELED_YEARS,
+                    rule=self._annual_energy_value,
+                    doc="Annual Energy Value ($)",
+                )
 
     def _net_power_output(self, block, modeled_year: pd.Timestamp, dispatch_window, timestamp: pd.Timestamp):
         """Calculate the net power output of the resource in each timepoint."""
@@ -902,18 +916,38 @@ class GenericResource(BaseGenericResource, Asset):
 
         return constraint
 
-    def _daily_energy_budget_constraint(self, block, modeled_year, day):
-        """The daily power output of the Resource must not exceed its specified daily budget. Note: a
-        tolerance of 1 unit is added to the budget to ensure that floating point errors do not create an
-        infeasible model."""
+    def _daily_energy_output(self, block: pyo.Block, modeled_year: pd.Timestamp, day: pd.Timestamp) -> Any:
+        """Calculate total daily power output for the resource.
+
+        Args:
+            block: Formulation block for the resource.
+            modeled_year: Modeled year for the expression.
+            day: Weather-year day to aggregate.
+
+        Returns:
+            Pyomo expression summing power output across the day's timepoints.
+        """
+        return pyo.quicksum(
+            block.power_output[modeled_year, dispatch_window, timestamp]
+            for dispatch_window, timestamp in block.model().DAY_TO_TIMESTAMPS_MAPPING[day]
+        )
+
+    def _daily_energy_budget_constraint(self, block: pyo.Block, modeled_year: pd.Timestamp, day: pd.Timestamp) -> Any:
+        """Constrain daily resource output to its daily energy budget.
+
+        Args:
+            block: Formulation block for the resource.
+            modeled_year: Modeled year for the constraint.
+            day: Weather-year day for the constraint.
+
+        Returns:
+            A Pyomo constraint expression, or ``pyo.Constraint.Skip`` when no finite budget applies.
+        """
         if self.energy_budget_daily is None or np.isinf(self.energy_budget_daily.data.at[day]):
             constraint = pyo.Constraint.Skip
         else:
             constraint = (
-                sum(
-                    block.power_output[modeled_year, dispatch_window, timestamp]
-                    for dispatch_window, timestamp in block.model().DAY_TO_TIMESTAMPS_MAPPING[day]
-                )
+                block.daily_energy_output[modeled_year, day]
                 <= block.daily_energy_budget_MWh[modeled_year, day] + _PYOMO_BUDGET_TOLERANCE
             )
 
@@ -1233,6 +1267,21 @@ class GenericResource(BaseGenericResource, Asset):
             return ramp_MW <= UB
 
 
+    def _annual_energy_value(self, block, modeled_year: pd.Timestamp):
+        """Construct resource annual energy value expression from zonal dual"""
+        zone = list(self.zones.values())[0].instance_to
+        prices = zone.formulation_block.hourly_energy_prices_weighted
+        annual_discount_factor = block.model().temporal_settings.modeled_year_discount_factors.data.at[modeled_year]
+        return (
+            pyo.quicksum(
+                prices[modeled_year, dispatch_window, timestamp]
+                * block.net_power_output[modeled_year, dispatch_window, timestamp]
+                for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+            )
+            / annual_discount_factor
+        )
+
+
 class GenericResourceGroup(BaseGenericResourceGroup, AssetGroup, GenericResource):
     SAVE_PATH: ClassVar[str] = "resources/generic/groups"
     _NAME_PREFIX: ClassVar[str] = "generic_resource_group"
@@ -1303,6 +1352,7 @@ class GenericResourceGroup(BaseGenericResourceGroup, AssetGroup, GenericResource
             "annual_total_operational_cost",
             # Other
             "annual_sync_cond_power_input",
+            "annual_energy_value",
             # Investment-related costs -- not needed for groups
         ]
 

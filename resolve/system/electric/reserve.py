@@ -5,6 +5,7 @@ from typing import Optional
 
 import numpy as np
 import pyomo.environ as pyo
+from kit.core.custom_model import Metadata
 from loguru import logger
 from pydantic import Field
 
@@ -12,7 +13,6 @@ from resolve.core import component
 from resolve.core import dir_str
 from resolve.core import linkage
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import Metadata
 from resolve.core.linkage import IncrementalReserveType
 from resolve.core.temporal import timeseries as ts
 from resolve.core.three_way_linkage import CustomConstraintLinkage
@@ -108,7 +108,6 @@ class Reserve(component.Component):
             unserved_reserve_MW=pyo.Var(
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                units=pyo.units.MWh,
                 within=pyo.NonNegativeReals,
             )
         )

@@ -10,10 +10,12 @@ class ExcelApiCalls:
     """Simple wrapper to make xlwings `.api` calls cleaner (instead of needing to always write `if/else` every time).
 
     All methods should take the form of:
+
         if self.platform == "Darwin":
             ...
         else:
             ...
+
     where "Darwin" is the platform name for macOS, and "else" would de-facto be Windows.
 
     Windows VBA API is pretty well-documented here: https://learn.microsoft.com/en-us/office/vba/api/overview/excel

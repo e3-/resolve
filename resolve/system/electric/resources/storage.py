@@ -5,16 +5,15 @@ from typing import Dict
 
 import pandas as pd
 import pyomo.environ as pyo
-from kit.core.custom_model import units
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.custom_model import ModelType
 from kit.system.electric.resources.storage import BaseStorageResource
 from kit.system.electric.resources.storage import BaseStorageResourceGroup
 from pydantic import Field
 from typing_extensions import Annotated
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
-from resolve.core.custom_model import ModelType
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
 from resolve.core.temporal.timeseries import TimeseriesType
@@ -40,15 +39,15 @@ class StorageResource(BaseStorageResource, GenericResource):
     #################################
     # Build & Retirement Attributes #
     #################################
-    duration: Annotated[
-        float, Metadata(category=FieldCategory.OPERATIONS, show_year_headers=False, units=units.hour)
-    ] = Field(
-        description="[RESOLVE, RECAP]. Hours of operational time the battery can operate at a specified power level "
-        "before it runs out of energy. Required when resource is an operational group or does not belong to"
-        " one.",
-        alias="storage_duration",
-        title=f"Duration",
-        ge=0,
+    duration: Annotated[float, Metadata(category=FieldCategory.OPERATIONS, show_year_headers=False, units="hour")] = (
+        Field(
+            description="[RESOLVE, RECAP]. Hours of operational time the battery can operate at a specified power level "
+            "before it runs out of energy. Required when resource is an operational group or does not belong to"
+            " one.",
+            alias="storage_duration",
+            title=f"Duration",
+            ge=0,
+        )
     )
 
     duration_constraint: Annotated[StorageDurationConstraint, Metadata(category=FieldCategory.OPERATIONS)] = Field(
@@ -75,31 +74,29 @@ class StorageResource(BaseStorageResource, GenericResource):
     ###################
     # Cost Attributes #
     ###################
-    annualized_storage_capital_cost: Annotated[float, Metadata(units=units.dollar / units.kWh_year)] = Field(
+    annualized_storage_capital_cost: Annotated[float, Metadata(units="dollar / kWh_year")] = Field(
         default=0.0,
         description="$/kWh-yr. For new storage capacity, the annualized fixed cost of investment. "
         "This is an annualized version of an overnight cost that could include financing costs ($/kWh-year).",
         alias="new_storage_annual_fixed_cost_dollars_per_kwh_yr_by_vintage",
         title=f"Storage Levelized Fixed Cost",
     )
-    annualized_storage_fixed_om_cost: Annotated[ts.NumericTimeseries, Metadata(units=units.dollar / units.kWh_year)] = (
-        Field(
-            default_factory=ts.NumericTimeseries.zero,
-            description="$/kWh-yr. For the planned portion of the resource's storage capacity, "
-            "the ongoing fixed O&M cost",
-            default_freq="YS",
-            up_method="interpolate",
-            down_method="mean",
-            alias="new_storage_capacity_fixed_om_by_vintage",
-            title=f"Storage Fixed O&M Cost",
-        )
+    annualized_storage_fixed_om_cost: Annotated[ts.NumericTimeseries, Metadata(units="dollar / kWh_year")] = Field(
+        default_factory=ts.NumericTimeseries.zero,
+        description="$/kWh-yr. For the planned portion of the resource's storage capacity, "
+        "the ongoing fixed O&M cost",
+        default_freq="YS",
+        up_method="interpolate",
+        down_method="mean",
+        alias="new_storage_capacity_fixed_om_by_vintage",
+        title=f"Storage Fixed O&M Cost",
     )
 
     variable_cost_power_input: Annotated[
         ts.NumericTimeseries,
         Metadata(
             category=FieldCategory.OPERATIONS,
-            units=units.dollar / units.MWh,
+            units="dollar / MWh",
             excel_short_title="VO&M In",
         ),
     ] = Field(
@@ -117,7 +114,7 @@ class StorageResource(BaseStorageResource, GenericResource):
     ##########################
     power_input_min: Annotated[
         ts.FractionalTimeseries,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.unitless, excel_short_title="Min Input Profile"),
+        Metadata(category=FieldCategory.OPERATIONS, units="unitless", excel_short_title="Min Input Profile"),
     ] = Field(
         default_factory=ts.FractionalTimeseries.zero,
         description="Fixed shape of resource's potential power draw (e.g. flat shape for storage resources)."
@@ -136,7 +133,7 @@ class StorageResource(BaseStorageResource, GenericResource):
     )
     power_input_max: Annotated[
         ts.FractionalTimeseries,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.unitless, excel_short_title="Max Input Profile"),
+        Metadata(category=FieldCategory.OPERATIONS, units="unitless", excel_short_title="Max Input Profile"),
     ] = Field(
         default_factory=ts.FractionalTimeseries.one,
         description="Fixed shape of resource's potential power draw (e.g. flat shape for storage resources)."
@@ -603,11 +600,11 @@ class StorageResource(BaseStorageResource, GenericResource):
         Upper bound on the amount of retired capacity in each year. Retired capacity in a given year cannot
         exceed the operational capacity in the previous year, and capacity cannot be retired before the build year
         of the storage resource.
-         - If the modeled year is earlier than the build year, no capacity can be retired in that year
-         - If the resource can't be retired, but it has a physical lifetime, don't allow retirement until the end of its physical lifetime
-         - If the resource can't be retired, and it has no specified physical lifetime, don't allow it to retire ever
-         - If the resource exists before the first modeled year, only the planned capacity can be retired in the first modeled year
-         - Otherwise, the resource cannot retire more capacity than was online in the previous modeled year
+            - If the modeled year is earlier than the build year, no capacity can be retired in that year
+            - If the resource can't be retired, but it has a physical lifetime, don't allow retirement until the end of its physical lifetime
+            - If the resource can't be retired, and it has no specified physical lifetime, don't allow it to retire ever
+            - If the resource exists before the first modeled year, only the planned capacity can be retired in the first modeled year
+            - Otherwise, the resource cannot retire more capacity than was online in the previous modeled year
         """
 
         # If the modeled year is earlier than the build year, no capacity can be retired in that year
@@ -873,14 +870,14 @@ class StorageResource(BaseStorageResource, GenericResource):
 
         If we are using the default representative/chronological period representation,
         this constraint does not apply for the last timepoint of an intra period:
-             1. Any energy left in the last tp is transferred to `Soc_Inter_Period` via `SOC_Inter_Tracking_Constraint`
-             2. `Soc_Intra_Period` in the first timepoint of each representative period is anchored to 0 by
+            1. Any energy left in the last tp is transferred to `Soc_Inter_Period` via `SOC_Inter_Tracking_Constraint`
+            2. `Soc_Intra_Period` in the first timepoint of each representative period is anchored to 0 by
                 `SOC_Intra_Anchoring_Constraint`
 
         If either of the following conditions is met, this constraint **does** create a SoC constraint to loop
         the last tp of a rep period to the first tp:
-             1. A resource is set to :py:attr:`resolve.common.resource.Resource.allow_inter_period_sharing`==False
-             2. :py:attr:`resolve.resolve.model_formulation.ResolveCase.rep_period_method`=="manual"
+            1. A resource is set to :py:attr:`resolve.common.resource.Resource.allow_inter_period_sharing`==False
+            2. :py:attr:`resolve.resolve.model_formulation.ResolveCase.rep_period_method`=="manual"
 
         Args:
             model:
@@ -1275,7 +1272,7 @@ class StorageResourceGroup(BaseStorageResourceGroup, GenericResourceGroup, Stora
 
     # Redefine duration attribute to allow non-operational groups to not have a defined duration
     duration: Annotated[
-        float | None, Metadata(category=FieldCategory.OPERATIONS, show_year_headers=False, units=units.hour)
+        float | None, Metadata(category=FieldCategory.OPERATIONS, show_year_headers=False, units="hour")
     ] = Field(
         default=None,
         description="[RESOLVE, RECAP]. Hours of operational time of the battery can operate at a specified power level "
@@ -1295,7 +1292,7 @@ class StorageResourceGroup(BaseStorageResourceGroup, GenericResourceGroup, Stora
 
     power_input_max: Annotated[
         ts.FractionalTimeseries,
-        Metadata(category=FieldCategory.OPERATIONS, units=units.unitless, excel_short_title="Max Input Profile"),
+        Metadata(category=FieldCategory.OPERATIONS, units="unitless", excel_short_title="Max Input Profile"),
     ] = Field(
         default_factory=ts.FractionalTimeseries.one,
         description="Fixed shape of resource's potential power draw (e.g. flat shape for storage resources)."
