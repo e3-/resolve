@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from typing import ClassVar
 
-import pint
-from kit.core.custom_model import units
 from pyomo import environ as pyo
 from typing_extensions import deprecated
 
@@ -42,7 +40,7 @@ class Electricity(_EnergyCarrier):
     """
 
     SAVE_PATH: ClassVar[str] = "electricity_products"
-    unit: pint.Unit | str = units.kWh
+    unit: str = "kWh"
 
     # TODO when fuels and electric sector refactor occurs: We should ensure _consumers and _producers to include
     #  resources and loads.
@@ -150,8 +148,6 @@ class EnergyDemand(Demand):
         self, model: "ModelTemplate", construct_costs: bool
     ) -> LastUpdatedOrderedDict[str, pyo.Component]:
         return super()._construct_operational_rules(model, construct_costs)
-
-    # TODO: think about a validator which can be used to enforce that EnergyDemand must have units associated with energy carrier
 
 
 class FinalFuelDemand(EnergyDemand):

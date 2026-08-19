@@ -23,13 +23,13 @@ class Process(ThreeWayLinkage):
         plant: The plant or demand component (instance_1) performing the conversion.
         consumed_product: The input product (instance_2) being consumed.
         produced_product: The output product (instance_3) being produced.
-        conversion_rate: Units of input product needed per unit of output product.
+        conversion_rate: Units of output product produced per unit of input product consumed.
         input_capture_rate: Fraction of input product that can be captured (0-1).
         output_capture_rate: Fraction of output product that is captured post-conversion (0-1).
 
     Note:
-        The conversion efficiency is in units of the product's base units / plant's "working" units
-          (e.g., MMBtu / MWh for a power plant, ton/something for biofuel feedstock)
+        The conversion rate is in units of the produced product's base units / consumed product's base units
+          (e.g., kWh / MMBtu for a power plant producing electricity).
         If a product is only consumed (not produced elsewhere), use DemandToProduct linkage instead.
     """
 
@@ -74,9 +74,8 @@ class Process(ThreeWayLinkage):
     conversion_rate: float = Field(
         1,
         description=(
-            "Process conversion efficiency expressed as units of input product needed per unit of output "
-            "product produced. Higher values indicate lower efficiency (more input required). Default 1.0 assumes 1:1 "
-            "conversion."
+            "Process conversion rate expressed as units of output product produced per unit of input product "
+            "consumed. Higher values indicate higher thermal efficiency. Default 1.0 assumes 1:1 conversion."
         ),
         gt=0,
     )

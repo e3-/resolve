@@ -2,7 +2,6 @@ from typing import Optional
 
 from pydantic import Field
 
-from kit import get_units
 from kit.core import component
 from kit.core import dir_str
 from kit.core import linkage
@@ -31,14 +30,14 @@ class BuildingShellType(component.BaseComponent):
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("out_stocks"),
+        units="dimensionless",
     )
     out_sales: Optional[ts.NumericTimeseries] = Field(
         None,
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("out_sales"),
+        units="dimensionless",
     )
 
     out_overnight_capital_cost: Optional[ts.NumericTimeseries] = Field(
@@ -46,7 +45,7 @@ class BuildingShellType(component.BaseComponent):
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("out_capital_cost"),
+        units="dimensionless",
     )
 
     out_levelized_capital_cost: Optional[ts.NumericTimeseries] = Field(
@@ -54,7 +53,7 @@ class BuildingShellType(component.BaseComponent):
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("out_capital_cost"),
+        units="dimensionless",
     )
 
     def revalidate(self):

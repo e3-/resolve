@@ -6,12 +6,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from loguru import logger
 from pydantic import Field
 
 from resolve.core import linkage
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal import timeseries as ts
 from resolve.system.asset import Asset
 from resolve.system.asset import AssetGroup
@@ -203,7 +203,6 @@ class TxPath(Asset):
             transmit_power_forward=pyo.Var(
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                units=pyo.units.MW,
                 within=pyo.NonNegativeReals,
                 doc="Transmit Power Forward (MW)",
             )
@@ -214,7 +213,6 @@ class TxPath(Asset):
             transmit_power_reverse=pyo.Var(
                 model.MODELED_YEARS,
                 model.DISPATCH_WINDOWS_AND_TIMESTAMPS,
-                units=pyo.units.MW,
                 within=pyo.NonNegativeReals,
                 doc="Transmit Power Reverse (MW)",
             )
@@ -231,6 +229,20 @@ class TxPath(Asset):
                 rule=self._net_transmit_power,
                 doc="Net Transmit Power (MW)",
             )
+        )
+
+        """Annual gross forward and reverse flow across the line"""
+        pyomo_components.update(
+            annual_gross_forward_flow=pyo.Expression(
+                model.MODELED_YEARS,
+                rule=self._annual_gross_forward_flow,
+                doc="Gross Forward Flow (MWh)",
+            ),
+            annual_gross_reverse_flow=pyo.Expression(
+                model.MODELED_YEARS,
+                rule=self._annual_gross_reverse_flow,
+                doc="Gross Reverse Flow (MWh)",
+            ),
         )
 
         if construct_costs:
@@ -328,17 +340,6 @@ class TxPath(Asset):
         )
 
         if self.has_operational_rules:
-            self.formulation_block.annual_gross_forward_flow = pyo.Expression(
-                self.formulation_block.model().MODELED_YEARS,
-                rule=self._annual_gross_forward_flow,
-                doc="Gross Forward Flow (MWh)",
-            )
-
-            self.formulation_block.annual_gross_reverse_flow = pyo.Expression(
-                self.formulation_block.model().MODELED_YEARS,
-                rule=self._annual_gross_reverse_flow,
-                doc="Gross Reverse Flow (MWh)",
-            )
 
             self.formulation_block.annual_net_forward_flow = pyo.Expression(
                 self.formulation_block.model().MODELED_YEARS,
@@ -471,40 +472,56 @@ class TxPath(Asset):
         """Weighted energy prices are used in order to sum to correct annual flow value"""
         to_zone_energy_prices = self.to_zone.instance_from.formulation_block.hourly_energy_prices_weighted
         forward_flows = block.transmit_power_forward
-        return sum(
-            to_zone_energy_prices[modeled_year, dispatch_window, timestamp]
-            * forward_flows[modeled_year, dispatch_window, timestamp]
-            for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+        annual_discount_factor = block.model().temporal_settings.modeled_year_discount_factors.data.at[modeled_year]
+        return (
+            pyo.quicksum(
+                to_zone_energy_prices[modeled_year, dispatch_window, timestamp]
+                * forward_flows[modeled_year, dispatch_window, timestamp]
+                for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+            )
+            / annual_discount_factor
         )
 
     def _annual_reverse_flow_value_to_zone(self, block: pyo.Block, modeled_year: pd.Timestamp):
         """Weighted energy prices are used in order to sum to correct annual flow value"""
         to_zone_energy_prices = self.to_zone.instance_from.formulation_block.hourly_energy_prices_weighted
         reverse_flows = block.transmit_power_reverse
-        return sum(
-            to_zone_energy_prices[modeled_year, dispatch_window, timestamp]
-            * reverse_flows[modeled_year, dispatch_window, timestamp]
-            for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+        annual_discount_factor = block.model().temporal_settings.modeled_year_discount_factors.data.at[modeled_year]
+        return (
+            pyo.quicksum(
+                to_zone_energy_prices[modeled_year, dispatch_window, timestamp]
+                * reverse_flows[modeled_year, dispatch_window, timestamp]
+                for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+            )
+            / annual_discount_factor
         )
 
     def _annual_forward_flow_value_from_zone(self, block: pyo.Block, modeled_year: pd.Timestamp):
         """Weighted energy prices are used in order to sum to correct annual flow value"""
         from_zone_energy_prices = self.from_zone.instance_from.formulation_block.hourly_energy_prices_weighted
         forward_flows = block.transmit_power_forward
-        return sum(
-            from_zone_energy_prices[modeled_year, dispatch_window, timestamp]
-            * forward_flows[modeled_year, dispatch_window, timestamp]
-            for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+        annual_discount_factor = block.model().temporal_settings.modeled_year_discount_factors.data.at[modeled_year]
+        return (
+            pyo.quicksum(
+                from_zone_energy_prices[modeled_year, dispatch_window, timestamp]
+                * forward_flows[modeled_year, dispatch_window, timestamp]
+                for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+            )
+            / annual_discount_factor
         )
 
     def _annual_reverse_flow_value_from_zone(self, block: pyo.Block, modeled_year: pd.Timestamp):
         """Weighted energy prices are used in order to sum to correct annual flow value"""
         from_zone_energy_prices = self.from_zone.instance_from.formulation_block.hourly_energy_prices_weighted
         reverse_flows = block.transmit_power_reverse
-        return sum(
-            from_zone_energy_prices[modeled_year, dispatch_window, timestamp]
-            * reverse_flows[modeled_year, dispatch_window, timestamp]
-            for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+        annual_discount_factor = block.model().temporal_settings.modeled_year_discount_factors.data.at[modeled_year]
+        return (
+            pyo.quicksum(
+                from_zone_energy_prices[modeled_year, dispatch_window, timestamp]
+                * reverse_flows[modeled_year, dispatch_window, timestamp]
+                for dispatch_window, timestamp in block.model().DISPATCH_WINDOWS_AND_TIMESTAMPS
+            )
+            / annual_discount_factor
         )
 
 

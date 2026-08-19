@@ -19,19 +19,19 @@ import scipy
 import seaborn as sns
 from IPython.display import clear_output
 from IPython.display import display
+from kit.core.custom_model import BaseCustomModel
+from kit.core.utils.core_utils import timer
 from loguru import logger
 from plotly.subplots import make_subplots
 from pydantic import Field
 from sklearn.metrics import silhouette_score
 from sklearn.metrics.pairwise import euclidean_distances
 
-from resolve.core.custom_model import CustomModel
-from resolve.core.utils.core_utils import timer
 from resolve.core.utils.util import DirStructure
 from resolve.system import System
 
 
-class DaySamplingClusterer(CustomModel):
+class DaySamplingClusterer(BaseCustomModel):
     grid_combo: dict[str, float]
     components_to_cluster: list[tuple[str, float]]
     components_to_plot: dict[str, list[tuple[str, float]]]

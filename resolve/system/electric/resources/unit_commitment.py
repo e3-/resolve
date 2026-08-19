@@ -5,6 +5,8 @@ from typing import ClassVar
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
 from kit.system.electric.resources.unit_commitment import BaseUnitCommitmentResource
 from kit.system.electric.resources.unit_commitment import BaseUnitCommitmentResourceGroup
 from pydantic import Field
@@ -17,8 +19,6 @@ from pyomo.environ import RangeSet
 from typing_extensions import Annotated
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.model import ModelType
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects

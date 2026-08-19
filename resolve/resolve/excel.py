@@ -311,7 +311,7 @@ class ResolveScenarioTool(ScenarioTool):
 
 
 if __name__ == "__main__":
-    from resolve.core.custom_model import ModelType
+    from kit.core.custom_model import ModelType
 
     wb = ResolveScenarioTool(book="RESOLVE_Training_User_Interface.xlsm")
     wb.export_system(model=ModelType.RESOLVE)

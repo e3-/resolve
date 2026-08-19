@@ -3,7 +3,10 @@ from kit.core.utils.util import StreamToLogger
 from resolve.core.utils import util
 
 # Initialize common directory structure
-dir_str = util.DirStructure()
+try:
+    dir_str = util.DirStructure()
+except NameError:
+    pass  # Docs CI Build...
 
 
 # Initialize class to intercept print statements from Pyomo

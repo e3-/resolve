@@ -1,6 +1,5 @@
 from pydantic import Field
 
-from kit import get_units
 from kit.core import component
 from kit.core import dir_str
 from kit.core import linkage
@@ -23,7 +22,7 @@ class BiomassResource(component.BaseComponent):
         default_freq="YS",
         up_method="interpolate",
         down_method="annual",
-        units=get_units("feedstock_limit_metric_tons"),
+        units="tonne",
     )
 
 

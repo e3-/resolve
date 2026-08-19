@@ -3,6 +3,9 @@ from typing import ClassVar
 import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.custom_model import ModelType
 from kit.system.electric.resources.shed_dr import BaseShedDrResource
 from kit.system.electric.resources.shed_dr import BaseShedDrResourceGroup
 from loguru import logger
@@ -10,9 +13,6 @@ from pydantic import Field
 from typing_extensions import Annotated
 
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
-from resolve.core.custom_model import ModelType
 from resolve.core.temporal import timeseries as ts
 from resolve.core.temporal.settings import DispatchWindowEdgeEffects
 from resolve.system.electric.resources.generic import _PYOMO_BUDGET_TOLERANCE
@@ -603,9 +603,9 @@ class ShedDrResource(BaseShedDrResource, UnitCommitmentResource):
 
         - If erm_committed_units = 1, the inequality reduces to:
             erm_committed_capacity >= unit_size
-          enforcing that the full unit size is available.
+            enforcing that the full unit size is available.
         - If erm_committed_units = 0, the RHS relaxes to a large negative value,
-          effectively removing the lower bound and allowing committed_capacity = 0.
+            effectively removing the lower bound and allowing committed_capacity = 0.
 
         Returns: pyomo.Constraint: erm_committed_capacity >= unit_size - max_potential * (1 - erm_committed_units)
         """

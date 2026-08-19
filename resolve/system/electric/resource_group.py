@@ -7,11 +7,11 @@ import numpy as np
 import pandas as pd
 import pydantic
 import scipy.stats
+from kit.core.utils.core_utils import cantor_pairing_function
 from loguru import logger
 
 from resolve.core import component
 from resolve.core import linkage
-from resolve.core.utils.core_utils import cantor_pairing_function
 
 
 def _get_daily_mean(
@@ -196,8 +196,9 @@ class ResourceGroup(component.Component):
         Default probability function is normal multivariate
         Returns:
             dict {(i,group): day}: i is the datetimeindex of the full load profile,
-                                   group is the variable profile group,
-                                   and day is a datetime.datetime representing the random day draw for that variable profile group
+                    group is the variable profile group,
+                    and day is a datetime.datetime representing the random day draw for that variable profile group
+
         """
 
         draw_group = {}

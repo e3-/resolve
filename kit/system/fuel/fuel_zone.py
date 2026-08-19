@@ -8,10 +8,11 @@ from pydantic import Field
 from kit.core import component
 from kit.core import linkage
 from kit.core.temporal import timeseries as ts
-from kit.core.utils.core_utils import map_not_none
 from kit.system.fuel.electrolyzer import Electrolyzer
 from kit.system.fuel.storage import FuelStorage
 from kit.system.fuel.transport import FuelTransportation
+
+# from kit.core.utils.core_utils import map_not_none
 
 
 class FuelZone(component.BaseComponent):

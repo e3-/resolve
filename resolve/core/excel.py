@@ -13,14 +13,14 @@ import numpy as np
 import pandas as pd
 import xlwings as xw
 import yaml
+from kit.core.custom_model import BaseCustomModel
+from kit.core.custom_model import ModelType
+from kit.core.utils.pandas_utils import compare_dataframes
 from loguru import logger
 from pydantic import Field
 from tqdm.notebook import tqdm
 from upath import UPath
 
-from resolve.core.custom_model import CustomModel
-from resolve.core.custom_model import ModelType
-from resolve.core.utils.pandas_utils import compare_dataframes
 from resolve.core.utils.util import DirStructure
 from resolve.core.utils.xlwings import ExcelApiCalls
 from resolve.system.generics.generic_linkages import *
@@ -28,12 +28,12 @@ from resolve.system.generics.generic_linkages import *
 excel_api = ExcelApiCalls()
 
 
-class LinkageFieldsToWrite(CustomModel):
+class LinkageFieldsToWrite(BaseCustomModel):
     instances: list[str] = []
     linkage_class: Any | None = None
 
 
-class ComponentToWrite(CustomModel):
+class ComponentToWrite(BaseCustomModel):
     linkages_to_write: list[LinkageFieldsToWrite] = []
     include: None | list[str] = None
     exclude: None | list[str] = None
@@ -72,7 +72,7 @@ class ComponentToWrite(CustomModel):
         return row_offset, column_offset, component_tables
 
 
-class SectionToWrite(CustomModel):
+class SectionToWrite(BaseCustomModel):
     """Sheets are sub-divided into sections separated by Header-formatted rows."""
 
     level: int = 1
@@ -122,7 +122,7 @@ class SectionToWrite(CustomModel):
         return 0, column_offset, component_tables
 
 
-class SheetToWrite(CustomModel):
+class SheetToWrite(BaseCustomModel):
     title: str
     sections: list[SectionToWrite] = []
     name: str = Field(max_length=31)
@@ -187,7 +187,7 @@ class SheetToWrite(CustomModel):
         return component_tables
 
 
-class ExcelTemplate(CustomModel):
+class ExcelTemplate(BaseCustomModel):
     template_path: str | None = None
     modeled_years_range: list[Any] = list(range(2023, 2051))
     modeled_years_visible: list | None = None

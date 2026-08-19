@@ -6,6 +6,9 @@ from typing import ClassVar
 import pandas as pd
 import pyomo.environ as pyo
 import scipy.optimize
+from kit.core.custom_model import FieldCategory
+from kit.core.custom_model import Metadata
+from kit.core.utils.core_utils import timer
 from kit.system.electric.resources.variable.variable import BaseVariableResource
 from kit.system.electric.resources.variable.variable import BaseVariableResourceGroup
 from loguru import logger
@@ -13,19 +16,17 @@ from pydantic import Field
 
 import resolve.core.temporal.timeseries as ts
 from resolve.core.component import LastUpdatedOrderedDict
-from resolve.core.custom_model import FieldCategory
-from resolve.core.custom_model import Metadata
 from resolve.core.temporal.settings import TemporalSettings
-from resolve.core.utils.core_utils import timer
 from resolve.system.electric.resources.generic import GenericResource
 from resolve.system.electric.resources.generic import GenericResourceGroup
-
 
 # Give curtailment penalty to non-curtailable resources that don't have energy budgets, to avoid infeasibilities
 NON_CURTAILABLE_CURTAILMENT_PENALTY = 100_000  # $/MWh
 
+
 class VariableResource(BaseVariableResource, GenericResource):
     """Variable resources are resources that need a profile to represent their energy output. Examples include wind and solar resources, but a variable resource could also have a fixed profile."""
+
     SAVE_PATH: ClassVar[str] = "resources/variable"
 
     ###################

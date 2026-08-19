@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import json
+import os
 import pathlib
+import types
 from typing import Any
-from typing import Dict
-from typing import List
 from typing import Optional
+from typing import Self
 
 import pandas as pd
+import pydantic
 from loguru import logger
+from pydantic.fields import FieldInfo
 
 from kit.core.custom_model import BaseCustomModel
 from kit.core.temporal import timeseries as ts
@@ -17,7 +21,17 @@ class BaseFromCSVMixIn(BaseCustomModel):
     """Base class to implement a standard `from_csv` class method to read from `interim` data folder."""
 
     @classmethod
-    def model_fields_with_aliases(cls):
+    def _get_data_dir(cls, filename: pathlib.Path) -> pathlib.Path:
+        """Return the project root directory by splitting on the ``interim`` path segment."""
+        return pathlib.Path(str(filename).split("interim")[0])
+
+    @classmethod
+    def model_fields_with_aliases(cls) -> dict[str, FieldInfo]:
+        """Return a merged mapping of canonical field names and their aliases to ``FieldInfo``.
+
+        Fields without an alias appear only under their canonical name. Fields with an alias
+        appear under both names, pointing to the same ``FieldInfo`` object.
+        """
         return cls.model_fields | {
             field_info.alias: field_info
             for field_info in cls.model_fields.values()
@@ -25,14 +39,23 @@ class BaseFromCSVMixIn(BaseCustomModel):
         }
 
     @classmethod
-    def field_is_timeseries(cls, *, field_info) -> bool:
+    def field_is_timeseries(cls, *, field_info: FieldInfo) -> bool:
+        """Return ``True`` if the field's type is a ``Timeseries`` subclass."""
         types = cls.get_field_type(field_info=field_info)
         return any(
             ts_subclass in types for ts_subclass in ts.Timeseries.__subclasses__()
         )
 
     @classmethod
-    def get_timeseries_attribute_names(cls, include_aliases: bool = False):
+    def get_timeseries_attribute_names(cls, include_aliases: bool = False) -> list[str]:
+        """Return the names of all ``Timeseries`` fields defined on this class.
+
+        Args:
+            include_aliases: if ``True``, aliases for timeseries fields are appended to the list.
+
+        Returns:
+            List of canonical attribute names (and optionally their aliases).
+        """
         attribute_names = [
             attr
             for attr, field_settings in cls.model_fields.items()
@@ -50,7 +73,12 @@ class BaseFromCSVMixIn(BaseCustomModel):
         return attribute_names
 
     @classmethod
-    def get_timeseries_default_freqs(cls):
+    def get_timeseries_default_freqs(cls) -> dict[str, Optional[str]]:
+        """Return a mapping of timeseries attribute name → ``default_freq`` string (or ``None``).
+
+        Both canonical names and aliases are included so the dict can be keyed by whichever
+        name appears in a CSV's ``attribute`` column.
+        """
         ts_attrs = cls.get_timeseries_attribute_names()  # Do not include aliases
         ts_attr_default_freqs = {}
         for attr in ts_attrs:
@@ -75,11 +103,24 @@ class BaseFromCSVMixIn(BaseCustomModel):
         input_df: pd.DataFrame,
         scenarios: Optional[list[str]] = None,
     ) -> pd.DataFrame:
-        """Filter for the highest priority data based on scenario tags.
+        """Filter ``input_df`` down to the highest-priority scenario for each index value.
 
-        scenarios_unknown: Scenario tags that aren't known to the Categorical
-        scenarios_overridden: Scenario tags that were overridden
-        scenarios_used: Scenario tags that made it to the final attribute
+        Rows with no scenario tag (``None``/``NaN``) are treated as a baseline ``"__base__"``
+        with the lowest priority. Rows whose scenario tag does not appear in ``scenarios`` are
+        dropped entirely. When multiple rows remain for the same index value, the last one in
+        priority order (highest in ``scenarios``) is kept via ``groupby().last()``.
+
+        For timeseries slices that mix inline timestamps and file-path references (``None``
+        index), the highest-priority entry wins: if the file-path reference is highest
+        priority, all timestamped rows are dropped and vice versa.
+
+        Args:
+            filename: path to the source CSV, used only for log messages.
+            input_df: slice of the attributes DataFrame, indexed by the relevant key column.
+            scenarios: ordered list of scenario tags from lowest to highest priority.
+
+        Returns:
+            Filtered DataFrame with the ``scenario`` and ``attribute`` columns removed.
         """
 
         # Create/fill a dummy (base) scenario tag that has the lowest priority order
@@ -88,7 +129,7 @@ class BaseFromCSVMixIn(BaseCustomModel):
         # Create a dummy (base) scenario tag that has the lowest priority order
         input_df["scenario"] = input_df["scenario"].fillna("__base__")
 
-        scenarios_unique = set(input_df["scenario"].unique())
+        scenarios_unique = set(input_df["scenario"].fillna("__base__").unique())
 
         # Create a categorical data type in the order of the scenario priority order (lowest to highest)
         if scenarios is None:
@@ -154,7 +195,20 @@ class BaseFromCSVMixIn(BaseCustomModel):
         input_df: pd.DataFrame,
         scenarios: Optional[list[str]] = None,
     ) -> dict[str, ts.NoDateTimeseries]:
-        """Temporarily reimplement nodate_timeseries."""
+        """Parse ``NoDateTimeseries`` attributes from the flat attributes DataFrame.
+
+        Identifies fields typed as ``NoDateTimeseries`` (including aliases), extracts the
+        relevant rows, deduplicates by taking the last value per index, and returns a dict
+        of constructed ``NoDateTimeseries`` instances keyed by attribute name.
+
+        Args:
+            filename: source CSV path; used to name each ``NoDateTimeseries`` and derive its ``data_dir``.
+            input_df: full attributes DataFrame with columns ``timestamp``, ``attribute``, ``value``.
+            scenarios: optional scenario priority list passed through to filtering logic.
+
+        Returns:
+            Mapping of attribute name → ``NoDateTimeseries`` instance.
+        """
 
         # Find names of timeseries attributes based on class definition
         attribute_names = [
@@ -186,16 +240,13 @@ class BaseFromCSVMixIn(BaseCustomModel):
             # Get last instance of any duplicate values (for scenario tagging)
             ts_slice = ts_slice.groupby(ts_slice.index).last()
 
-            if len(ts_slice) == 1:
-                ts_data = ts_slice.to_dict()["value"]
-            else:
-                ts_data = ts_slice.squeeze()
+            ts_data = ts_slice.squeeze(axis=1)
             ts_data.index = ts_data.index.astype(float).astype(int)
             ts_data = ts_data.sort_index()
             nodate_ts_attrs[attr] = ts.NoDateTimeseries(
                 name=f"{filename.stem}:{attr}",
                 data=ts_data,
-                data_dir=pathlib.Path(str(filename).split("interim")[0]).parent,
+                data_dir=cls._get_data_dir(filename),
             )
 
         return nodate_ts_attrs
@@ -208,7 +259,24 @@ class BaseFromCSVMixIn(BaseCustomModel):
         input_df: pd.DataFrame,
         scenarios: Optional[list[str]] = None,
     ) -> dict[str, ts.Timeseries]:
-        """Create `Timeseries` instances for timeseries data."""
+        """Parse ``Timeseries`` attributes from the flat attributes DataFrame.
+
+        Identifies all ``Timeseries``-typed fields (including aliases), applies scenario
+        filtering per attribute, parses datetime indices, and constructs the appropriate
+        ``Timeseries`` subclass instance for each attribute. Attributes with no usable data
+        (all-None values) are silently omitted from the result.
+
+        A value of ``"None"`` in the timestamp column is treated as a file-path reference:
+        the value string is passed directly to the ``Timeseries`` constructor to be resolved.
+
+        Args:
+            filename: source CSV path; used to name each ``Timeseries`` and derive its ``data_dir``.
+            input_df: full attributes DataFrame with columns ``timestamp``, ``attribute``, ``value``.
+            scenarios: optional scenario priority list.
+
+        Returns:
+            Mapping of attribute name → ``Timeseries`` subclass instance.
+        """
         # Find names of timeseries attributes based on class definition
         attribute_names = cls.get_timeseries_attribute_names(include_aliases=True)
         attribute_freqs = cls.get_timeseries_default_freqs()
@@ -228,7 +296,7 @@ class BaseFromCSVMixIn(BaseCustomModel):
 
             # Try to parse index as datetime (if index is not "None")
             if "None" not in ts_slice.index:
-                ts_slice.index = pd.to_datetime(ts_slice.index)
+                ts_slice.index = pd.to_datetime(ts_slice.index, format="mixed")
 
             # If timeseries is a filepath reference, ts_data should be a string to be parsed by `Timeseries.validate_or_convert_to_series`
             if ts_slice.index.values.tolist() == ["None"]:
@@ -250,7 +318,7 @@ class BaseFromCSVMixIn(BaseCustomModel):
                 ts_attrs[attr] = ts_cls(
                     name=f"{filename.stem}:{attr}",
                     data=ts_data,
-                    data_dir=pathlib.Path(str(filename).split("interim")[0]),
+                    data_dir=cls._get_data_dir(filename),
                     _freq=attribute_freqs[attr],
                 )
 
@@ -264,6 +332,20 @@ class BaseFromCSVMixIn(BaseCustomModel):
         input_df: pd.DataFrame,
         scenarios: Optional[list[str]] = None,
     ) -> dict[str, Any]:
+        """Parse non-timeseries (scalar) attributes from the flat attributes DataFrame.
+
+        Collects all field names that are not typed as ``Timeseries``, plus any extra
+        attribute names present in the CSV that are also not timeseries. Applies scenario
+        filtering and returns the resulting attribute → value mapping.
+
+        Args:
+            filename: source CSV path; used for scenario-filter log messages.
+            input_df: full attributes DataFrame with columns ``timestamp``, ``attribute``, ``value``.
+            scenarios: optional scenario priority list.
+
+        Returns:
+            Mapping of attribute name → scalar value.
+        """
         ts_attribute_names = cls.get_timeseries_attribute_names(include_aliases=True)
 
         # Find names of scalar attributes based on class definition
@@ -297,6 +379,16 @@ class BaseFromCSVMixIn(BaseCustomModel):
         input_df: pd.DataFrame,
         scenarios: Optional[list[str]] = None,
     ) -> dict[str, Any]:
+        """Combine scalar, timeseries, and no-date-timeseries attributes into a single dict.
+
+        Args:
+            filename: source CSV path.
+            input_df: full attributes DataFrame with columns ``timestamp``, ``attribute``, ``value``.
+            scenarios: optional scenario priority list.
+
+        Returns:
+            Merged mapping of attribute name → parsed value, ready to pass to the class constructor.
+        """
         input_df["timestamp"] = input_df["timestamp"].fillna("None")
         scalar_attrs = cls._parse_scalar_attributes(
             filename=filename, input_df=input_df, scenarios=scenarios
@@ -325,7 +417,7 @@ class BaseFromCSVMixIn(BaseCustomModel):
         scenarios: Optional[list[str]] = None,
         data: Optional[dict] = None,
         name: Optional[str] = None,
-    ):
+    ) -> Self:
         """Create an instance of the class from an input DataFrame.
 
         The input DataFrame will optionally be filtered by a list of scenarios ordered from lowest to highest priority.
@@ -361,14 +453,14 @@ class BaseFromCSVMixIn(BaseCustomModel):
     def from_csv(
         cls,
         filename: pathlib.Path,
-        scenarios: Optional[List] = None,
-        data: Optional[Dict] = None,
+        scenarios: Optional[list[str]] = None,
+        data: Optional[dict] = None,
         name: Optional[str] = None,
-    ) -> FromCSVMixIn:
-        """Create Component instance from CSV input file.
+    ) -> Self:
+        """Create an instance of this class from a CSV attributes file.
 
-        The CSV input file must have the following mandatory three-column format, with two optional columns
-        (column order does not matter; however, **column header names do matter**):
+        The CSV must have three mandatory columns and two optional columns (order does not matter,
+        but header names do):
 
         +--------------------------------------+------------------+---------+-----------------+---------------------+
         | timestamp                            | attribute        | value   | unit (optional) | scenario (optional) |
@@ -378,57 +470,36 @@ class BaseFromCSVMixIn(BaseCustomModel):
 
         **Units**
 
-        Unit conversion is handled by the ``pint`` Python package. Expected attribute units are hard-coded in the Python
-        implementation. If the `pint` package can find an appropiate conversion between the user-specified input of the
-        attribute and the expected unit, it will convert data automatically to the expected unit.
-
-        For example, if the expected unit is MMBtu (named as `million_Btu` or `MBtu` in `pint`), a user can easily
-        enter data in `Btu`, and the code will automatically divide the input value by 1e6.
+        Units are used for documentation only. NO UNIT CONVERSION IS APPLIED! it is assumed that the
+        data is in the correct units. Modified in kit ver 5.9.3 This is a departure from older
+        versions of kit where units were converted.
 
         **Scenarios**
 
-        Scenarios are handled via an optional `scenario` column. Scenario handling is done via some clever pandas
-        DataFrame sorting. In detail:
-
-        #. The ``scenario`` column is converted to a `pd.Categorical`_, which is an ordered list.
-        #. The ``scenario`` columns is sorted based on the Categorical ordering,
-           where values with no scenario tag (``None``/``NaN``) are lowest-priority.
-        #. The method ``df.groupby.last()`` is used to take the last (highest-priority) value
-           (since the dataframe should be sorted from lowest to highest priority scenario tag).
-        #. Scenario tags that are not listed in scenarios.csv will be ignored completely (dropped from the dataframe).
+        Rows can carry an optional ``scenario`` tag. Tags are treated as an ordered ``pd.Categorical``
+        (lowest to highest priority) and only the highest-priority value per attribute/timestamp is kept.
+        Rows with no tag are treated as baseline (lowest priority); rows with unrecognised tags are dropped.
 
         **Duplicate Values**
 
-        If an attribute is defined multiple times (and for a timeseries, multiple times for the same timestamp),
-        the last value entered in the CSV (i.e., furthest down the CSV rows) will be used.
+        When an attribute (or timestamp) appears more than once, the last row in the CSV wins.
+
+        **Referencing External CSVs for Timeseries Data**
+
+        A timeseries value may be a file path instead of inline data. Use a ``None`` timestamp and set
+        the value to an absolute path pointing to another CSV. That file is read as a ``pd.Series`` with
+        a ``DateTimeIndex``. Mixing inline timestamps and file-path references for the same attribute is
+        not supported. File-path references can themselves be scenario-tagged, but the referenced file
+        is not subject to scenario filtering.
 
         Args:
-            filename: Name of CSV input file. Defaults to ``attributes.csv``.
-            scenarios: List of optional scenario tags to filter input data in file. Defaults to [].
-            data: Additional data to add to the instance as named attributes. Defaults to {}.
-
-        **Referencing Other CSVs for Timeseries Data**
-
-        To keep the ``attributes.csv`` shorter, user can optionally enter the value of a timeseries as a file path to
-        another CSV file instead of entering each timestamped data value in ``attributes.csv``.
-        This is done by using the ``None`` timestamp and entering a string filepath for the value.
-        Absolute paths are preferred for the sake of being explicit, though relative paths will be parsed
-        relative to the top-level ``new-modeling-toolkit`` folder.
-
-        There are two limitations of this functionality:
-
-        #. It is not currently possible to "mix-and-match" timeseries data specified in the attributes.csv file
-           and from other referenced CSV files. You must either (a) input timeseries data in ``attributes.csv`` with
-           timestamps or (b) use the ``None`` timestamp and reference a different file.
-        #. Timeseries data read from another CSV file does not currently benefit scenario-tagging capabilities.
-           The filepath references themselves in ``attributes.csv`` can be scenario-tagged; however, the other CSV file
-           is just read in as if it were a ``pd.Series`` with a DateTimeIndex.
+            filename: path to the CSV attributes file.
+            scenarios: scenario tags ordered from lowest to highest priority. Defaults to ``[]``.
+            data: additional attribute overrides applied after CSV parsing. Defaults to ``{}``.
+            name: name for the new instance; defaults to the CSV file stem.
 
         Returns:
-            (C): Instance of Component class.
-
-        .. _pd.Categorical:
-            https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Categorical.html
+            New instance of this class populated from the CSV.
         """
         # Setting mutable [] or {} as default argument is dangerous, so this is the workaround
         if not scenarios:
@@ -448,3 +519,99 @@ class BaseFromCSVMixIn(BaseCustomModel):
         )
 
         return inst
+
+    @classmethod
+    def from_dir(
+        cls, data_path: os.PathLike, scenarios: Optional[list[str]] = None
+    ) -> dict[str, Self]:
+        """Read all ``*.csv`` files in ``data_path`` and return a dict of instances.
+
+        Args:
+            data_path: directory containing one CSV file per instance.
+            scenarios: scenario tags ordered from lowest to highest priority. Defaults to ``[]``.
+
+        Returns:
+            Mapping of instance name → instance, keyed by CSV file stem.
+        """
+        # TODO: Figure out how to read in selected subfolders and not just all subfolders...
+        # TODO: Remove redundancy in component filepaths/names (i.e., [class]_inputs/[instance]/[class]_X_inputs.csv)
+        instances = {}
+        if not scenarios:
+            scenarios = []
+
+        for filename in sorted(pathlib.Path(data_path).glob("*.csv")):
+            vintages = cls.from_csv(filename=filename, scenarios=scenarios)
+            instances.update(vintages)
+
+        return instances
+
+    @classmethod
+    def from_json(cls, filepath: os.PathLike) -> Self:
+        """Deserialise a JSON file back into an instance of this class."""
+
+        with open(filepath, "r") as json_file:
+            data = json.load(json_file)
+        return cls(**data)
+
+    @classmethod
+    def _linkage_base_classes(cls) -> tuple:
+        """Return the base classes used to identify linkage fields on this class.
+
+        Downstream repos override this to return their own ``Linkage`` base class(es).
+        The default returns an empty tuple, meaning no fields are treated as linkages.
+        """
+        return ()
+
+    @classmethod
+    def get_linkage_attrs(cls) -> list[str]:
+        """Return the names of fields whose type is a subclass of any ``_linkage_base_classes``."""
+        linkage_attrs = []
+        for field_name, field_info in cls.model_fields.items():
+            if type(field_info.annotation) == types.GenericAlias and any(
+                issubclass(t, cls._linkage_base_classes())
+                for t in field_info.annotation.__args__
+            ):
+                linkage_attrs.append(field_name)
+        return linkage_attrs
+
+    @pydantic.root_validator(pre=True)
+    @classmethod
+    def annual_input_validator(cls, values: dict) -> dict:
+        """Validate and normalise annual timeseries inputs.
+
+        For any ``Timeseries`` field whose ``down_method`` is ``"annual"``:
+        - Raises ``ValueError`` if more than one value is provided for the same year.
+        - Reindexes timestamps to ``YYYY-01-01 00:00:00`` if they are not already at midnight on January 1st.
+        """
+        aliases = {
+            field_settings.alias: attr
+            for attr, field_settings in cls.model_fields.items()
+        }
+        aliases.update(
+            {attr: attr for attr, field_settings in cls.model_fields.items()}
+        )
+
+        for value in values:
+            # In this situation, all the ts attributes are still the base ts (and not a subclass) when first initialized
+            if (
+                isinstance(values[value], ts.Timeseries)
+                and cls.model_fields[aliases[value]].json_schema_extra["down_method"]
+                == "annual"
+            ):
+                year_list = values[value].data.index.year.to_list()
+                if len(year_list) > len(set(year_list)):
+                    raise ValueError(
+                        f"{values['name']} '{value}' input data must be annual inputs"
+                    )
+                elif any(
+                    (idx.month != 1 or idx.day != 1 or idx.hour != 0)
+                    for idx in values[value].data.index
+                ):
+                    # If any indices are not 1/1 0:00, force to 1/1 0:00
+                    logger.warning(
+                        f"{values['name']} annual attribute {value} reindexed to annual level"
+                    )
+                    new_index = [str(year) + "-01-01 00:00:00" for year in year_list]
+                    new_index = pd.to_datetime(new_index)
+                    values[value].data.index = new_index
+        return values
